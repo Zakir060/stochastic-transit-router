@@ -1,0 +1,297 @@
+# =============================================================================
+# GitHub Actions Workflow - Release and Distribution
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Builds and publishes new versions to PyPI. Triggered by git tags
+#   (v*.*.* format) or manual workflow dispatch for release automation.
+#
+# This workflow:
+#   - Runs on: Git tag push (v*.*.*)  or manual trigger
+#   - Does: Build distributions, verify versions, publish to PyPI
+#   - Duration: 3-5 minutes
+#   - Notifications: GitHub releases, PyPI package page
+#
+# Release process:
+#   1. Create git tag: git tag v1.2.3
+#   2. Push tag: git push origin v1.2.3
+#   3. Workflow runs automatically, builds and publishes to PyPI
+#   4. GitHub release created with generated changelog
+#   5. Package available at: pypi.org/project/stochastic-transit-router/
+#
+# Pre-release checklist:
+#   - Update version in CITATION.cff (workflow verifies this)
+#   - Update CHANGELOG.md with release notes
+#   - Run full test suite (all workflows pass)
+#   - Run full CI pipeline successfully
+#   - Review code changes since last release
+#
+# Manual release steps:
+#   1. Set PyPI token in GitHub secrets:
+#      Settings → Secrets and variables → Actions → New repository secret
+#      Name: PYPI_API_TOKEN
+#      Value: [PyPI API token from pypi.org]
+#
+#   2. Tag and push:
+#      git tag v1.2.3 -m "Release v1.2.3: Feature X, bugfix Y"
+#      git push origin v1.2.3
+#
+#   3. Monitor workflow: GitHub Actions → release workflow
+#
+#   4. Verify on PyPI: pypi.org/project/stochastic-transit-router/
+#
+# Version management:
+#   - Semantic versioning: MAJOR.MINOR.PATCH
+#   - MAJOR: Breaking changes, incompatible API changes
+#   - MINOR: New features, backward compatible
+#   - PATCH: Bug fixes, no new features
+#   - Examples: v0.1.0 (initial), v1.0.0 (stable), v1.1.3 (patch)
+#
+# Troubleshooting:
+#   - "CITATION version mismatch": Update CITATION.cff version field
+#   - "Build failed": Check pyproject.toml dependencies
+#   - "Upload failed": Verify PyPI token is valid and has upload permission
+#   - "Tag already exists": Delete tag locally/remotely and recreate
+#
+# Related documentation:
+#   - Versioning: CHANGELOG.md (Semantic versioning section)
+#   - Release policy: CONTRIBUTING.md (Release section)
+#   - PyPI documentation: https://packaging.python.org/
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: release
+
+on:
+  # Trigger on git tag push matching version pattern (v1.2.3, v0.1.0, etc)
+  push:
+    tags:
+      - "v*"
+  # Allow manual trigger for one-off releases
+  workflow_dispatch:
+
+# Permissions needed for release workflow
+permissions:
+  # contents: write allows workflow to create GitHub releases
+  contents: write
+
+# ============================================================================
+# JOB: Build and Release to PyPI
+# ============================================================================
+# Builds source and wheel distributions, verifies version consistency,
+# and uploads to PyPI. Runs only when tag is pushed or manual dispatch.
+# Expected duration: 3-5 minutes
+# Status: Not required for PR merge (only runs on version tags)
+# ============================================================================
+
+jobs:
+  release:
+    name: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves repository code at the tagged version. Uses fetch-depth: 0
+      # to get full history (needed for generating release notes).
+      #
+      # Why: Must checkout exact version being released
+      # fetch-depth: 0 ensures full git history available for changelog
+      # Expected: All project files at the tagged commit
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime for building distributions. Building
+      # packages requires Python and build tools configured.
+      #
+      # Why: Distribution building requires Python runtime
+      # Version: 3.12 (matches project specification for consistency)
+      # Cache: pip cache used for build dependencies
+      # Expected: Python 3.12.x available
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Build Dependencies
+      # ========================================================================
+      # Installs pip build tools needed to create distributions:
+      #   - pip: Package installer (upgraded to latest)
+      #   - build: Official Python packaging build frontend
+      #   - pyproject.toml: defines build system and dependencies
+      #
+      # Why: `python -m build` needs all build dependencies to create
+      #      source (.tar.gz) and wheel (.whl) distributions
+      #
+      # What gets installed:
+      #   - python -m pip install --upgrade pip
+      #   - python -m pip install -e .[dev]  (dev dependencies for testing)
+      #   - python -m pip install build  (the build tool itself)
+      #
+      # Expected output:
+      #   Successfully installed build and X packages
+      # ========================================================================
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+          python -m pip install build
+
+      # ========================================================================
+      # STEP 4: Verify Tag and CITATION.cff Version Consistency
+      # ========================================================================
+      # Validates that the git tag version matches the CITATION.cff version
+      # field. This check prevents accidental version mismatches that would
+      # cause confusion (tag says v1.2.3 but package is v1.2.2).
+      #
+      # Why: Ensures released package version matches git tag version
+      #
+      # Process:
+      #   1. Extract version from git tag (e.g., "v1.2.3" → "1.2.3")
+      #   2. Read CITATION.cff and extract version field value
+      #   3. Compare: if they don't match, fail with error message
+      #   4. Prevents broken releases
+      #
+      # Expected output (success):
+      #   CITATION version matches release tag
+      #
+      # Expected output (if mismatch):
+      #   CITATION version mismatch: tag is 1.2.3, citation is 1.2.2
+      #   Process exited with code 1
+      #
+      # If verification fails:
+      #   1. Check current git tag: git describe --tags
+      #   2. Check CITATION.cff version field
+      #   3. If tag is wrong: delete and recreate
+      #      git tag -d v1.2.3
+      #      git push origin :v1.2.3
+      #      git tag v1.2.3
+      #      git push origin v1.2.3
+      #   4. If CITATION.cff is wrong: fix and push new commit
+      #      (Then recreate the tag to point to new commit)
+      # ========================================================================
+      - name: Verify tag and citation version consistency
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          normalized = tag[1:] if tag.startswith("v") else tag
+          citation = pathlib.Path("CITATION.cff").read_text(encoding="utf-8")
+          match = re.search(r"^version:\s*\"?([^\"\n]+)\"?", citation, flags=re.MULTILINE)
+          if not match:
+              raise SystemExit("CITATION.cff does not contain a version field")
+          citation_version = match.group(1).strip()
+          if citation_version != normalized:
+              raise SystemExit(
+                  f"CITATION version mismatch: tag is {normalized}, citation is {citation_version}"
+              )
+          print("CITATION version matches release tag")
+          PY
+
+      # ========================================================================
+      # STEP 5: Build Source and Wheel Distributions
+      # ========================================================================
+      # Builds both source distribution (.tar.gz) and wheel (.whl) files.
+      # These are the artifacts uploaded to PyPI.
+      #
+      # Command: python -m build
+      #   - Uses pyproject.toml build configuration
+      #   - Automatically determines build backend (setuptools, flit, etc)
+      #   - Creates dist/ directory with built distributions
+      #
+      # What gets built:
+      #
+      #   Source Distribution (.tar.gz):
+      #   - Compressed archive of complete source code
+      #   - Contains: All .py files, setup.py/pyproject.toml, README, etc
+      #   - Size: ~500KB-2MB (depends on code size)
+      #   - Used by: Users installing without wheel support (rare)
+      #   - Built: Always (required for PyPI)
+      #
+      #   Wheel Distribution (.whl):
+      #   - Pre-built binary package (no compilation needed on install)
+      #   - Contains: All Python files in optimized layout
+      #   - Size: ~400KB-1MB (smaller than source)
+      #   - Used by: Most users (standard modern approach)
+      #   - Built: Yes (if wheels supported in pyproject.toml)
+      #
+      # Build process:
+      #   1. Validates pyproject.toml syntax
+      #   2. Collects all Python files and data files
+      #   3. Generates metadata (version, author, dependencies)
+      #   4. Creates .tar.gz and .whl in dist/ directory
+      #   5. Signs distributions (if signing configured)
+      #
+      # Expected output (success):
+      #   Building sdist
+      #   Building wheel
+      #   Successfully built stochastic-transit-router-1.2.3.tar.gz and wheel
+      #
+      # Expected output (failure):
+      #   ERROR: Exception: PEP 517 errors: [build failure message]
+      #
+      # If build fails:
+      #   1. Check pyproject.toml syntax: python -c "import toml; toml.load('pyproject.toml')"
+      #   2. Verify all dependencies are listed in pyproject.toml
+      #   3. Check for import errors: python -c "import stochastic_transit_router"
+      #   4. Run locally: python -m build
+      # ========================================================================
+      - name: Build source and wheel distributions
+        run: python -m build
+
+      # ========================================================================
+      # STEP 6: Create GitHub Release
+      # ========================================================================
+      # Creates a GitHub release for this version. Uses softprops/action-gh-release
+      # to upload distribution files and generate release notes.
+      #
+      # What this does:
+      #   1. Creates GitHub release with auto-generated release notes
+      #   2. Uploads .tar.gz and .whl files as release artifacts
+      #   3. Makes packages downloadable from GitHub releases page
+      #   4. Generates changelog from commits since last release
+      #
+      # Release information:
+      #   - Title: Git tag name (v1.2.3)
+      #   - Description: Auto-generated from commits
+      #   - Artifacts: .tar.gz and .whl files
+      #   - Available at: github.com/repo/releases/tag/v1.2.3
+      #
+      # Files uploaded:
+      #   - dist/*.tar.gz  : Source distribution (gzip compressed tar archive)
+      #   - dist/*.whl     : Wheel distribution (built package)
+      #
+      # Expected output (success):
+      #   ✓ Release created successfully
+      #   ✓ Files uploaded: stochastic-transit-router-1.2.3.tar.gz, ...whl
+      #   ✓ Release notes generated from commits
+      #
+      # Release notes are auto-generated from:
+      #   - Commit messages since last release
+      #   - PR titles and descriptions
+      #   - Issue references in commits
+      # ========================================================================
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+          generate_release_notes: true

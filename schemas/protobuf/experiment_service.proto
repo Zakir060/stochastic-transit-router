@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+package transit.experiments;
+
+message ExperimentRecord {
+  string id = 1;
+  string status = 2;
+  string config_path = 3;
+}

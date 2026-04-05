@@ -1,0 +1,26 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Overpass Response",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "osm3s":  {
+                                     "type":  "object"
+                                 },
+                       "elements":  {
+                                        "items":  {
+                                                      "type":  "object"
+                                                  },
+                                        "type":  "array"
+                                    },
+                       "version":  {
+                                       "type":  "number"
+                                   },
+                       "generator":  {
+                                         "type":  "string"
+                                     }
+                   },
+    "required":  [
+                     "elements"
+                 ]
+}

@@ -1,0 +1,33 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Graph Metadata",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "city":  {
+                                    "type":  "string"
+                                },
+                       "graph_id":  {
+                                        "type":  "string"
+                                    },
+                       "edge_count":  {
+                                          "type":  "integer"
+                                      },
+                       "node_count":  {
+                                          "type":  "integer"
+                                      },
+                       "config_hash":  {
+                                           "type":  "string"
+                                       },
+                       "build_timestamp":  {
+                                               "type":  "string"
+                                           }
+                   },
+    "required":  [
+                     "graph_id",
+                     "city",
+                     "build_timestamp",
+                     "node_count",
+                     "edge_count"
+                 ]
+}

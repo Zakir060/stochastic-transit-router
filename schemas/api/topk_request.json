@@ -1,0 +1,30 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "TopK Request",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "destination":  {
+                                           "type":  "string"
+                                       },
+                       "k":  {
+                                 "type":  "integer"
+                             },
+                       "departure_time":  {
+                                              "type":  "string"
+                                          },
+                       "source":  {
+                                      "type":  "string"
+                                  },
+                       "objective":  {
+                                         "type":  "string"
+                                     }
+                   },
+    "required":  [
+                     "source",
+                     "destination",
+                     "departure_time",
+                     "objective",
+                     "k"
+                 ]
+}

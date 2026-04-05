@@ -1,0 +1,48 @@
+# =============================================================================
+# Stochastic Transit Router - 511NY Regional Transportation Information Feed
+# Route Intelligence Platform - NY Region Unified Transportation Data
+#
+# File        : configs/feeds/511ny.yaml
+# Description : Configuration for 511NY unified transportation information feed.
+#               Provides regional traffic, transit, and incident information
+#               from New York State Department of Transportation.
+# Purpose     : Access unified regional transportation data
+#
+# Feed Details:
+#   - Provider: 511NY (NY State DOT)
+#   - Data: Regional traffic, transit, incidents
+#   - Format: Mixed (configurable per query)
+#   - Registration: Required (free but needs API key)
+#   - Documentation: https://511ny.org/developers/resources
+#
+# Configuration:
+#   - Default interval: 60 seconds
+#   - Max backoff: 300 seconds (5 minutes)
+#   - Mode: Configurable (client decides update strategy)
+#
+# Usage: Supplement to MTA feeds for regional context
+#
+# Related Feeds: mta_gtfs.yaml, mta_realtime.yaml
+# Last Updated: 2026-04-05
+# Owner: Data Engineering Team
+# =============================================================================
+
+feed:
+  id: ny_511_transportation
+  provider: 511NY
+  city: nyc
+  access_method: documented_api
+  format: mixed
+  documentation_urls:
+    - https://511ny.org/developers/resources
+  registration_required: true
+  credentials_env_var: NY511_API_KEY
+  endpoint_urls: []
+  notes:
+    - Endpoint URLs are configured only from officially documented registration output.
+    - No unofficial endpoints are inferred or hardcoded.
+
+refresh_strategy:
+  mode: configurable
+  default_interval_seconds: 60
+  max_backoff_seconds: 300

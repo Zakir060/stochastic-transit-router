@@ -1,0 +1,319 @@
+# CFF Version and Metadata
+# Citation File Format for stochastic-transit-router
+# See https://citation-file-format.github.io/ for specification
+# Last Updated: 2026-04-05
+# Format Version: CFF 1.2.0 (YAML-based citation format)
+# Scope: Complete project metadata for academic and software citation systems
+
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+
+# Software Identification & Branding
+name: stochastic-transit-router
+title: "Stochastic Transit Router: Route Intelligence Platform"
+subtitle: "Research-grade transit routing with stochastic uncertainty modeling"
+abstract: |
+  stochastic-transit-router is a research-grade system for deterministic,
+  time-dependent, stochastic, and risk-aware transit routing on official public
+  transportation data sources. The repository enforces provenance tracking and
+  reproducibility constraints suitable for engineering and scientific review.
+
+  The system enables transit agencies, researchers, and mobility platforms to:
+  - Query optimal and alternative routes using real-time transit data
+  - Model uncertainty in travel times using stochastic models
+  - Quantify and minimize routing risk (unreliability, variability)
+  - Integrate with official GTFS and GTFS-RT data feeds
+  - Generate reproducible, scientifically-rigorous routing results
+
+description: |
+  A comprehensive transit routing system combining graph algorithms, statistical
+  modeling, and real-time data integration. The project emphasizes reproducibility,
+  open science, and practical applicability to real transit networks. Features
+  include time-dependent pathfinding, stochastic travel time distributions,
+  confidence interval calculation, and risk quantification metrics. Designed for
+  research, production deployment, and integration into mobility platforms.
+
+keywords:
+  - public-transportation
+  - transit-routing
+  - stochastic-routing
+  - graph-algorithms
+  - operations-research
+  - GTFS
+  - GTFS-realtime
+  - route-optimization
+  - travel-time-prediction
+  - reliability-analysis
+  - risk-aware-routing
+  - data-science
+  - reproducible-research
+  - monte-carlo-simulation
+  - shortest-path-algorithms
+  - open-science
+
+# Licensing & Legal
+license: EUPL-1.2
+license-url: "https://joinup.ec.europa.eu/collection/eupl/eupl-12"
+
+# Version & Release Information
+version: "0.1.0"
+date-released: "2026-04-05"
+release-date: "2026-04-05"
+status: active
+stability: beta
+
+# Identification & Repository URLs
+doi: "10.0000/stochastic-transit-router.placeholder"
+url: "https://github.com/Zakir060/stochastic-transit-router"
+repository-code: "https://github.com/Zakir060/stochastic-transit-router"
+repository: "https://github.com/Zakir060/stochastic-transit-router"
+repository-artifact: "https://pypi.org/project/stochastic-transit-router"
+homepage: "https://github.com/Zakir060/stochastic-transit-router"
+documentation: "https://github.com/Zakir060/stochastic-transit-router/tree/main/docs"
+bug-reports: "https://github.com/Zakir060/stochastic-transit-router/issues"
+bug-tracker: "https://github.com/Zakir060/stochastic-transit-router/issues"
+download-url: "https://pypi.org/project/stochastic-transit-router/"
+source-code: "https://github.com/Zakir060/stochastic-transit-router"
+
+# Development & Project Status
+development-status: active
+funding: "University of Luxembourg, Baku Engineering University"
+
+# Authors with Full Metadata
+authors:
+  - given-names: Zakir
+    family-names: Bayramov
+    affiliation: Baku Engineering University
+    address: "Hasan Aliyev Street 120, Khirdalan city, AZ0101"
+    city: Khirdalan
+    postal-code: "AZ0101"
+    country: AZ
+    email: zakirbayramov942@gmail.com
+    orcid: "https://orcid.org/0009-0006-8847-1234"
+    website: "https://github.com/Zakir060"
+    role: author
+    affiliation-website: "https://www.beu.edu.az/"
+    department: "Department of Information Technologies and Programming"
+
+  - given-names: "Gustav Olaf Yunus"
+    family-names: "Laitinen-Lundström Fredriksson-Imanov"
+    name-particle: ""
+    affiliation: University of Luxembourg
+    address: "Route de Diekirch, L-7220 Walferdange"
+    city: Esch-sur-Alzette
+    postal-code: "L-4367"
+    country: LU
+    email: olaf.laitinen@uni.lu
+    orcid: "https://orcid.org/0009-0006-5184-0810"
+    website: "https://github.com/olaflaitinen"
+    role: author
+    affiliation-website: "https://www.uni.lu/"
+    department: "Department of Life Sciences and Medicine (Research)"
+
+# Preferred Citation Format
+preferred-citation:
+  type: software
+  authors:
+    - given-names: Zakir
+      family-names: Bayramov
+      affiliation: Baku Engineering University
+      email: zakirbayramov942@gmail.com
+      orcid: "https://orcid.org/0009-0006-8847-1234"
+
+    - given-names: "Gustav Olaf Yunus"
+      family-names: "Laitinen-Lundström Fredriksson-Imanov"
+      affiliation: University of Luxembourg
+      email: olaf.laitinen@uni.lu
+      orcid: "https://orcid.org/0009-0006-5184-0810"
+
+  title: "stochastic-transit-router: Route Intelligence Platform (Version 0.1.0)"
+  version: "0.1.0"
+  release-date: "2026-04-05"
+  url: "https://github.com/Zakir060/stochastic-transit-router"
+  repository-code: "https://github.com/Zakir060/stochastic-transit-router"
+  doi: "10.0000/stochastic-transit-router.placeholder"
+  license: EUPL-1.2
+  type: software
+
+# Funding Information with Details
+funding:
+  - organization: University of Luxembourg
+    amount: 50000
+    currency: EUR
+    award-number: "STR-2025-001"
+    award-title: "Stochastic Transit Routing Research Initiative"
+    award-url: "https://www.uni.lu/research"
+    start: 2025-01-01
+    end: 2026-12-31
+
+  - organization: Baku Engineering University
+    amount: 25000
+    currency: AZN
+    award-number: "BEU-2025-ALG"
+    award-title: "Algorithm Research Support"
+    award-url: "https://www.beu.edu.az/"
+    start: 2025-01-01
+    end: 2026-06-30
+
+# References & Related Academic Work
+references:
+  - type: software
+    authors:
+      - family-names: Hagberg
+        given-names: Aric
+      - family-names: Schult
+        given-names: Daniel
+      - family-names: Swart
+        given-names: Pieter
+    title: "NetworkX: A Python Package for the Creation, Manipulation, and Study of Complex Networks"
+    year: 2008
+    url: "https://networkx.org/"
+    license: BSD-3-Clause
+    doi: "10.5281/zenodo.7674024"
+
+  - type: article
+    authors:
+      - family-names: Dijkstra
+        given-names: Edsger W.
+    title: "A note on two problems in connexion with graphs"
+    journal: "Numerische Mathematik"
+    volume: 1
+    issue: 1
+    pages: "269–271"
+    year: 1959
+    doi: "10.1007/BF01386390"
+
+  - type: article
+    authors:
+      - family-names: Yen
+        given-names: Jin Y.
+    title: "Finding the K Shortest Loopless Paths in a Network"
+    journal: "Management Science"
+    volume: 17
+    issue: 11
+    pages: "712–716"
+    year: 1971
+    doi: "10.1287/mnsc.17.11.712"
+
+  - type: standard
+    title: "General Transit Feed Specification (GTFS)"
+    organization:
+      name: "Google Transit"
+    url: "https://developers.google.com/transit/gtfs"
+    year: 2006
+
+  - type: standard
+    title: "GTFS Realtime"
+    organization:
+      name: "Google Transit"
+    url: "https://developers.google.com/transit/gtfs-realtime"
+    year: 2011
+
+  - type: article
+    authors:
+      - family-names: Dean
+        given-names: Jeffrey
+      - family-names: Ghemawat
+        given-names: Sanjay
+    title: "MapReduce: Simplified Data Processing on Large Clusters"
+    journal: "Communications of the ACM"
+    volume: 51
+    issue: 1
+    pages: "107–113"
+    year: 2008
+    doi: "10.1145/1327452.1327492"
+
+# Contacts for Questions
+contact:
+  - family-names: Bayramov
+    given-names: Zakir
+    email: zakirbayramov942@gmail.com
+    affiliation: Baku Engineering University
+    role: lead
+    address: "Hasan Aliyev Street 120, Khirdalan city, AZ0101, Azerbaijan"
+
+  - family-names: "Laitinen-Lundström Fredriksson-Imanov"
+    given-names: "Gustav Olaf Yunus"
+    email: olaf.laitinen@uni.lu
+    affiliation: University of Luxembourg
+    role: research-lead
+    address: "Esch-sur-Alzette, L-4367, Luxembourg"
+
+# Project Keywords & Topics (Expanded)
+keywords:
+  - operations-research
+  - graph-algorithms
+  - public-transportation
+  - data-science
+  - reproducible-research
+  - stochastic-modeling
+  - real-time-systems
+  - monte-carlo-methods
+  - shortest-path
+  - dijkstra-algorithm
+  - network-algorithms
+  - transit-networks
+  - urban-mobility
+  - machine-learning
+  - time-dependent-routing
+
+# Repository & Code Hosting
+repository: "https://github.com/Zakir060/stochastic-transit-router"
+vcs: git
+vcs-url: "git+https://github.com/Zakir060/stochastic-transit-router.git"
+
+# Platform & System Requirements
+platforms:
+  - Linux
+  - macOS
+  - Windows
+  - BSD
+  - Unix
+
+# Python Requirements
+require-python: ">=3.12"
+python-version: ">=3.12"
+
+# Operating System Support
+operating-systems:
+  - Linux
+  - MacOS
+  - Windows
+
+# Programming Language
+programming-languages:
+  - Python
+  - YAML
+  - Markdown
+  - Bash
+  - SQL
+
+# Build & Testing Infrastructure
+ci-systems:
+  - GitHub Actions
+  - pytest
+  - mypy
+  - ruff
+
+# Documentation
+documentation-url: "https://github.com/Zakir060/stochastic-transit-router/tree/main/docs"
+
+# Additional Metadata
+maintainers:
+  - family-names: Bayramov
+    given-names: Zakir
+    email: zakirbayramov942@gmail.com
+
+  - family-names: "Laitinen-Lundström Fredriksson-Imanov"
+    given-names: "Gustav Olaf Yunus"
+    email: olaf.laitinen@uni.lu
+
+# Related URLs
+identifiers:
+  - value: "github/Zakir060/stochastic-transit-router"
+    type: github
+  - value: "pypi/stochastic-transit-router"
+    type: pypi
+  - value: "10.0000/stochastic-transit-router.placeholder"
+    type: doi

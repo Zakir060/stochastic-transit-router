@@ -1,0 +1,732 @@
+# =============================================================================
+# Stochastic Transit Router - Python Project Configuration (PEP 621)
+# Project Metadata, Dependencies, and Tool Configuration
+#
+# This file defines the complete project configuration using the modern
+# Python packaging standard (PEP 621). It includes:
+# - Project metadata (name, version, authors, description)
+# - Package dependencies and optional extras
+# - Build system configuration
+# - Development tool configuration (pytest, coverage, etc.)
+#
+# Official Documentation: https://packaging.python.org/en/latest/
+# PEP 621: https://www.python.org/dev/peps/pep-0621/
+# PEP 518: https://www.python.org/dev/peps/pep-0518/
+# =============================================================================
+
+# ============================================================================
+# BUILD SYSTEM SPECIFICATION (PEP 518)
+# ============================================================================
+# Specifies how to build and install the project
+# Modern standard uses setuptools with build isolation
+
+[build-system]
+
+# Build backend module and hook function
+# Uses setuptools as the build backend (standard for Python packaging)
+build-backend = "setuptools.build_meta"
+
+# Dependencies required by the build system itself
+# Not installed as runtime dependencies, only needed during build
+requires = [
+  "setuptools>=77.0.0",              # Modern setuptools for PEP 621 support
+  "wheel>=0.43.0",                   # Binary package format
+  "setuptools-scm>=7.1.0"            # Version management from git tags (optional)
+]
+
+# Allow configuration of the build backend via pyproject.toml
+# Enables advanced setuptools features
+backend-path = ["."]
+
+# ============================================================================
+# PROJECT METADATA (PEP 621 - Required)
+# ============================================================================
+
+[project]
+
+# Project name (what pip installs as)
+# Naming: lowercase, hyphens allowed, must be unique on PyPI
+name = "stochastic-transit-router"
+
+# Project version (semantic versioning: MAJOR.MINOR.PATCH[-PRERELEASE])
+# 0.1.0 = alpha/foundational release, not production-ready
+# Keep synchronized with __version__ in src/__init__.py
+version = "0.1.0"
+
+# One-line project description (shown on PyPI)
+# Keep under 100 characters for readability
+description = "Research-grade stochastic dynamic transit router built from official public data sources."
+
+# Longer description (shown on PyPI project page)
+# Usually points to README.md for full documentation
+readme = "README.md"
+
+# Python version requirement (PEP 440 version specifiers)
+# Requires Python 3.12 or newer
+# 3.12+ features: better error messages, faster performance, typing improvements
+requires-python = ">=3.12"
+
+# Project license (SPDX identifier)
+# EUPL-1.2 = European Union Public Licence v1.2
+# Compatible with AGPL, GPL, LGPL (copyleft compatible)
+license = { text = "EUPL-1.2" }
+
+# Project authors (name and optional email)
+# Primary contact: Zakir Bayramov (Lead Developer)
+# Secondary contact: Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov (Research Lead)
+authors = [
+  { name = "Zakir Bayramov", email = "zakirbayramov942@gmail.com" },
+  { name = "Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov", email = "olaf.laitinen@uni.lu" }
+]
+
+# Project maintainers (people responsible for maintenance)
+# Usually same as authors, but can differ for community projects
+maintainers = [
+  { name = "Zakir Bayramov", email = "zakirbayramov942@gmail.com" },
+  { name = "Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov", email = "olaf.laitinen@uni.lu" }
+]
+
+# Project keywords (for searching on PyPI)
+# Helps users discover project through search
+keywords = [
+  "public-transit",                   # Domain: public transportation
+  "stochastic-routing",               # Algorithm type
+  "dynamic-routing",                  # Features: real-time, dynamic
+  "operations-research",              # Field: OR/optimization
+  "graph-algorithms",                 # Underlying algorithms
+  "gtfs",                             # Data format: General Transit Feed Spec
+  "gtfs-realtime",                    # Real-time data format
+  "time-dependent",                   # Algorithm classification
+  "shortest-path",                    # Core algorithm
+  "uncertainty-quantification",       # Capability
+  "reproducibility",                  # Quality attribute
+  "research-software",                # Classification
+  "nyc"                               # Geographic focus
+]
+
+# PyPI classifiers (project categorization)
+# Helps categorize project on PyPI for discovery
+classifiers = [
+  # Development status
+  "Development Status :: 3 - Alpha",  # 0.1.0 = alpha, not production-ready
+
+  # Intended audience
+  "Intended Audience :: Science/Research",  # Academic researchers
+  "Intended Audience :: Developers",        # Software engineers
+  "Intended Audience :: System Administrators", # Ops/DevOps
+
+  # License
+  "License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)",
+
+  # Programming language
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",      # Future support
+
+  # Natural Language
+  "Natural Language :: English",
+
+  # Topics
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Scientific/Engineering :: GIS",      # Geographic Info Systems
+  "Topic :: Software Development :: Libraries :: Python Modules",
+
+  # Environment
+  "Environment :: Console",
+  "Environment :: Web Environment",
+
+  # Operating systems
+  "Operating System :: OS Independent",
+  "Operating System :: POSIX",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+
+  # Typing
+  "Typing :: Typed"                   # Project uses type hints
+]
+
+# ============================================================================
+# CORE DEPENDENCIES (Required at runtime)
+# ============================================================================
+# These are installed with every `pip install stochastic-transit-router`
+# Keep versions flexible to avoid conflicts, but constrain to known-good ranges
+
+dependencies = [
+  # WEB FRAMEWORK & ASYNC
+  # ====================
+  "fastapi>=0.116.0",                 # Modern async web framework
+  "uvicorn[standard]>=0.35.0",       # ASGI server (includes uvloop on Unix)
+  "pydantic>=2.11.0",                 # Data validation and serialization
+
+  # CLI FRAMEWORK
+  # =============
+  "typer>=0.16.0",                    # Type-rich CLI framework (fastapi for CLIs)
+
+  # HTTP CLIENT (Async)
+  # ==================
+  "httpx>=0.28.0",                    # Async HTTP client (for feed updates)
+
+  # CONFIGURATION
+  # =============
+  "pyyaml>=6.0.2",                    # YAML parsing (config files)
+
+  # DATA PROCESSING
+  # ===============
+  "polars>=1.30.0",                   # Fast DataFrames (pandas alternative)
+  "pyarrow>=20.0.0",                  # Apache Arrow columnar format
+  "duckdb>=1.2.2",                    # Embedded SQL engine (for queries)
+
+  # SCIENTIFIC COMPUTING
+  # ====================
+  "numpy>=2.2.0",                     # Numerical computing
+  "scipy>=1.15.0",                    # Scientific algorithms
+
+  # GRAPH ALGORITHMS
+  # ================
+  "networkx>=3.4.2",                  # Graph algorithms and data structures
+
+  # SERIALIZATION
+  # =============
+  "msgpack>=1.1.0",                   # Efficient binary serialization
+
+  # GEOSPATIAL
+  # ==========
+  "shapely>=2.1.1"                    # Geometric operations (walking paths)
+]
+
+# ============================================================================
+# OPTIONAL DEPENDENCIES (Extras)
+# ============================================================================
+# Install with: pip install stochastic-transit-router[dev,test,notebooks]
+
+[project.optional-dependencies]
+
+# Development tools (for working on the project)
+dev = [
+  "ruff>=0.12.7",                     # Fast Python linter & formatter
+  "mypy>=1.16.1",                     # Static type checking
+  "pre-commit>=4.2.0",                # Git pre-commit hooks
+  "types-PyYAML>=6.0.12.20250516",    # Type stubs for PyYAML
+  "types-requests>=2.32.0",           # Type stubs for requests
+  "mdformat>=0.7.22",                 # Markdown formatter
+  "pylint>=3.0.0"                     # Additional linting checks
+]
+
+# Testing and coverage
+test = [
+  "pytest>=8.4.1",                    # Test framework
+  "pytest-cov>=6.2.1",                # Coverage measurement
+  "pytest-asyncio>=1.0.0",            # Async test support
+  "pytest-timeout>=2.1.0",            # Test timeout enforcement
+  "pytest-xdist>=3.7.0",              # Parallel test execution
+  "respx>=0.22.0",                    # Mock HTTP requests (httpx)
+  "pytest-benchmark>=5.1.0",          # Performance benchmarking
+]
+
+# Jupyter notebooks and visualization
+notebooks = [
+  "jupyterlab>=4.4.5",                # Interactive notebook environment
+  "matplotlib>=3.10.0",               # Plotting library
+  "seaborn>=0.13.2",                  # Statistical visualization
+  "plotly>=6.2.0"                     # Interactive plots
+]
+
+# Performance benchmarking
+benchmarks = [
+  "pytest-benchmark>=5.1.0",          # Benchmarking plugin
+  "psutil>=7.0.0"                     # System resource monitoring
+]
+
+# Production deployment
+deployment = [
+  "gunicorn>=23.0.0",                 # Production WSGI server
+  "uvloop>=0.21.0"                    # High-performance event loop (Unix only)
+]
+
+# All development + testing + extras (for developers)
+all = [
+  "stochastic-transit-router[dev,test,notebooks,benchmarks,deployment]"
+]
+
+# ============================================================================
+# PROJECT URLS
+# ============================================================================
+# Links to related resources shown on PyPI
+
+[project.urls]
+
+# Project homepage
+Homepage = "https://github.com/Zakir060/stochastic-transit-router"
+
+# Source code repository
+Repository = "https://github.com/Zakir060/stochastic-transit-router"
+
+# Full documentation
+Documentation = "https://github.com/Zakir060/stochastic-transit-router/tree/main/docs"
+
+# Bug/issue tracking
+Issues = "https://github.com/Zakir060/stochastic-transit-router/issues"
+
+# Changelog location
+Changelog = "https://github.com/Zakir060/stochastic-transit-router/blob/main/CHANGELOG.md"
+
+# How to contribute
+Contributing = "https://github.com/Zakir060/stochastic-transit-router/blob/main/CONTRIBUTING.md"
+
+# Security policy
+Security = "https://github.com/Zakir060/stochastic-transit-router/blob/main/SECURITY.md"
+
+# Citation information
+Citation = "https://github.com/Zakir060/stochastic-transit-router/blob/main/CITATION.cff"
+
+# ============================================================================
+# SETUPTOOLS CONFIGURATION
+# ============================================================================
+# Configures how setuptools builds and packages the project
+
+[tool.setuptools]
+
+# Package discovery: map package directories
+# "" = src directory (where packages live)
+# Maps Python packages from src/ to installation root
+package-dir = { "" = "src" }
+
+# Include non-Python files (data files, manifests, etc.)
+# Uses patterns from MANIFEST.in
+include-package-data = true
+
+# ============================================================================
+# SETUPTOOLS PACKAGE DISCOVERY
+# ============================================================================
+# How to automatically find Python packages to include
+
+[tool.setuptools.packages.find]
+
+# Directory where to search for packages
+# searchs recursively for directories with __init__.py
+where = ["src"]
+
+# Patterns to include (namespace packages)
+include = ["stochastic_transit_router*"]
+
+# Patterns to exclude
+exclude = ["tests*", "docs*", "scripts*"]
+
+# ============================================================================
+# PYTEST CONFIGURATION (Testing Framework)
+# ============================================================================
+# Configures test discovery, execution, and reporting
+
+[tool.pytest.ini_options]
+
+# Minimum pytest version required
+minversion = "8.0"
+
+# Directories where pytest searches for tests
+testpaths = ["tests"]
+
+# Current working directory for test execution
+# "src_first" = test from src directory (for import testing)
+pythonpath = ["src"]
+
+# Default command-line options applied to every pytest run
+addopts = [
+  "-ra",                              # Show summary: all (failures, errors, passed, skipped)
+  "--strict-markers",                 # Error on unknown pytest markers
+  "--strict-config",                  # Error on config problems
+  "--tb=short",                       # Short traceback format
+  "--cov=src",                        # Coverage for src/
+  "--cov-report=term-missing",        # Show missing lines in coverage
+  "--cov-report=html",                # Generate HTML coverage report
+  "--cov-fail-under=80"               # Fail if coverage < 80%
+]
+
+# Test discovery patterns
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+# Markers for categorizing tests (prevent unknown marker warnings)
+markers = [
+  "unit: marks unit tests (no I/O)",
+  "integration: marks integration tests (with I/O, databases, etc.)",
+  "e2e: marks end-to-end tests (full system workflow)",
+  "benchmark: marks benchmark/performance tests",
+  "schema: marks schema/contract validation tests",
+  "slow: marks tests that take significant time to run",
+  "asyncio: marks async tests requiring event loop",
+  "regression: marks regression tests for known bugs",
+  "skip_ci: skip this test in CI (local-only tests)"
+]
+
+# Asyncio mode (for pytest-asyncio plugin)
+asyncio_mode = "auto"
+
+# Test collection ignore patterns
+norecursedirs = [
+  ".git", ".tox", ".venv", "venv", "dist", "build", "*.egg-info",
+  ".pytest_cache", ".mypy_cache", ".ruff_cache", "__pycache__",
+  "htmlcov", ".idea", ".vscode"
+]
+
+# Console output configuration
+console_output_style = "progress"
+
+# Logging configuration
+log_cli = true
+log_cli_level = "INFO"
+log_file = ".pytest.log"
+log_file_level = "DEBUG"
+
+# ============================================================================
+# COVERAGE.PY CONFIGURATION (Code Coverage Measurement)
+# ============================================================================
+# Configures how coverage is measured and reported
+
+[tool.coverage.run]
+
+# Both line and branch coverage
+branch = true
+
+# Source directories to measure coverage for
+source = ["src"]
+
+# Omit files from coverage measurement (test fixtures, etc.)
+omit = [
+  "*/tests/*",
+  "*/test_*.py",
+  "*/__init__.py",
+  "*/site-packages/*"
+]
+
+# Set a random seed for reproducible test execution
+# Ensures consistent test ordering across runs
+parallel = true
+dynamic_context = "test_function"
+
+# ============================================================================
+# COVERAGE REPORTING CONFIGURATION
+# ============================================================================
+
+[tool.coverage.report]
+
+# Show lines that weren't covered
+show_missing = true
+
+# Skip source files with 100% coverage (reduces noise)
+skip_covered = false
+
+# Precision for coverage percentages (2 decimal places)
+precision = 2
+
+# Exclude lines from coverage measurement
+exclude_lines = [
+  # Standard pragma
+  "pragma: no cover",
+
+  # Don't complain about debug code
+  "def __repr__",
+  "def __str__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+
+  # Abstract methods
+  "@abstractmethod",
+  "@abstractproperty",
+
+  # Dead code
+  "if 0:",
+  "if False:",
+]
+
+# ============================================================================
+# COVERAGE HTML REPORT CONFIGURATION
+# ============================================================================
+
+[tool.coverage.html]
+
+# Directory for HTML coverage report
+directory = "htmlcov"
+
+# ============================================================================
+# COVERAGE XML REPORT (For CI/CD)
+# ============================================================================
+
+[tool.coverage.xml]
+
+# Output file for CI/CD coverage reporting
+output = "coverage.xml"
+
+# ============================================================================
+# COVERAGE JSON REPORT
+# ============================================================================
+
+[tool.coverage.json]
+
+# Output file for JSON coverage data
+output = "coverage.json"
+
+# Pretty-print JSON
+pretty_print = true
+
+# Show contexts (which test covered which code)
+show_contexts = true
+
+# ============================================================================
+# PROJECT ENTRY POINTS
+# ============================================================================
+# Create executable commands when package is installed
+
+[project.scripts]
+
+# CLI command entry point
+# Creates `transit-router` command when package installed
+# Points to main function in src/cli/main.py
+stochastic-transit-router = "stochastic_transit_router.cli.main:app"
+
+# Shorter alias
+str = "stochastic_transit_router.cli.main:app"
+
+# ============================================================================
+# TOOL CONFIGURATION - GENERAL NOTES
+# ============================================================================
+
+# Other tools (mypy, ruff, etc.) have their own config files:
+# - .mypy.ini: Type checking configuration
+# - .ruff.toml: Linting and formatting
+# - .pre-commit-config.yaml: Pre-commit hooks
+# - tox.ini: Testing orchestration
+# - pyproject.toml (this file): Core project config + pytest, coverage
+
+# Keeping tool configs in separate files allows:
+# - Tool-specific documentation and comments
+# - Easier tool configuration without bloating pyproject.toml
+# - Standard locations where tools expect configuration
+
+# ============================================================================
+# CONFIGURATION NOTES AND BEST PRACTICES
+# ============================================================================
+
+# VERSION MANAGEMENT:
+# ===================
+#
+# Three places to keep version in sync:
+# 1. pyproject.toml [project] version = "0.1.0"
+# 2. src/stochastic_transit_router/__init__.py __version__ = "0.1.0"
+# 3. CHANGELOG.md [0.1.0] - Release notes
+#
+# On release:
+#   1. Update version in pyproject.toml
+#   2. Update src/__init__.py
+#   3. Add release notes to CHANGELOG.md
+#   4. Commit with tag: git tag v0.1.0
+#   5. Build: python -m build
+#   6. Upload: twine upload dist/*
+#
+
+# DEPENDENCY MANAGEMENT:
+# ======================
+#
+# Core dependencies (always needed):
+#   - Only include if truly required
+#   - Use ">=" for minimum version (allows fixes)
+#   - Use "<X" for major version bound (prevents breaking changes)
+#   - Example: "fastapi>=0.116.0,<1"  (supports 0.16+ but not breaking 1.0)
+#
+# Optional dependencies:
+#   - Group by use case (dev, test, notebooks, deployment)
+#   - Users install only what they need
+#   - Install specific extra: pip install stochastic-transit-router[notebooks]
+#   - Install all extras: pip install stochastic-transit-router[all]
+#
+
+# DEPENDENCY RANGES:
+# ==================
+#
+# Flexible (recommended for libraries):
+#   "package>=1.0.0"           = 1.0.0 or newer
+#   "package>=1.0.0,<2"        = 1.x.x (safe for bugfixes)
+#   "package~=1.4.2"           = 1.4.2 or 1.4.x (compatible)
+#
+# Strict (not recommended, breaks compatibility):
+#   "package==1.4.2"           = Exact version (very restrictive!)
+#   "package>1.0"              = Later than 1.0 (uncertain)
+#
+
+# PYTHON VERSION SUPPORT:
+# =======================
+#
+# requires-python = ">=3.12"
+#   = Python 3.12.0 or newer
+#   = Minimum supported version
+#
+# Update when:
+#   - Using new Python features (match python_version in .mypy.ini)
+#   - Dropping end-of-life versions
+#   - Testing with new Python releases
+#
+# Current (2026-04-05):
+#   - Python 3.12: Current stable
+#   - Python 3.13: Development version
+#   - Python 3.11+: End-of-life planning
+#
+
+# TESTING CONFIGURATION:
+# ======================
+#
+# Coverage threshold: 80%+
+#   - New code: 100% coverage
+#   - Existing code: maintain or improve
+#   - Exceptions: generated code, complex integrations
+#
+# Test markers:
+#   - @pytest.mark.unit: Fast tests, no I/O
+#   - @pytest.mark.integration: Database/API tests
+#   - @pytest.mark.e2e: Full system tests
+#   - @pytest.mark.slow: Takes >1 second
+#   - @pytest.mark.benchmark: Performance tests
+#
+
+# LICENSE:
+# ========
+#
+# EUPL-1.2 (European Union Public Licence v1.2):
+#   - Open source, copyleft (like GPL)
+#   - Compatible with many licenses
+#   - Strong patent clause
+#   - Formal legal text for EU
+#   - Not OSI-approved (but widely used in EU)
+#
+# Choosing license:
+#   - EUPL-1.2: Copyleft, European context
+#   - Apache 2.0: Permissive, patent clause
+#   - MIT: Simple, permissive
+#   - GPL-3.0: Copyleft, GNU
+#
+
+# PEP 621 COMPLIANCE:
+# ===================
+#
+# This pyproject.toml follows PEP 621 standard:
+#   - Uses [project] table for metadata
+#   - No setup.py required (uses setuptools.build_meta)
+#   - All configuration in single file
+#   - Standardized format recognized by all tools
+#
+# See: https://www.python.org/dev/peps/pep-0621/
+#
+
+# ============================================================================
+# RUNNING COMMON COMMANDS
+# ============================================================================
+
+# INSTALLATION:
+# =============
+#
+# Install core with dev tools:
+#   pip install -e ".[dev,test]"
+#
+# Install all extras:
+#   pip install -e ".[all]"
+#
+# Install for notebooks:
+#   pip install -e ".[notebooks]"
+#
+
+# BUILDING:
+# =========
+#
+# Build wheel and source distribution:
+#   pip install build
+#   python -m build
+#
+# This creates:
+#   dist/stochastic_transit_router-0.1.0-py3-none-any.whl
+#   dist/stochastic_transit_router-0.1.0.tar.gz
+#
+
+# TESTING:
+# ========
+#
+# Run all tests:
+#   pytest
+#
+# Run with coverage:
+#   pytest --cov=src --cov-report=html
+#
+# Run specific test markers:
+#   pytest -m "not slow"
+#   pytest -m "unit"
+#   pytest -m "integration"
+#
+
+# PUBLISHING:
+# ===========
+#
+# Register on PyPI and upload:
+#   python -m build
+#   twine upload dist/*
+#
+# Test PyPI first:
+#   twine upload --repository testpypi dist/*
+#
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Issue: "version not found" on import
+#   Solution: Update version in src/__init__.py
+#   Command: grep __version__ src/stochastic_transit_router/__init__.py
+#
+# Issue: Coverage threshold not met
+#   Solution: Lower threshold temporarily or add tests
+#   Command: pytest --cov-fail-under=70
+#
+# Issue: Tests not discovered
+#   Solution: Check test file naming (test_*.py or *_test.py)
+#   Command: pytest --collect-only
+#
+# Issue: Dependencies not installing
+#   Solution: Update pip and try again
+#   Command: pip install --upgrade pip setuptools wheel
+#
+
+# ============================================================================
+# FILES SYNCHRONIZED WITH THIS CONFIG
+# ============================================================================
+
+# Files that reference versions/config from pyproject.toml:
+#
+# - src/stochastic_transit_router/__init__.py
+#   Contains: __version__ (keep in sync with [project] version)
+#
+# - CHANGELOG.md
+#   Contains: Release notes (keep version history updated)
+#
+# - .github/workflows/release.yml (if using)
+#   Contains: Version extraction from pyproject.toml
+#
+# - docs/conf.py (if building docs with Sphinx)
+#   May reference project version from pyproject.toml
+#
+
+# ============================================================================
+# USEFUL LINKS
+# ============================================================================
+
+# PyPI: https://pypi.org/project/stochastic-transit-router/
+# Repository: https://github.com/Zakir060/stochastic-transit-router
+# Documentation: https://github.com/Zakir060/stochastic-transit-router/tree/main/docs
+# PEP 621: https://www.python.org/dev/peps/pep-0621/
+# PEP 540: https://www.python.org/dev/peps/pep-0540/ (setuptools)
+# PyPA Packaging Guide: https://packaging.python.org/
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+

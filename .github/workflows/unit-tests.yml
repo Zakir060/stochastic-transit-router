@@ -1,0 +1,251 @@
+# =============================================================================
+# GitHub Actions Workflow - Unit and Regression Test Suite
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Validates individual component correctness and prevents functionality
+#   regressions through fast, isolated unit tests and regression detection.
+#
+# This workflow:
+#   - Runs on: Push to main/develop, PR creation, manual dispatch
+#   - Does: Execute unit and regression test suites with coverage tracking
+#   - Duration: 3-4 minutes (excluding setup)
+#   - Notifications: GitHub commit status, PR checks, coverage reports
+#
+# What "unit tests" means here:
+#   - Individual function/method testing in isolation
+#   - Graph algorithms tested with synthetic/fixture data
+#   - API endpoints tested with mock databases
+#   - Data models validated with various inputs
+#
+# What "regression tests" means here:
+#   - Tests that verify previously fixed bugs don't reappear
+#   - Performance tests that catch algorithmic regressions
+#   - Edge case tests for known problematic inputs
+#   - Backward compatibility tests for API changes
+#
+# When unit tests fail:
+#   - Check changes in src/ (algorithm, model, or API changes)
+#   - Review test assertions in tests/unit/
+#   - Run test locally: pytest tests/unit -vv (verbose output)
+#   - Add debug output if needed: print() or pdb.set_trace()
+#
+# Running locally:
+#   pytest tests/unit -v            # Run all unit tests with output
+#   pytest tests/unit -k "test_name" # Run specific test
+#   pytest tests/unit --cov=src     # Generate coverage report
+#   pytest tests/regression -v      # Run regression tests
+#
+# Test organization:
+#   tests/unit/         - Fast tests for individual components
+#   tests/regression/   - Tests for known bugs/edge cases
+#
+# Coverage requirements:
+#   - Target: 80%+ coverage on src/ (configurable in pyproject.toml)
+#   - Critical paths: 95%+ (algorithms, route computation, data ingest)
+#   - Report generated: Coverage summary in test output
+#
+# Troubleshooting:
+#   - Tests fail locally but pass on CI: Check Python version, dependencies
+#   - Tests timeout: Mark slow tests with @pytest.mark.slow
+#   - Flaky tests: Use pytest-timeout, mock external services
+#   - Coverage too low: Add tests for untested code paths
+#
+# Related documentation:
+#   - Unit testing guide: docs/reference/unit-tests.md
+#   - API reference: docs/reference/api.md
+#   - Contributing: CONTRIBUTING.md (Testing section)
+#   - Test fixtures: tests/conftest.py
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: unit-tests
+
+on:
+  # Trigger on commits to main/develop branches
+  push:
+    branches: ["main", "develop"]
+  # Trigger on pull requests against main/develop
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Unit and Regression Test Suite
+# ============================================================================
+# Runs fast unit tests to verify individual components and regression tests
+# to ensure previously fixed bugs don't reappear.
+# Expected duration: 3-4 minutes
+# Status: Required for PR merge
+# ============================================================================
+
+jobs:
+  unit:
+    name: unit-and-regression
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves repository code including test files and fixtures. Unit
+      # tests depend on test data, mock objects, and fixture definitions.
+      #
+      # Why: Tests need access to test code and test data
+      # Expected: All files in tests/ directory available
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime with pip caching. Unit tests have
+      # moderate dependencies (pytest, fixtures, mocks). Pip caching
+      # significantly reduces setup time.
+      #
+      # Why: Ensures consistent Python version for reproducible test results
+      # Version: 3.12 (matches project specification)
+      # Cache: pip cache reduces installation time from ~1 min to ~15 sec
+      # Expected: Python 3.12.x available with cached packages
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Project and Test Dependencies
+      # ========================================================================
+      # Upgrades pip and installs project in development mode with dev and
+      # test dependencies. Unit tests require:
+      #   - pytest and plugins (pytest-cov, pytest-mock, pytest-timeout)
+      #   - Fixture factories and builders
+      #   - Mock libraries and utilities
+      #   - Test utilities and helpers
+      #
+      # Why: Full test environment needed to run unit test suite
+      # What gets installed:
+      #   - -e . : Project in editable mode
+      #   - [dev] : Development tools and utilities
+      #   - [test] : Test framework, plugins, and fixtures
+      #
+      # Expected output:
+      #   Successfully installed stochastic-transit-router and X packages
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev,test]
+
+      # ========================================================================
+      # STEP 4: Run Unit and Regression Test Suite
+      # ========================================================================
+      # Executes all unit and regression tests with quiet output. Tests are
+      # organized in two categories:
+      #   1. tests/unit/       - Fast individual component tests
+      #   2. tests/regression/ - Known bug/edge case regression tests
+      #
+      # Command: pytest tests/unit tests/regression -q
+      #   - -q: Quiet mode (one line summary instead of verbose output)
+      #   - No parameters to pytest means:
+      #     * All tests discovered and collected
+      #     * Uses pytest markers from conftest.py for categorization
+      #     * Coverage collection happens automatically (if configured)
+      #
+      # What unit tests validate:
+      #
+      #   Graph Algorithms:
+      #   - Dijkstra finds shortest path correctly
+      #   - A* heuristic produces valid routes
+      #   - Graph building handles various input formats
+      #   - Edge cases: empty graphs, disconnected nodes, single-node graphs
+      #
+      #   Data Models:
+      #   - Route models serialize/deserialize correctly
+      #   - Graph nodes and edges have correct properties
+      #   - Cost calculations produce expected values
+      #   - Time calculations handle timezone conversions
+      #
+      #   API Endpoints:
+      #   - GET /routes/<id> returns correct data
+      #   - POST /routes validates input correctly
+      #   - Error responses have correct status codes and messages
+      #   - Rate limiting works as expected
+      #
+      #   Data Ingest:
+      #   - GTFS feed parsing extracts all stops correctly
+      #   - OSM data transforms to graph format properly
+      #   - TLC trip data maps to internal model
+      #   - Data validation catches malformed inputs
+      #
+      #   Stats and Aggregation:
+      #   - Distance calculations are accurate
+      #   - Time aggregations produce correct sums/averages
+      #   - Percentile calculations are correct
+      #   - Edge cases: empty inputs, single values
+      #
+      #   Regression Tests:
+      #   - Issue #42: Ensure timezone bug doesn't reappear
+      #   - Issue #67: Verify route caching works correctly
+      #   - Performance: Routes computed in <100ms
+      #   - Stability: No memory leaks on long-running operations
+      #
+      # Expected output (success):
+      #   passed: X, skipped: Y, warnings: Z
+      #   Total duration: 3-4 minutes
+      #   Coverage: 80%+ on src/
+      #
+      # Expected output (with test failures):
+      #   FAILED tests/unit/test_graph.py::test_dijkstra_shortest_path
+      #   AssertionError: assert 50.5 == 50.6
+      #   short test summary: FAILED tests/unit/test_graph.py::test_dijkstra...
+      #
+      # Expected output (when no tests exist):
+      #   "No unit or regression tests are present in this phase."
+      #   (This is normal for early development)
+      #
+      # If unit tests fail:
+      #
+      #   Test execution errors:
+      #   1. Check error message (usually very specific)
+      #   2. Run failed test locally with -vv for more output
+      #   3. Add print statements or use pdb.set_trace() for debugging
+      #   4. Check for environmental differences (paths, permissions)
+      #
+      #   Assertion failures:
+      #   1. Check if algorithm behavior changed intentionally
+      #   2. Update test assertions if behavior change is correct
+      #   3. Or fix implementation if test correctly identifies bug
+      #   4. Always verify logic both in code and test
+      #
+      #   Missing tests:
+      #   1. Look for untested code paths in coverage report
+      #   2. Add tests for new functionality
+      #   3. Add tests for error cases and edge cases
+      #   4. Aim for 80%+ coverage on critical paths
+      #
+      #   Timeout failures:
+      #   1. Check if test is actually slow (possible infinite loop?)
+      #   2. Mark legitimately slow tests with @pytest.mark.slow
+      #   3. Use mocks to avoid hitting external services
+      #   4. Increase timeout threshold if needed
+      #
+      # Coverage reporting:
+      #   Coverage is collected automatically during test run.
+      #   - Report shows: lines executed, lines not executed, coverage %
+      #   - Critical paths: 95%+ coverage required
+      #   - Acceptable: 80%+ coverage on non-critical code
+      #   - Investigate: Areas with <60% coverage
+      # ========================================================================
+      - name: Run tests
+        run: |
+          if [ -d tests/unit ] || [ -d tests/regression ]; then
+            pytest tests/unit tests/regression -q
+          else
+            echo "No unit or regression tests are present in this phase."
+          fi

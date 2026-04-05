@@ -1,0 +1,45 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : experiments\metadata\experiment_index.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+experiments:
+  - id: exp_001
+    path: experiments/nyc/configs/exp_001_deterministic_vs_stochastic.yaml
+    status: experiment not yet executed
+  - id: exp_002
+    path: experiments/nyc/configs/exp_002_realtime_update_latency.yaml
+    status: experiment not yet executed
+  - id: exp_003
+    path: experiments/nyc/configs/exp_003_walking_edge_impact.yaml
+    status: experiment not yet executed
+  - id: exp_004
+    path: experiments/nyc/configs/exp_004_time_of_day_sensitivity.yaml
+    status: experiment not yet executed
+  - id: exp_005
+    path: experiments/nyc/configs/exp_005_disruption_stability.yaml
+    status: experiment not yet executed

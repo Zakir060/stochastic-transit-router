@@ -1,0 +1,26 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Feed Info",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "feed_version":  {
+                                            "type":  "string"
+                                        },
+                       "feed_publisher_url":  {
+                                                  "type":  "string",
+                                                  "format":  "uri"
+                                              },
+                       "feed_lang":  {
+                                         "type":  "string"
+                                     },
+                       "feed_publisher_name":  {
+                                                   "type":  "string"
+                                               }
+                   },
+    "required":  [
+                     "feed_publisher_name",
+                     "feed_publisher_url",
+                     "feed_lang"
+                 ]
+}

@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+package transit.feeds;
+
+message FeedStatus {
+  string feed_id = 1;
+  bool available = 2;
+  int64 freshness_seconds = 3;
+}

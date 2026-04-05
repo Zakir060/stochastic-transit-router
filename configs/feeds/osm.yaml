@@ -1,0 +1,65 @@
+# =============================================================================
+# Stochastic Transit Router - OpenStreetMap (OSM) Feed Configuration
+# Route Intelligence Platform - Walking Network Data Feed
+#
+# File        : configs/feeds/osm.yaml
+# Description : Configuration for OpenStreetMap Overpass API feed.
+#               Provides pedestrian pathways and walking network for NYC.
+#               Used for computing realistic walking times between stops.
+# Purpose     : Configure OSM pedestrian network data ingestion
+#
+# Feed Details:
+#   - Provider: OpenStreetMap Overpass API
+#   - Data: Pedestrian paths, footways, crossings
+#   - Query: Overpass Query Language (QL)
+#   - Endpoint: https://overpass-api.de/api/interpreter
+#   - Format: JSON response
+#
+# Query Parameters:
+#   - Timeout: 120 seconds (API limit)
+#   - Radius: 400m around stops
+#   - Highway types: footway, pedestrian, path, steps, crossing
+#
+# Fair Use Policy:
+#   - Minimum 10s between queries (rate limiting)
+#   - Retry up to 3 times with exponential backoff
+#   - Respects OSM usage guidelines
+#
+# Usage: Load pedestrian pathways for transfer calculations
+#
+# Related: walking_edges.yaml (transfer configuration)
+# Last Updated: 2026-04-05
+# Owner: Data Engineering Team
+# =============================================================================
+
+feed:
+  id: osm_overpass_nyc
+  provider: OpenStreetMap Overpass API
+  city: nyc
+  access_method: http_post
+  format: overpass_json
+  endpoint: https://overpass-api.de/api/interpreter
+  documentation_urls:
+    - https://wiki.openstreetmap.org/wiki/Overpass_API
+    - https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
+  registration_required: false
+
+query:
+  timeout_seconds: 120
+  radius_meters: 400
+  include_highway_tags:
+    - footway
+    - pedestrian
+    - path
+    - steps
+    - crossing
+
+fair_use:
+  min_seconds_between_queries: 10
+  retry_attempts: 3
+  retry_backoff_seconds: 20
+
+provenance:
+  record_query_timestamp: true
+  record_bounding_box: true
+  record_response_size_bytes: true

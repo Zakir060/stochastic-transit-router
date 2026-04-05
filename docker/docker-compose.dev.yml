@@ -1,0 +1,227 @@
+# =============================================================================
+# Stochastic Transit Router - Development Docker Compose
+# Full Development Environment with Live Code Editing and Testing
+#
+# This Docker Compose file defines the development environment with:
+# - Volume mounts for live code editing (TDD workflow)
+# - All development tools pre-installed (pytest, mypy, ruff)
+# - Interactive bash shell with history persistence
+# - Easy access to Jupyter notebooks
+# - Debugging support (debugpy integration)
+#
+# Usage:
+# - Interactive shell: docker-compose -f docker-compose.dev.yml run --rm dev
+# - Run tests: docker-compose -f docker-compose.dev.yml run --rm dev pytest tests/
+# - Type check: docker-compose -f docker-compose.dev.yml run --rm dev mypy src/ --strict
+# - Format code: docker-compose -f docker-compose.dev.yml run --rm dev ruff format src/
+#
+# Documentation: https://docs.docker.com/compose/
+# Compose file specification: https://docs.docker.com/compose/compose-file/
+# =============================================================================
+
+version: '3.9'
+
+# ============================================================================
+# SERVICES - Development environment containers
+# ============================================================================
+
+services:
+
+  # ========================================================================
+  # DEVELOPMENT ENVIRONMENT - Complete dev tooling
+  # ========================================================================
+  dev:
+    # Build the development image
+    build:
+      context: ..                                 # Build context: project root
+      dockerfile: docker/Dockerfile.dev          # Use development Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1                # Enable inline cache for speed
+
+    # Container naming
+    container_name: stochastic-router-dev
+
+    # Image reference
+    image: stochastic-transit-router:dev
+
+    # Volume mounts for development workflow
+    volumes:
+      # Mount entire project directory for live code editing
+      # Changes to src/ are immediately visible in container (ideal for TDD)
+      - ..:/app                                  # Full project: read-write
+
+      # Bash history persistence across container sessions
+      - .dev_bash_history:/app/.bash_history     # Preserve bash history
+
+      # Cache volumes for faster subsequent runs
+      - .pytest_cache:/app/.pytest_cache         # Pytest cache
+      - .mypy_cache:/app/.mypy_cache             # MyPy cache
+      - .ruff_cache:/app/.ruff_cache             # Ruff cache
+
+    # Environment variables for development
+    environment:
+      # Python runtime
+      - PYTHONUNBUFFERED=1                       # Real-time output
+      - PYTHONDONTWRITEBYTECODE=1                # Skip .pyc files
+      - PYTHONHASHSEED=random                    # Security randomization
+
+      # Development configuration
+      - APP_ENV=development                      # Enable debug features
+      - LOG_LEVEL=DEBUG                          # Verbose logging
+      - JUPYTER_ENABLE_LAB=yes                   # Full Jupyter Lab
+
+    # Network configuration
+    networks:
+      - dev-network                              # Connect to dev network
+
+    # Restart policy
+    restart: no                                  # Don't auto-restart dev container
+
+    # Interactive input support (TTY for bash shell)
+    stdin_open: true                             # Keep stdin open
+    tty: true                                    # Allocate pseudo-terminal
+
+    # Default command: Interactive bash shell
+    # Override for specific tasks:
+    # docker-compose -f docker-compose.dev.yml run --rm dev pytest tests/
+    command: /bin/bash
+
+# ============================================================================
+# NETWORKS - Development networking
+# ============================================================================
+
+networks:
+  dev-network:
+    name: stochastic-router-dev-network
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1500
+
+# ============================================================================
+# VOLUMES - Named volumes for caching and persistence
+# ============================================================================
+
+volumes:
+  .dev_bash_history:
+    driver: local
+
+  .pytest_cache:
+    driver: local
+
+  .mypy_cache:
+    driver: local
+
+  .ruff_cache:
+    driver: local
+
+# =============================================================================
+# DEVELOPMENT WORKFLOWS
+# =============================================================================
+#
+# INTERACTIVE DEVELOPMENT SESSION:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev
+#
+# Then inside container:
+# pytest tests/unit -v                    # Run unit tests with verbose output
+# mypy src/ --strict                      # Type check with strict mode
+# ruff check src/                         # Lint with ruff
+# ruff format src/                        # Auto-format with ruff
+# make test                               # Run full test suite (if Makefile available)
+#
+# ============================================================================
+#
+# RUN SPECIFIC TESTS (Non-interactive):
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   pytest tests/unit/test_*.py -v
+#
+# RUN INTEGRATION TESTS:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   pytest tests/integration/ -v --timeout=600
+#
+# ============================================================================
+#
+# TYPE CHECKING:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   mypy src/ --strict --show-error-codes
+#
+# ============================================================================
+#
+# CODE QUALITY CHECKS:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   ruff check --statistics src/ tests/ scripts/
+#
+# AUTO-FORMAT CODE:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   ruff format src/ tests/ scripts/
+#
+# SORT IMPORTS:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   ruff check --select I --fix src/
+#
+# ============================================================================
+#
+# BENCHMARKING:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev \
+#   pytest --benchmark-only tests/benchmarks/
+#
+# ============================================================================
+#
+# JUPYTER NOTEBOOKS:
+# docker-compose -f docker/docker-compose.dev.yml run --rm -p 8888:8888 dev \
+#   jupyter lab --ip=0.0.0.0 --allow-root
+#
+# Then open: http://localhost:8888/lab
+#
+# ============================================================================
+#
+# DEBUGGING WITH DEBUGPY:
+# 1. Add to Python code:
+#    import debugpy
+#    debugpy.listen(("0.0.0.0", 5678))
+#    debugpy.wait_for_client()
+#
+# 2. Run container with debugpy:
+#    docker-compose -f docker/docker-compose.dev.yml run --rm -p 5678:5678 dev \
+#      python -m debugpy --listen 0.0.0.0:5678 -m pytest tests/unit/
+#
+# 3. Connect from VSCode (.vscode/launch.json):
+#    {
+#      "name": "Python: Remote Debug",
+#      "type": "python",
+#      "request": "attach",
+#      "connect": { "host": "localhost", "port": 5678 },
+#      "pathMapping": { "/app": "${workspaceFolder}" }
+#    }
+#
+# ============================================================================
+#
+# IPYTHON INTERACTIVE SHELL:
+# docker-compose -f docker/docker-compose.dev.yml run --rm dev ipython
+#
+# Then in IPython:
+# import stochastic_transit_router as str
+# # Explore and test code interactively
+#
+# ============================================================================
+#
+# CLEAN DEVELOPMENT CACHES:
+# docker-compose -f docker/docker-compose.dev.yml exec dev \
+#   rm -rf .pytest_cache .mypy_cache .ruff_cache __pycache__
+#
+# ============================================================================
+#
+# VOLUME MOUNTING FOR LIVE CODE CHANGES:
+# All files under /app are mounted as volumes from host directory
+# - Edit src/stochastic_transit_router/foo.py on host
+# - Changes appear immediately in container
+# - Perfect for test-driven development (TDD) workflow
+# - Restart pytest/mypy to pick up changes
+#
+# ============================================================================
+#
+# BASH HISTORY PERSISTENCE:
+# Bash history saved to .dev_bash_history on host
+# - Previous commands available across container restarts
+# - Useful for command reference and documentation
+#
+# ============================================================================

@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GTFS Agency",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["agency_name", "agency_url", "agency_timezone"],
+  "properties": {
+    "agency_id": {"type": "string"},
+    "agency_name": {"type": "string", "minLength": 1},
+    "agency_url": {"type": "string", "format": "uri"},
+    "agency_timezone": {"type": "string"},
+    "agency_lang": {"type": "string"}
+  }
+}

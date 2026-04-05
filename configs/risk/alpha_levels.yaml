@@ -1,0 +1,76 @@
+# =============================================================================
+# Stochastic Transit Router - Risk Parameters (CVaR Alpha Levels)
+# Route Intelligence Platform - Conditional Value-at-Risk Configuration
+#
+# File        : configs/risk/alpha_levels.yaml
+# Description : Configuration for Conditional Value-at-Risk (CVaR) parameters.
+#               Defines confidence levels for stochastic routing reliability analysis.
+#               Alpha represents the confidence level (e.g., 0.95 = 95% confidence).
+# Purpose     : Define risk parameters for stochastic routing algorithms
+#
+# CVaR (Conditional Value-at-Risk) Explanation:
+#   - Metric: Expected value of worst-case scenarios above confidence level
+#   - Alpha (0.95): Look at worst 5% of outcomes, take their average
+#   - Benefit: Focuses on tail risk (reliability concerns)
+#   - Use case: Planning routes that avoid rare but severe delays
+#
+# Configuration Sections:
+#   - alpha_levels: CVaR confidence parameters
+#   - reliability_tau: Time window for on-time guarantee
+#
+# Alpha Values Explained:
+#   - 0.90: 90% confidence (focus on worst 10%)
+#   - 0.95: 95% confidence (focus on worst 5%) - DEFAULT
+#   - 0.99: 99% confidence (focus on worst 1%) - Very conservative
+#
+# Use Cases for Different Alphas:
+#   - 0.90: User-friendly, faster trips, accepts some risk
+#   - 0.95: Balanced (most reliable routes at reasonable speed)
+#   - 0.99: Risk-averse, avoid late arrivals at all costs
+#
+# Reliability Tau (Seconds):
+#   - default: 3600 seconds (1 hour buffer for arrival)
+#   - min: 300 seconds (5 minutes minimum buffer)
+#   - max: 14400 seconds (4 hours maximum buffer)
+#   - Meaning: Probability of arriving within tau seconds
+#
+# Example Queries:
+#   # Get routes with 95% reliability (1 hour buffer)
+#   GET /api/routes?objective=cvar&alpha=0.95&tau=3600
+#
+#   # Get conservative routes (99% reliability)
+#   GET /api/routes?objective=cvar&alpha=0.99&tau=3600
+#
+#   # Get aggressive routes (90% reliability, shorter)
+#   GET /api/routes?objective=cvar&alpha=0.90&tau=1800
+#
+# Mathematical Definition:
+#   CVaR = Expected cost of outcomes worse than alpha percentile
+#   For alpha=0.95: Average of worst 5% of scenarios
+#   Minimizing CVaR: Choose routes that optimize worst-case
+#
+# Algorithm Impact:
+#   - Higher alpha (0.99): More conservative, slower
+#   - Lower alpha (0.90): More aggressive, faster
+#   - Allows users to trade reliability for speed
+#
+# Related Documentation:
+#   - CVaR algorithm: docs/math/cvar.md
+#   - Stochastic routing: docs/math/stochastic-routing.md
+#   - Lambda values: configs/risk/lambda_values.yaml
+#
+# Last Updated: 2026-04-05
+# Owner: Algorithm Team
+# =============================================================================
+
+alpha_levels:
+  default_cvar_alpha: 0.95
+  allowed:
+    - 0.90
+    - 0.95
+    - 0.99
+
+reliability_tau:
+  default_seconds: 3600
+  min_seconds: 300
+  max_seconds: 14400

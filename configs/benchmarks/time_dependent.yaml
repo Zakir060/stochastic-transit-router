@@ -1,0 +1,27 @@
+# =============================================================================
+# Stochastic Transit Router - Time-Dependent Routing Benchmark Configuration
+# Route Intelligence Platform - Dynamic Programming Performance Testing
+#
+# File        : configs/benchmarks/time_dependent.yaml
+# Description : Benchmark for time-dependent shortest path algorithm.
+#               Uses dynamic programming for arrival-time-aware optimization.
+# Purpose     : Validate time-dependent routing performance
+#
+# Algorithm: Time-Dependent Dynamic Programming
+#   - Query set: nyc_temporal_pairs (time-sensitive O-D pairs)
+#   - Metrics: wall_time, DP states, path_cost
+#
+# Last Updated: 2026-04-05
+# Owner: Performance Team
+# =============================================================================
+
+benchmark:
+  name: time_dependent_dp
+  algorithm: time_dependent
+  query_set: nyc_temporal_pairs
+  repetitions: 10
+  warmup_runs: 2
+  metrics:
+    - wall_time_ms
+    - dynamic_programming_states
+    - path_cost_seconds

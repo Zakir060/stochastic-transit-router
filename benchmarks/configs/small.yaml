@@ -1,0 +1,131 @@
+# =============================================================================
+# Stochastic Transit Router - Small Benchmark Suite Configuration
+# Route Intelligence Platform - Lightweight Performance Testing
+#
+# File        : benchmarks/configs/small.yaml
+# Description : Small benchmark suite configuration for quick performance tests.
+#               Uses minimal query count for fast iterations during development.
+#               Suitable for continuous integration and developer feedback loops.
+# Purpose     : Fast performance validation with small dataset
+#
+# Usage:
+#   - Loaded by: benchmarks/runner.py --suite small
+#   - Used for: Quick CI checks, development iterations
+#   - Duration: 2-5 minutes (vs 30+ min for large suite)
+#   - When: Every commit to catch regressions quickly
+#
+# Configuration Sections:
+#   - suite.name: Suite identifier (small)
+#   - suite.query_count: Number of queries to execute (25)
+#   - suite.graph_profile: Graph size (small = 1000 stops)
+#   - suite.repetitions: Number of times to repeat each query (5)
+#
+# Benchmark Suite Sizes:
+#   - small: 25 queries × 5 reps = 125 total (5 min)
+#   - medium: 100 queries × 10 reps = 1000 total (15 min)
+#   - large: 500 queries × 20 reps = 10000 total (60+ min)
+#
+# Graph Profiles:
+#   - small: ~1,000 stops, ~5,000 edges (lightweight)
+#   - medium: ~5,000 stops, ~30,000 edges (realistic)
+#   - large: ~12,000 stops, ~150,000 edges (full NYC)
+#
+# Usage Examples:
+#   # Run small benchmark suite
+#   python benchmarks/runner.py --suite small
+#
+#   # Run with output
+#   python benchmarks/runner.py --suite small --output results.json
+#
+#   # Run specific algorithms only
+#   python benchmarks/runner.py --suite small --algorithms dijkstra,astar
+#
+# Performance Expectations (small suite):
+#   - Dijkstra: 0.5-1.0 ms per query
+#   - A*: 0.3-0.7 ms per query
+#   - K-shortest: 2-4 ms per query
+#   - Robust: 5-10 ms per query
+#   - Stochastic: 3-6 ms per query
+#
+# Benchmark Methodology:
+#   1. Load graph with small profile (1000 stops)
+#   2. Generate 25 random origin-destination pairs
+#   3. Execute each pair 5 times (to warm up cache)
+#   4. Record: latency, memory, correctness
+#   5. Report: mean, median, p95, p99 latencies
+#
+# Metrics Collected:
+#   - Latency: Query execution time (milliseconds)
+#   - Memory: Peak memory usage (MB)
+#   - Correctness: Validity of returned routes
+#   - Throughput: Queries per second
+#
+# Configuration Values Explained:
+#   - query_count: 25 is good balance between
+#     * Time (5 queries × 5 reps × 100ms = 2.5s minimum)
+#     * Statistical significance (25+ samples for reliable mean)
+#     * Development feedback loop (must be < 5 minutes)
+#
+#   - graph_profile: small keeps test fast and memory-light
+#     * Good for: Unit tests, CI checks, laptop dev
+#     * Bad for: Production validation, large data testing
+#
+#   - repetitions: 5 allows for cache warm-up
+#     * Warm-up: First 1-2 runs fill caches
+#     * Steady state: Last 3-4 runs show realistic perf
+#
+# Development Workflow:
+#   # After code change, run small suite for quick feedback
+#   time python benchmarks/runner.py --suite small
+#   # If performance degrades > 10%: investigate
+#   # If performance improves: commit with confidence
+#
+# CI Integration:
+#   # CI runs small suite on every commit
+#   - Baseline: Record from main branch
+#   - PR: Compare against baseline
+#   - Alert: If regression > 5% (requires investigation)
+#   - Block: If regression > 15% (blocks PR merge)
+#
+# Comparing to Baseline:
+#   # Before change
+#   python benchmarks/runner.py --suite small --save baseline.json
+#
+#   # After change
+#   python benchmarks/runner.py --suite small --compare baseline.json
+#
+# Environment Variables:
+#   - STR_BENCHMARK_SUITE: Override suite name
+#   - STR_BENCHMARK_QUERIES: Override query count
+#   - STR_BENCHMARK_REPS: Override repetitions
+#
+# Integration Points:
+#   - Used by: benchmarks/runner.py
+#   - Called from: CI pipeline (.github/workflows/benchmark-sanity.yml)
+#   - Compared to: Medium/large suites for scaling analysis
+#   - Tracked by: Performance tracking dashboard
+#
+# Troubleshooting:
+#   - Benchmark too fast (< 1s): Increase query_count
+#   - Benchmark too slow (> 5min): Reduce query_count or repetitions
+#   - High variance: Increase repetitions or close background apps
+#   - Regression: Run full suite to confirm problem persists
+#
+# Related Documentation:
+#   - Benchmarking: docs/operations/benchmarking.md
+#   - Performance targets: docs/operations/performance-sla.md
+#   - Medium suite: benchmarks/configs/medium.yaml
+#   - Large suite: benchmarks/configs/large.yaml
+#   - Results: benchmarks/results/ (historical data)
+#
+# Last Updated : 2026-04-05
+# Maintained by: Performance Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+suite:
+  name: small
+  query_count: 25
+  graph_profile: small
+  repetitions: 5

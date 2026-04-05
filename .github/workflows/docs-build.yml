@@ -1,0 +1,269 @@
+# =============================================================================
+# GitHub Actions Workflow - Documentation Build and Validation
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Validates documentation completeness and formatting. Ensures all markdown
+#   files follow style guidelines and Architecture Decision Records (ADRs)
+#   are present and properly indexed.
+#
+# This workflow:
+#   - Runs on: Push to main/develop, PR creation, manual dispatch
+#   - Does: Validate markdown formatting and ADR coverage
+#   - Duration: 1-2 minutes
+#   - Notifications: GitHub commit status, PR checks
+#
+# Documentation validation:
+#   - Markdown format: Consistent spacing, formatting, structure
+#   - MDFormat: Enforces Black-compatible markdown style
+#   - ADR coverage: Ensures all decision records present
+#   - Link validation: Checks for broken internal links (future enhancement)
+#
+# What gets validated:
+#   1. README.md: Project overview and getting started
+#   2. AUTHORS.md: Team and contribution information
+#   3. docs/**/*.md: All documentation files
+#   4. ADR files: Architecture decision records numbered 0001, 0015, etc
+#
+# When docs fail:
+#   - Check markdown formatting with mdformat: mdformat --check file.md
+#   - Auto-fix formatting: mdformat --write file.md
+#   - Ensure ADR files exist: docs/adr/0001_why_nyc_first.md
+#   - Review ADR template: docs/adr/template.md
+#
+# Running locally:
+#   mdformat --check README.md AUTHORS.md $(find docs -type f -name "*.md")
+#   mdformat --write *.md $(find docs -type f -name "*.md")  # Auto-fix
+#   test -f docs/adr/0001_why_nyc_first.md  # Check ADR exists
+#
+# ADR process:
+#   1. Create new ADR file: docs/adr/NNNN_short_title.md
+#   2. Copy from template: docs/adr/template.md
+#   3. Fill in: Problem, decision, consequences, alternatives
+#   4. Submit in PR
+#   5. Review and merge
+#
+# Documentation standards:
+#   - Markdown format: MDFormat/Black compatible
+#   - Line length: 88 characters (matches Black)
+#   - Lists: Consistent bullet points
+#   - Headings: One H1 per file, consistent hierarchy
+#   - Code blocks: Specify language (python, bash, etc)
+#   - Links: Relative paths preferred, absolute for external
+#
+# Related documentation:
+#   - Documentation guide: docs/contributing.md
+#   - ADR template: docs/adr/template.md
+#   - Contributing: CONTRIBUTING.md (Documentation section)
+#   - Style guide: CONTRIBUTING.md (Code style section)
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: docs-build
+
+on:
+  # Trigger on commits to main/develop branches
+  push:
+    branches: ["main", "develop"]
+  # Trigger on pull requests against main/develop
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Markdown Formatting and Documentation Validation
+# ============================================================================
+# Validates documentation consistency: markdown format compliance and
+# required ADR (Architecture Decision Record) file presence.
+# Expected duration: 1-2 minutes
+# Status: Required for PR merge (blocks if markdown or ADR validation fails)
+# ============================================================================
+
+jobs:
+  docs:
+    name: markdown-consistency
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves repository code including all documentation files. Uses
+      # GitHub's checkout action to get current state of all markdown files.
+      #
+      # Why: Documentation validation needs access to all *.md files
+      # Expected: All .md files in README, AUTHORS, docs/ available
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime for mdformat (markdown formatter).
+      # Mdformat is a Python tool that validates markdown follows consistent
+      # style (similar to how Black formats Python).
+      #
+      # Why: Mdformat requires Python runtime
+      # Version: 3.12 (matches project specification)
+      # Cache: pip cache improves setup speed
+      # Expected: Python 3.12.x available
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Documentation Tools
+      # ========================================================================
+      # Upgrades pip and installs project in development mode. The [dev]
+      # extra includes mdformat (markdown formatter/validator).
+      #
+      # Why: Mdformat needed to validate markdown formatting
+      # What gets installed:
+      #   - -e . : Project in editable mode
+      #   - [dev] : Development tools including mdformat
+      #
+      # Expected output:
+      #   Successfully installed mdformat and X packages
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # ========================================================================
+      # STEP 4: Verify Markdown Formatting
+      # ========================================================================
+      # Validates markdown files follow consistent formatting style using
+      # mdformat. Mdformat enforces Black-compatible markdown style:
+      #   - 88 character line length (same as Black for Python)
+      #   - Consistent list formatting
+      #   - Normalized heading levels
+      #   - Proper spacing around code blocks
+      #
+      # Command: mdformat --check README.md AUTHORS.md $(find docs -type f -name "*.md")
+      #   - --check: Verify formatting without modifying files
+      #   - README.md: Main project documentation
+      #   - AUTHORS.md: Team and contributor information
+      #   - docs/**/*.md: All documentation subdirectories
+      #
+      # What mdformat checks for:
+      #
+      #   1. Line length violations (>88 chars):
+      #      Current: This is a very long line that exceeds the 88 character limit and needs wrapping
+      #      Expected: This is a very long line that exceeds the 88
+      #                character limit and needs wrapping
+      #
+      #   2. List formatting:
+      #      Current: - Item1 (inconsistent with - Item2)
+      #      Expected: - Item1 (consistent with - Item2)
+      #
+      #   3. Heading spacing:
+      #      Current: # Title\nText (no blank line)
+      #      Expected: # Title\n\nText (blank line after heading)
+      #
+      #   4. Code block language tags:
+      #      Current: ``` (missing language)
+      #      Expected: ```python (language specified)
+      #
+      #   5. Trailing whitespace: Removed from all lines
+      #
+      #   6. Blank lines: Normalized (max 2 consecutive blank lines → 1)
+      #
+      # Expected output (success):
+      #   0 files would be reformatted
+      #   Process exited with code 0
+      #
+      # Expected output (if formatting issues found):
+      #   README.md would be reformatted
+      #   docs/reference/api.md would be reformatted
+      #   2 files would be reformatted
+      #   Process exited with code 1
+      #
+      # If markdown formatting fails:
+      #   1. Auto-fix locally: mdformat --write README.md AUTHORS.md $(find docs -type f -name "*.md")
+      #   2. Review changes: git diff
+      #   3. Commit formatting changes: git commit -m "docs: fix markdown formatting"
+      #   4. Push to branch
+      #
+      # Pro tip: Install mdformat pre-commit hook to auto-format on commit
+      # See: CONTRIBUTING.md (Git Hooks section)
+      #
+      # Markdown formatting guidelines:
+      #   - Headings: Start with #, use space after # (# Title not #Title)
+      #   - Lists: Use - for unordered, 1. for ordered
+      #   - Code: Use ``` with language tag (```python not ```)
+      #   - Links: [Text](url) with no extra spaces
+      #   - Emphasis: **bold** or *italic* (consistent style)
+      # ========================================================================
+      - name: Verify markdown formatting
+        run: |
+          mdformat --check README.md AUTHORS.md $(find docs -type f -name "*.md")
+
+      # ========================================================================
+      # STEP 5: Verify ADR Coverage
+      # ========================================================================
+      # Validates that critical Architecture Decision Records (ADRs) exist
+      # and are accessible. ADRs document important architectural decisions.
+      #
+      # Command: test -f [file]  (POSIX test for file existence)
+      #   - Returns 0 (success) if file exists
+      #   - Returns 1 (failure) if file doesn't exist
+      #
+      # Files verified:
+      #   1. docs/adr/0001_why_nyc_first.md
+      #      - Explains why NYC data is prioritized as first data source
+      #      - Documents business/technical rationale for NYC focus
+      #
+      #   2. docs/adr/0015_license_choice.md
+      #      - Explains EUPL-1.2 license choice
+      #      - Documents licensing strategy and compliance
+      #
+      # What ADRs are for:
+      #   - Document major decisions affecting architecture
+      #   - Record problem context and solution rationale
+      #   - Track alternatives considered and rejected
+      #   - Provide historical context for future developers
+      #
+      # ADR format (from docs/adr/template.md):
+      #   1. Title: Clear, decision-focused
+      #   2. Status: Proposed/Accepted/Deprecated/Superseded
+      #   3. Context: Problem description and constraints
+      #   4. Decision: What was decided and why
+      #   5. Consequences: Positive/negative outcomes
+      #   6. Alternatives: Other options considered
+      #
+      # Expected output (success):
+      #   (no output, both files exist)
+      #   Process exited with code 0
+      #
+      # Expected output (if ADR missing):
+      #   (error output describing missing file)
+      #   Process exited with code 1
+      #   Example: test: docs/adr/0001_why_nyc_first.md: no such file or directory
+      #
+      # If ADR coverage fails:
+      #   1. Check file exists: ls -la docs/adr/
+      #   2. If missing, create from template: cp docs/adr/template.md docs/adr/0001_why_nyc_first.md
+      #   3. Fill in ADR content using template
+      #   4. Submit in PR with explanation
+      #
+      # Creating new ADRs:
+      #   1. Determine next ADR number (check highest existing)
+      #   2. Create file: docs/adr/NNNN_decision_title.md
+      #   3. Copy from template: docs/adr/template.md
+      #   4. Fill in all sections: context, decision, consequences, alternatives
+      #   5. Submit PR with ADR
+      #   6. Get architectural review from maintainers
+      #   7. Merge after approval
+      # ========================================================================
+      - name: Verify ADR coverage
+        run: |
+          test -f docs/adr/0001_why_nyc_first.md
+          test -f docs/adr/0015_license_choice.md

@@ -1,0 +1,67 @@
+# =============================================================================
+# Stochastic Transit Router - Walking Edges Configuration
+# Route Intelligence Platform - Pedestrian Path and Transfer Configuration
+#
+# File        : configs/graph/walking_edges.yaml
+# Description : Configuration for walking edges connecting transit stops and
+#               pedestrian connectors. Defines OSM routing, transfer walking
+#               times, and quality validation for walking paths.
+# Purpose     : Configure walking segments in the transit network graph
+#
+# Walking Model:
+#   - Transfers between stops: 400m default radius
+#   - Speed: 1.4 m/s (5 km/h, typical adult walking pace)
+#   - Data source: OpenStreetMap for actual pedestrian paths
+#   - Fallback: Haversine distance if OSM unavailable
+#
+# Configuration Sections:
+#   - walking: Speed, radius, OSM routing behavior
+#   - quality: Validation rules for walking paths
+#   - provenance: Tracking of walking segment sources
+#
+# Usage Examples:
+#   from stochastic_transit_router.graph import load_walking_edges
+#   config = load_config('configs/default.yaml', 'configs/graph/walking_edges.yaml')
+#   edges = load_walking_edges(config)
+#
+# Parameters:
+#   - default_radius_meters: 400m (typical transfer distance)
+#   - max_radius_meters: 800m (maximum walking distance between transfers)
+#   - walk_speed: 1.4 m/s (standard pedestrian speed)
+#   - use_osm_paths: true (query OSM for actual walking routes)
+#   - fallback_penalty: 1.2× (penalty if OSM unavailable)
+#
+# Quality Checks:
+#   - require_osm_tag_match: Verify pedestrian-accessible paths
+#   - minimum_geometry_points: 2+ points for path validity
+#   - max_duration: 1200 seconds (20 min max transfer time)
+#
+# OSM Integration:
+#   - Queries: Walking paths from OpenStreetMap
+#   - Tags: highway=*, access=*
+#   - Fallback: If OSM down, use straight-line distance + penalty
+#
+# Related Configs:
+#   - construction.yaml: Graph node/edge types
+#   - nyc.yaml: NYC transfer radius (400m)
+#
+# Last Updated: 2026-04-05
+# Owner: Graph Team
+# =============================================================================
+
+walking:
+  default_radius_meters: 400
+  max_radius_meters: 800
+  default_walk_speed_mps: 1.4
+  use_shortest_path_from_osm: true
+  fallback_to_haversine: true
+  fallback_penalty_factor: 1.2
+
+quality:
+  require_osm_tag_match: true
+  minimum_geometry_points: 2
+  max_connector_duration_seconds: 1200
+
+provenance:
+  record_walk_query_id: true
+  record_path_source: true

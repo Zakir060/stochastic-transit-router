@@ -1,0 +1,47 @@
+# =============================================================================
+# Stochastic Transit Router - Risk Lambda Parameters (Robust Routing)
+# Route Intelligence Platform - Variance-Weighted Route Configuration
+#
+# File        : configs/risk/lambda_values.yaml
+# Description : Configuration for robust routing risk parameter (lambda).
+#               Lambda controls trade-off between expected travel time and
+#               uncertainty (variance). Higher lambda = less risky routes.
+# Purpose     : Define risk preference levels for robust routing
+#
+# Lambda (Risk Parameter) Explained:
+#   - 0.0: Minimize expected travel time only (fastest)
+#   - 1.0: Balance expected time and 1-sigma deviation
+#   - 2.0: Conservative (optimize worst-case scenarios)
+#   - 3.0: Very risk-averse
+#
+# Usage: objective=robust&lambda=2.0
+#   GET /api/routes?objective=robust&lambda=2.0
+#
+# Interpretation:
+#   - "0.0": Fastest expected route (accepts variance)
+#   - "1.0": One sigma robust (std deviation weighted equally)
+#   - "2.0": Conservative (emphasize avoiding variance)
+#
+# Mathematical Formula:
+#   cost = E[time] + lambda * σ[time]
+#   where E=expected, σ=standard deviation
+#
+# Related Config: alpha_levels.yaml (CVaR confidence)
+# Last Updated: 2026-04-05
+# Owner: Algorithm Team
+# =============================================================================
+
+risk_lambda:
+  default: 1.0
+  allowed_values:
+    - 0.0
+    - 0.25
+    - 0.5
+    - 1.0
+    - 1.5
+    - 2.0
+    - 3.0
+  interpretation:
+    "0.0": fastest expected route
+    "1.0": one sigma robust route
+    "2.0": conservative robust route

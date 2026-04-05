@@ -1,0 +1,59 @@
+# =============================================================================
+# Stochastic Transit Router - Dijkstra Algorithm Benchmark Configuration
+# Route Intelligence Platform - Shortest Path Baseline Performance Testing
+#
+# File        : configs/benchmarks/dijkstra.yaml
+# Description : Benchmark configuration for Dijkstra's shortest-path algorithm.
+#               Establishes baseline performance metrics for single-objective routing.
+#               Used as reference point for comparing advanced algorithms.
+# Purpose     : Validate and track Dijkstra algorithm performance
+#
+# Algorithm: Dijkstra's Shortest Path
+#   - Objective: Minimize total travel time
+#   - Complexity: O((V+E) log V) with binary heap
+#   - Memory: O(V) for distance tracking
+#   - Guarantee: Always finds globally optimal path
+#
+# Configuration:
+#   - algorithm: dijkstra (standard implementation)
+#   - query_set: nyc_core_pairs (representative NYC O-D pairs)
+#   - repetitions: 20 (statistically significant sample)
+#   - warmup_runs: 3 (cache warm-up before measurement)
+#
+# Metrics Collected:
+#   - wall_time_ms: Actual execution time (milliseconds)
+#   - nodes_expanded: How many nodes algorithm visited
+#   - path_cost_seconds: Total travel time of found path
+#
+# Performance Expectations (NYC):
+#   - Mean latency: 1.5-2.5 ms
+#   - Nodes expanded: 2,000-5,000 (out of 12,000 total)
+#   - Optimality: 100% (always optimal)
+#
+# Usage:
+#   python benchmarks/runner.py --config configs/benchmarks/dijkstra.yaml
+#
+# Comparison to Other Algorithms:
+#   - vs A*: Dijkstra is slower (no heuristic guidance)
+#   - vs CVaR: Dijkstra faster but ignores reliability
+#   - vs Robust: Dijkstra faster but ignores variance
+#
+# Related Configurations:
+#   - A*: configs/benchmarks/astar.yaml (heuristic variant)
+#   - CVaR: configs/benchmarks/cvar.yaml (stochastic objective)
+#   - Robust: configs/benchmarks/robust.yaml (variance-aware)
+#
+# Last Updated: 2026-04-05
+# Owner: Performance Team
+# =============================================================================
+
+benchmark:
+  name: dijkstra_baseline
+  algorithm: dijkstra
+  query_set: nyc_core_pairs
+  repetitions: 20
+  warmup_runs: 3
+  metrics:
+    - wall_time_ms
+    - nodes_expanded
+    - path_cost_seconds

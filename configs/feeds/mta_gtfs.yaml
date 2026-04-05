@@ -1,0 +1,95 @@
+# =============================================================================
+# Stochastic Transit Router - MTA GTFS Feed Configuration
+# Route Intelligence Platform - NYC Transit Schedule Data Feed
+#
+# File        : configs/feeds/mta_gtfs.yaml
+# Description : Configuration for MTA static GTFS schedule data feed.
+#               Includes access method, registration requirements, refresh strategy,
+#               and provenance tracking for NYC transit network schedule.
+# Purpose     : Manage MTA GTFS static schedule data ingestion
+#
+# Feed Details:
+#   - Provider: Metropolitan Transportation Authority (MTA)
+#   - Data Type: GTFS (General Transit Feed Specification)
+#   - Coverage: NYC subway, bus, LIRR, Metro-North
+#   - Update Frequency: Daily (around 2 AM EST)
+#   - Format: ZIP file with .txt CSV files
+#
+# GTFS Files Included:
+#   - agency.txt: Transit operators
+#   - stops.txt: Stop locations (~5,800 stops)
+#   - routes.txt: Route definitions (~400 routes)
+#   - trips.txt: Trip instances
+#   - stop_times.txt: Stop sequences and times
+#   - calendar.txt: Service calendars
+#   - calendar_dates.txt: Holiday exceptions
+#   - shapes.txt: Route geometry (optional)
+#   - transfers.txt: Transfer recommendations
+#
+# Configuration Sections:
+#   - feed: Basic feed metadata
+#   - refresh_strategy: How often to check for updates
+#   - provenance: What metadata to track
+#
+# Access Method:
+#   - HTTP download (requires registration and API key)
+#   - Registration: https://www.mta.info/developers
+#   - API Key stored in environment variable: MTA_API_KEY
+#
+# Usage:
+#   from stochastic_transit_router.ingest import load_feed
+#   config = load_config('configs/default.yaml', 'configs/feeds/mta_gtfs.yaml')
+#   gtfs_data = load_feed(config)
+#
+# Refresh Strategy Explanation:
+#   - mode: scheduled (check on a schedule, not continuous)
+#   - frequency: daily (check once per day)
+#   - retry_attempts: 3 (retry up to 3 times on failure)
+#   - retry_backoff: 30 seconds between retries
+#
+# Provenance Tracking:
+#   - record_sha256: Compute SHA256 hash for integrity
+#   - record_etag: Store HTTP ETag for change detection
+#   - record_last_modified: Record when MTA last updated
+#
+# Maintenance Notes:
+#   - Update frequency: Monitor if MTA changes refresh cycle
+#   - API availability: MTA occasionally updates developer portal
+#   - Data quality: MTA GTFS is well-maintained and reliable
+#   - Credentials: Ensure MTA_API_KEY environment variable is set
+#
+# Related Feeds:
+#   - Real-time: configs/feeds/mta_realtime.yaml (GTFS-RT updates)
+#   - OSM: configs/feeds/osm.yaml (walking network)
+#   - 511NY: configs/feeds/511ny.yaml (unified regional feed)
+#
+# Last Updated: 2026-04-05
+# Owner: Data Engineering Team
+# =============================================================================
+
+feed:
+  id: mta_gtfs_schedule
+  provider: Metropolitan Transportation Authority
+  city: nyc
+  access_method: http_download
+  format: gtfs_zip
+  documentation_urls:
+    - https://www.mta.info/developers
+    - https://gtfs.org/documentation/schedule/reference/
+  registration_required: true
+  credentials_env_var: MTA_API_KEY
+  static_feed_urls: []
+  notes:
+    - Feed URLs are configured only after official registration.
+    - The adapter must raise DataSourceUnavailableError when URL mapping is missing.
+
+refresh_strategy:
+  mode: scheduled
+  expected_frequency: daily
+  retry_attempts: 3
+  retry_backoff_seconds: 30
+
+provenance:
+  record_sha256: true
+  record_etag: true
+  record_last_modified: true

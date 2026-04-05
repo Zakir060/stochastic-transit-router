@@ -1,0 +1,28 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Realtime TripUpdate",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "delay_seconds":  {
+                                             "type":  "integer"
+                                         },
+                       "route_id":  {
+                                        "type":  "string"
+                                    },
+                       "timestamp":  {
+                                         "type":  "integer"
+                                     },
+                       "trip_id":  {
+                                       "type":  "string"
+                                   },
+                       "entity_id":  {
+                                         "type":  "string"
+                                     }
+                   },
+    "required":  [
+                     "entity_id",
+                     "trip_id",
+                     "timestamp"
+                 ]
+}

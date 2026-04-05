@@ -1,0 +1,28 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "TopK Response",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "request_id":  {
+                                          "type":  "string"
+                                      },
+                       "paths":  {
+                                     "items":  {
+                                                   "type":  "object"
+                                               },
+                                     "type":  "array"
+                                 },
+                       "k":  {
+                                 "type":  "integer"
+                             },
+                       "metadata":  {
+                                        "type":  "object"
+                                    }
+                   },
+    "required":  [
+                     "request_id",
+                     "k",
+                     "paths"
+                 ]
+}

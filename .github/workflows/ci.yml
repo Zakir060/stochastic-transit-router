@@ -1,0 +1,308 @@
+# =============================================================================
+# GitHub Actions Workflow - Continuous Integration Master Orchestrator
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Master CI workflow that orchestrates all quality gates: lint, type-check,
+#   unit-tests, integration-tests, and docs-build. Provides single entry point
+#   for PR/commit quality validation.
+#
+# This workflow:
+#   - Runs on: Every push to main/develop, all PRs, manual dispatch
+#   - Does: Execute full CI pipeline sequentially with dependency management
+#   - Duration: 12-15 minutes (total with all stages)
+#   - Notifications: GitHub commit status, PR checks, inline comments
+#
+# Why separate workflows:
+#   - lint.yml: Standalone lint checks (can run independently)
+#   - type-check.yml: Type checking (can run independently)
+#   - unit-tests.yml: Unit tests (can run independently)
+#   - integration-tests.yml: Integration tests (can run independently)
+#   - ci.yml: Master orchestrator (runs all in sequence)
+#
+# CI pipeline stages:
+#   1. lint (1-2 min)        : Ruff lint and format checks
+#   2. type-check (2-3 min)  : Mypy static type checking
+#   3. unit-tests (3-4 min)  : Unit and regression tests
+#   4. integration-tests (5-7 min) : Contract, schema, integration tests
+#   5. docs-build (2-3 min)  : Documentation build and validation
+#
+# Concurrency management:
+#   - Only one CI run per branch at a time
+#   - Older runs cancelled if new push arrives
+#   - Prevents: Queue backlog, resource waste, duplicate checks
+#
+# When CI fails:
+#   - Check which stage failed (lint, type-check, tests, etc)
+#   - Read error message from failed job
+#   - Run same check locally to reproduce
+#   - Fix issue and push new commit
+#   - CI will re-run automatically
+#
+# Required merge checks:
+#   All stages must pass before PR can merge:
+#   ✓ lint passes (no style violations)
+#   ✓ type-check passes (no type errors)
+#   ✓ unit-tests passes (all tests green)
+#   ✓ integration-tests passes (contracts valid)
+#   ✓ docs-build passes (documentation valid)
+#
+# Local testing before push:
+#   # Run full CI locally (mimics GitHub workflow)
+#   tox -e py312              # Run all tests
+#   ruff check . && ruff format --check .
+#   mypy src
+#   pytest tests/unit tests/regression
+#   pytest tests/integration tests/contracts tests/schema
+#
+# Troubleshooting CI failures:
+#   - Lint fails: Run "ruff check --fix ." to auto-fix
+#   - Type-check fails: Add type hints to annotate variables/functions
+#   - Tests fail: Run locally with -vv flag to see detailed output
+#   - Docs fail: Check markdown formatting, verify link validity
+#   - Timeout: Increase timeout or mark slow tests with @pytest.mark.slow
+#
+# Related documentation:
+#   - Contributing: CONTRIBUTING.md (Git workflow section)
+#   - Code style: CONTRIBUTING.md (Code style section)
+#   - Testing: CONTRIBUTING.md (Testing section)
+#   - API reference: docs/reference/api.md
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: ci
+
+on:
+  # Trigger on all commits to main/develop
+  push:
+    branches: ["main", "develop"]
+  # Trigger on all PRs to main/develop (runs on PR base, not PR head)
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# CONCURRENCY MANAGEMENT
+# ============================================================================
+# Ensures only one CI run per branch at a time. If new push arrives while
+# CI is running, the older run is cancelled. This prevents queue backlog
+# and wasted resources.
+#
+# How it works:
+#   - group: ci-${{ github.ref }}  uniquely identifies each branch
+#   - cancel-in-progress: true     cancels older runs
+#
+# Example: If you push 3 commits rapidly to "feature" branch:
+#   1. Push 1: CI starts
+#   2. Push 2: CI starts, Push 1's CI cancelled
+#   3. Push 3: CI starts, Push 2's CI cancelled
+#   Result: Only Push 3's CI runs to completion
+# ============================================================================
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# ============================================================================
+# JOBS: Five-Stage CI Pipeline
+# ============================================================================
+# Stages run sequentially: each stage depends on previous stage passing.
+# This ensures we don't waste time on integration tests if lint fails.
+#
+# Stage flow:
+#   lint → type-check → unit-tests → integration-tests → docs-build
+#
+# Total time: 12-15 minutes (if all pass)
+# ============================================================================
+
+jobs:
+  # ==========================================================================
+  # STAGE 1: CODE LINTING (Code Quality Checks)
+  # ==========================================================================
+  # Duration: 1-2 minutes
+  # Purpose: Enforce code style and catch obvious mistakes
+  # Status: Required (blocks merge if fails)
+  # ==========================================================================
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # Lint: Check for style violations, unused imports, undefined names
+      # Catches: Unused variables, import ordering, PEP 8 violations
+      # If fails: Run locally: ruff check --fix . && ruff format .
+      - name: Ruff lint and format check
+        run: |
+          ruff check .
+          ruff format --check .
+
+  # ==========================================================================
+  # STAGE 2: TYPE CHECKING (Type Safety)
+  # ==========================================================================
+  # Duration: 2-3 minutes
+  # Purpose: Detect type mismatches and unsafe operations
+  # Status: Required (blocks merge if fails)
+  # Dependencies: Requires lint to pass
+  # ==========================================================================
+  type-check:
+    name: type-check
+    runs-on: ubuntu-latest
+    needs: [lint]  # Don't start until lint passes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # Type-check: Validate function signatures, return types, attribute access
+      # Catches: Wrong function arguments, None dereferences, type mismatches
+      # If fails: Add type annotations to functions/variables
+      - name: Run mypy
+        run: |
+          mypy src
+
+  # ==========================================================================
+  # STAGE 3: UNIT TESTS (Fast Component Tests)
+  # ==========================================================================
+  # Duration: 3-4 minutes
+  # Purpose: Verify individual components work correctly
+  # Status: Required (blocks merge if fails)
+  # Dependencies: Requires type-check to pass
+  # ==========================================================================
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    needs: [type-check]  # Don't start until type-check passes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev,test]
+
+      # Unit tests: Fast tests for individual functions and methods
+      # Validates:
+      #   - Graph algorithms produce correct results
+      #   - Data models serialize/deserialize correctly
+      #   - API endpoints return correct responses
+      #   - Data ingest correctly parses feeds
+      # If fails: Run locally: pytest tests/unit tests/regression -vv
+      - name: Run unit and regression tests
+        run: |
+          if [ -d tests/unit ] || [ -d tests/regression ]; then
+            pytest tests/unit tests/regression -q
+          else
+            echo "No unit or regression tests are present in this phase."
+          fi
+
+  # ==========================================================================
+  # STAGE 4: INTEGRATION TESTS (Multi-Component Tests)
+  # ==========================================================================
+  # Duration: 5-7 minutes
+  # Purpose: Verify components work together correctly
+  # Status: Required (blocks merge if fails)
+  # Dependencies: Requires unit-tests to pass
+  # ==========================================================================
+  integration-tests:
+    name: integration-tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests]  # Don't start until unit-tests pass
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev,test]
+
+      # Integration tests: End-to-end workflows with real data
+      # Validates:
+      #   - API contracts between modules
+      #   - Data schema validation and transformation
+      #   - Multi-module workflows work correctly
+      # If fails: Run locally: pytest tests/integration tests/contracts tests/schema -vv
+      - name: Run integration family
+        run: |
+          if [ -d tests/integration ] || [ -d tests/contracts ] || [ -d tests/schema ]; then
+            pytest tests/integration tests/contracts tests/schema -q
+          else
+            echo "No integration, contract, or schema tests are present in this phase."
+          fi
+
+  # ==========================================================================
+  # STAGE 5: DOCUMENTATION BUILD (Documentation Validation)
+  # ==========================================================================
+  # Duration: 2-3 minutes
+  # Purpose: Validate documentation formatting and structure
+  # Status: Required (blocks merge if fails)
+  # Dependencies: Requires integration-tests to pass
+  # ==========================================================================
+  docs-build:
+    name: docs-build
+    runs-on: ubuntu-latest
+    needs: [integration-tests]  # Don't start until integration-tests pass
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # Documentation validation: Check markdown formatting
+      # Validates:
+      #   - README.md follows markdown style guide
+      #   - All docs/*.md files are properly formatted
+      #   - No broken internal links
+      # If fails: Run locally: mdformat --check README.md AUTHORS.md $(find docs -type f -name "*.md")
+      - name: Verify markdown formatting
+        run: |
+          mdformat --check README.md AUTHORS.md $(find docs -type f -name "*.md")

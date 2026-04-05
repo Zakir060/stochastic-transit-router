@@ -1,0 +1,875 @@
+# =============================================================================
+# Stochastic Transit Router - Git Ignore Configuration
+# Files and Directories Excluded from Version Control
+#
+# This file specifies which files and directories should NOT be committed to
+# the Git repository. These typically include:
+# - Build artifacts and compiled files
+# - Virtual environments and dependencies
+# - IDE and editor configuration
+# - Testing and coverage reports
+# - Cache and temporary files
+# - Secrets and sensitive data
+# - Large data files and generated outputs
+#
+# Documentation: https://git-scm.com/docs/gitignore
+# =============================================================================
+
+# ============================================================================
+# PYTHON BYTECODE AND COMPILATION ARTIFACTS
+# ============================================================================
+
+# Compiled Python files
+__pycache__/
+*.py[cod]
+*.py[cod].*
+*$py.class
+
+# C extensions
+*.so
+*.dylib
+*.dll
+*.egg
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+docs/build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb-checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env.local
+.env.*.local
+.env.test
+.env.test.local
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Pylint
+.pylintrc
+.pylint.d/
+
+# Black
+.black.cache
+
+# Ruff
+.ruff_cache/
+
+# PyRight
+pyright/
+
+# ============================================================================
+# IDE AND EDITOR CONFIGURATION FILES
+# ============================================================================
+
+# Visual Studio Code
+.vscode/
+.vscode/**/settings.json
+.vscode/**/launch.json
+launch.json
+.VS-Code-Folder
+.history/
+*.code-workspace
+
+# PyCharm / IntelliJ IDEA
+.idea/
+.idea_modules/
+*.iml
+*.iws
+*.ipr
+out/
+.gradle
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+.vim/
+*.sw[op]
+*.swp
+*.swo
+*~
+.*.un~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Atom
+.atom/
+
+# Nano
+.nano_history
+
+# Other editors
+.DS_Store
+Thumbs.db
+.project
+.pydevproject
+.settings/
+*.ctags
+
+# ============================================================================
+# TEMPORARY AND OS-SPECIFIC FILES
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+.TemporaryItems
+
+# Linux
+.*
+!.github
+!.gitignore
+!.gitattributes
+!.pre-commit-config.yaml
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.orig
+*.rej
+*~
+temp/
+tmp/
+
+# ============================================================================
+# PROJECT-SPECIFIC DATA DIRECTORIES
+# ============================================================================
+
+# Raw data ingestion (never committed, too large)
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+
+# Processed data outputs (generated locally)
+data/processed/*
+!data/processed/.gitkeep
+!data/processed/README.md
+
+# Data cache (temporary, large files)
+data/cache/*
+!data/cache/.gitkeep
+
+# Data exports and generated artifacts
+data/exports/*
+!data/exports/.gitkeep
+
+# Provenance manifests for runs (generated during experiments)
+data/manifests/*.jsonl
+data/manifests/*.json
+data/manifests/runs/*.jsonl
+data/manifests/runs/*.json
+!data/manifests/README.md
+!data/manifests/.gitkeep
+
+# ============================================================================
+# BENCHMARK OUTPUTS AND RESULTS
+# ============================================================================
+
+# Benchmark results (too large, local-only)
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+!benchmarks/results/README.md
+
+# Benchmark reports (generated, not version controlled)
+benchmarks/reports/*
+!benchmarks/reports/report_template.md
+!benchmarks/reports/README.md
+
+# JSON and CSV benchmark exports
+*.benchmark.json
+*.benchmark.csv
+
+# ============================================================================
+# EXPERIMENT OUTPUTS AND ANALYSIS
+# ============================================================================
+
+# Experiment results (too large, local-only)
+experiments/**/results/*
+!experiments/nyc/results/.gitkeep
+!experiments/nyc/results/README.md
+
+# Experiment analysis (generated locally)
+experiments/**/analysis/*
+!experiments/nyc/analysis/.gitkeep
+!experiments/nyc/analysis/README.md
+
+# Experiment outputs
+experiments/**/outputs/*
+!experiments/**/outputs/.gitkeep
+
+# Notebook execution outputs
+experiments/**/.ipynb_checkpoints/
+experiments/**/__pycache__/
+
+# ============================================================================
+# BUILD AND DISTRIBUTION ARTIFACTS
+# ============================================================================
+
+# Build directories
+build/
+dist/
+*.whl
+*.tar.gz
+*.zip
+
+# Egg info
+*.egg-info/
+*.egg
+.eggs/
+
+# setuptools
+setup.py.bak
+setup.cfg.bak
+
+# Wheel
+wheelhouse/
+
+# ============================================================================
+# DOCKER ARTIFACTS
+# ============================================================================
+
+# Docker build cache
+.docker/
+.docker-cache/
+
+# Docker volumes (local)
+docker/volumes/*
+!docker/volumes/.gitkeep
+
+# ============================================================================
+# DEPLOYMENT AND INFRASTRUCTURE
+# ============================================================================
+
+# Deployment artifacts
+deployment/.terraform/
+deployment/.tfstate*
+deployment/*.tfplan
+deployment/terraform.tfvars*
+!deployment/terraform.tfvars.example
+
+# Kubernetes
+deployment/k8s/.kube/
+deployment/k8s/*.yaml.local
+
+# Secrets (CRITICAL: Never commit)
+*.secrets*
+*.secret*
+secrets/
+.secrets/
+
+# ============================================================================
+# SECRETS AND CREDENTIALS (CRITICAL)
+# ============================================================================
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+.env.test.local
+.env.production.local
+
+# Secret YAML files
+*.secrets.yaml
+*.secrets.yml
+*.secret.yaml
+*.secret.yml
+
+# Secret JSON files
+*.secrets.json
+*.secret.json
+
+# AWS credentials
+.aws/credentials
+.aws/config
+
+# GCP credentials
+google-cloud-credentials.json
+.gcp-credentials/
+
+# Tokens and API keys
+*.token
+*.apikey
+*.api_key
+*.key
+.token/
+
+# SSH keys
+*.pem
+*.ppk
+id_rsa
+id_dsa
+id_ed25519
+
+# OAuth tokens
+.oauth/
+.auth/
+.tokens/
+
+# ============================================================================
+# LOGS AND DEBUG FILES
+# ============================================================================
+
+# General logs
+*.log
+*.log.*.gz
+logs/
+*.out
+*.err
+
+# Application logs
+src/**/*.log
+tests/**/*.log
+
+# Debug files
+*.pdb
+*.debug
+
+# Profiling
+*.prof
+*.profile
+profiling_results.txt
+
+# ============================================================================
+# TESTING ARTIFACTS
+# ============================================================================
+
+# pytest
+.pytest_cache/
+.pytest_tmpdir/
+pytest.ini.local
+pytest-results/
+
+# Coverage reports
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+htmlcov/
+.coveragerc.local
+
+# tox
+.tox/
+.tox.ini.bak
+
+# ============================================================================
+# JUPYTER NOTEBOOK AND ANALYSIS FILES
+# ============================================================================
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*/checkpoint*.ipynb
+
+# Jupyter runtime data
+.jupyter/
+.jupyter_runtime/
+
+# Kernel specifications
+kernelspecs/
+
+# Notebook temporary files
+*.ipynb-checkpoint
+*.nbconvert_files/
+
+# ============================================================================
+# DATABASE AND DATA FILES
+# ============================================================================
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Parquet (large data)
+*.parquet
+
+# Arrow/Feather (large data)
+*.arrow
+*.feather
+
+# HDF5 (large data)
+*.h5
+*.hdf5
+
+# NumPy arrays
+*.npy
+*.npz
+
+# Pickle files (local cache)
+*.pkl
+*.pickle
+
+# ============================================================================
+# LARGE DEPENDENCY FILES
+# ============================================================================
+
+# node_modules (if JavaScript deps)
+node_modules/
+package-lock.json.bak
+
+# npm cache
+.npm/
+.npm-cache/
+
+# yarn
+yarn-error.log
+.yarn/cache/
+
+# Poetry
+poetry.lock.bak
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================================================
+# COMPILED DOCUMENTATION
+# ============================================================================
+
+# Sphinx
+docs/_build/
+docs/build/
+docs/.doctrees/
+
+# ReadTheDocs
+.readthedocs.yaml.local
+readthedocs.yaml.local
+
+# MkDocs
+site/
+mkdocs-site/
+
+# ============================================================================
+# CI/CD AND AUTOMATION
+# ============================================================================
+
+# GitHub Actions
+.github/workflows/*.local.yaml
+.github/workflows/.env
+
+# GitLab CI
+.gitlab-ci.yaml.local
+
+# Jenkins
+.jenkins/
+
+# CircleCI
+.circleci.local/
+
+# TravisCI
+.travis.local.yaml
+
+# ============================================================================
+# SYSTEM FILES AND CACHES
+# ============================================================================
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Cache directories
+.cache/
+.caches/
+cache/
+
+# Temporary directories
+.tmp/
+.temp/
+tmp/
+temp/
+
+# ============================================================================
+# IDE CACHES AND LOCAL SETTINGS
+# ============================================================================
+
+# Python IDE
+.python-ide/
+
+# LSP (Language Server Protocol)
+.lsp/
+.pylance/
+.pyright/
+
+# Local configuration overrides
+.vscode/settings.json.local
+.idea/settings.xml.local
+
+# ============================================================================
+# COMPRESSION AND ARCHIVES (if accidentally added)
+# ============================================================================
+
+# Don't commit archives of source code
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ============================================================================
+# LARGE FILES (use Git LFS if needed)
+# ============================================================================
+
+# Large datasets
+*.csv.gz
+*.json.gz
+*.parquet.gz
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Audio
+*.mp3
+*.wav
+*.flac
+
+# ============================================================================
+# NOTES AND DOCUMENTATION
+# ============================================================================
+
+# Personal notes (don't commit)
+NOTES.md
+NOTES.txt
+TODO.local.md
+PRIVATE.md
+SCRATCH.*
+
+# ============================================================================
+# VIRTUAL ENVIRONMENT DIRECTORIES
+# ============================================================================
+
+# Python venv variations
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.ENV/
+.env/
+
+# Conda
+conda-env/
+.conda/
+miniconda*/
+anaconda*/
+
+# Pipenv
+.venv-pipenv/
+
+# Poetry
+.venv-poetry/
+
+# ============================================================================
+# LOCK FILES AND SNAPSHOTS (WITH EXCEPTIONS)
+# ============================================================================
+
+# Allow committed lock files but ignore local variations
+poetry.lock.bak
+poetry.lock.local
+Pipfile.lock.bak
+Pipfile.lock.local
+requirements.lock.bak
+
+# ============================================================================
+# SPECIFIC FILE PATTERNS TO IGNORE
+# ============================================================================
+
+# Local test data
+test_output_*.json
+test_output_*.csv
+test_output_*.parquet
+
+# Local configuration
+config.local.yaml
+config.local.yml
+config.*.local
+
+# Generated files during development
+generated_*.py
+generated_*.json
+
+# ============================================================================
+# RULES AND EXCEPTIONS
+# ============================================================================
+
+# Important: Explicitly keep some files even if they match ignore patterns
+!.gitkeep
+!.gitattributes
+!.gitignore
+!.github/
+!.github/**
+!.pre-commit-config.yaml
+!.ruff.toml
+!.mypy.ini
+!.editorconfig
+!README.md
+!LICENSE
+!CHANGELOG.md
+!AUTHORS.md
+!SECURITY.md
+!CONTRIBUTING.md
+!CITATION.cff
+
+# Keep documentation files
+!docs/**
+!docs/**/*.md
+
+# Keep source code
+!src/**
+!src/**/*.py
+
+# Keep tests
+!tests/**
+!tests/**/*.py
+
+# Keep scripts
+!scripts/**
+!scripts/**/*.py
+!scripts/**/*.sh
+
+# Keep data directory structure (but not large files)
+!data/
+!data/raw/
+!data/processed/
+!data/cache/
+!data/exports/
+!data/manifests/
+!data/raw/.gitkeep
+!data/raw/README.md
+!data/processed/.gitkeep
+!data/processed/README.md
+!data/cache/.gitkeep
+!data/manifests/.gitkeep
+!data/manifests/README.md
+
+# Keep benchmarks structure
+!benchmarks/
+!benchmarks/tests/
+!benchmarks/results/
+!benchmarks/reports/
+!benchmarks/results/.gitkeep
+!benchmarks/reports/report_template.md
+
+# Keep experiments structure
+!experiments/
+!experiments/nyc/
+!experiments/nyc/results/
+!experiments/nyc/analysis/
+!experiments/nyc/results/.gitkeep
+!experiments/nyc/analysis/.gitkeep
+!experiments/README.md
+!experiments/nyc/README.md
+
+# Keep configuration files
+!pyproject.toml
+!setup.py
+!setup.cfg
+!tox.ini
+!Makefile
+!Dockerfile
+!docker-compose.yaml
+
+# ============================================================================
+# NOTES AND GUIDELINES
+# ============================================================================
+
+# PRIORITY RULES:
+# 1. NEVER commit secrets or credentials (API keys, tokens, passwords)
+# 2. NEVER commit large data files (> 100MB) - use Git LFS or external storage
+# 3. NEVER commit generated build artifacts (use `make clean`)
+# 4. NEVER commit IDE-specific settings (personal preferences)
+# 5. NEVER commit test/coverage outputs (generated locally)
+
+# WHAT GETS COMMITTED:
+# - Source code (.py files)
+# - Tests and fixtures
+# - Configuration templates (*.example)
+# - Documentation (.md files)
+# - Project metadata (pyproject.toml, etc.)
+
+# WHAT DOESN'T GET COMMITTED:
+# - Compiled files (__pycache__, *.pyc)
+# - Virtual environments (.venv/)
+# - Cache directories (.pytest_cache, .mypy_cache, etc.)
+# - Secrets and credentials (.env, *.secret*)
+# - Build outputs (build/, dist/, *.egg-info/)
+# - Large data files (> 100MB)
+# - IDE settings (personal .vscode/ or .idea/ files)
+# - Log files (*.log)
+# - Temporary files (*.tmp, *.bak)
+
+# TO DEBUG THIS FILE:
+# Show what files would be ignored:
+#   git check-ignore -v <filepath>
+#
+# Show all ignored files in repo:
+#   git ls-files -o -i --exclude-standard
+#
+# Unignore a file if accidentally ignored:
+#   Add `!filename` rule after the ignore rule
+#
+# Temporarily add ignored file:
+#   git add -f filename
+#
+
+# LARGE FILE HANDLING:
+# If you need to commit large files (> 50MB):
+# 1. Install Git LFS: https://git-lfs.github.com/
+# 2. Add pattern: `git lfs track "*.parquet"`
+# 3. Commit: `git add .gitattributes <file>`
+#
+
+# ============================================================================
+# DOCUMENTATION AND PROJECT-SPECIFIC NOTES
+# ============================================================================
+
+# This .gitignore file ensures:
+# ✓ Clean git history (only source and essential files)
+# ✓ No accidental commits of secrets/credentials
+# ✓ No large data files in repository
+# ✓ No IDE or machine-specific files
+# ✓ Repository stays lightweight and cloneable
+# ✓ Faster clone and fetch operations
+# ✓ Reduced storage requirements
+
+# For more information:
+# - Git ignore documentation: https://git-scm.com/docs/gitignore
+# - GitHub gitignore templates: https://github.com/github/gitignore
+# - Stochastic Transit Router docs: /docs/operations/repository_management.md
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+

@@ -1,0 +1,172 @@
+# =============================================================================
+# Stochastic Transit Router - Graph Update Policy Configuration
+# Route Intelligence Platform - Real-time Graph Modification Strategy
+#
+# File        : configs/graph/update_policy.yaml
+# Description : Configuration for how the transit network graph is updated when
+#               real-time data arrives. Controls GTFS-RT application, delay
+#               combination, disruption handling, and rebuild triggers.
+# Purpose     : Define strategy for applying real-time updates to graph
+#
+# Usage:
+#   - Applied by: stochastic_transit_router.graph.GraphUpdater
+#   - Triggered by: Real-time feed refresh (every 30-60 seconds)
+#   - Used for: Applying GTFS-RT trip updates and service alerts
+#   - Impact: Routing accuracy, query latency, result freshness
+#
+# Configuration Sections:
+#   - update_policy: Mode and feature flags
+#   - delays: How to combine and apply delays
+#   - disruption: Penalty factors for service disruptions
+#   - rebuild: When to trigger full graph rebuild
+#
+# Update Modes Explained:
+#   - full: Rebuild entire graph from scratch (slow but accurate)
+#   - incremental: Apply only real-time changes to existing graph (fast)
+#   - selective: Incremental with cache invalidation for affected areas
+#
+# GTFS-RT Fields:
+#   - trip_updates: Delays/cancellations for specific trips
+#   - service_alerts: General service disruptions
+#   - vehicle_positions: Current vehicle locations (optional)
+#
+# Update Policy Details:
+#   - apply_trip_updates: true = process GTFS-RT TripUpdate
+#   - apply_service_alerts: true = process GTFS-RT Alert
+#   - apply_vehicle_positions: false = ignore vehicle position data
+#
+# Usage Examples:
+#   # Automatic graph update (happens every 30 seconds)
+#   from stochastic_transit_router.graph import GraphUpdater
+#   updater = GraphUpdater(config)
+#   updater.start()  # Runs in background thread
+#
+#   # Manual graph update
+#   from stochastic_transit_router.graph import load_gtfs_rt
+#   rt_data = load_gtfs_rt('https://feed.url/gtfsrt')
+#   graph.apply_updates(rt_data, config)
+#
+# Delay Combination Modes:
+#   1. additive: delay = base_delay + rt_delay
+#   2. max: delay = max(base_delay, rt_delay)
+#   3. replacement: delay = rt_delay (ignores base)
+#
+# Development Configuration (current):
+#   - mode: incremental (faster for testing)
+#   - apply_trip_updates: true (process delays)
+#   - apply_service_alerts: true (process disruptions)
+#   - vehicle_positions: false (not needed for routing)
+#   - max_delay: 7200 seconds (2 hours max delay)
+#   - rebuild_threshold: 5000 updates before full rebuild
+#
+# Production Configuration (recommended):
+#   - mode: incremental (balances speed and accuracy)
+#   - apply_trip_updates: true (essential)
+#   - apply_service_alerts: true (essential)
+#   - vehicle_positions: false (not used for routing)
+#   - max_delay: 3600 seconds (1 hour cap)
+#   - rebuild_interval: 120 minutes (full rebuild twice daily)
+#
+# Real-time Update Flow:
+#   1. Fetch GTFS-RT feed every 30 seconds
+#   2. Parse TripUpdate and ServiceAlert messages
+#   3. Apply delays: combine_mode determines strategy
+#   4. Update edge weights in graph
+#   5. Apply disruption penalties (if service blocked)
+#   6. Update affected queries in cache
+#   7. Monitor update count for rebuild threshold
+#
+# Disruption Handling:
+#   - penalty_factor_default: 1.5 (50% slower service)
+#   - penalty_factor_blocked: inf (service unavailable)
+#   - remove_edge_on_blocked: true (remove edges completely)
+#
+# Example Disruption:
+#   # Service alert: "Line 1 service disruption"
+#   if service_blocked:
+#       weight = inf  # Service completely unavailable
+#       graph.remove_edge(from_stop, to_stop)
+#   else:
+#       weight = base_weight * 1.5  # 50% slower
+#
+# Rebuild Triggers:
+#   - force_full_rebuild_after_updates: 5000 (after 5000 updates)
+#   - force_full_rebuild_interval_minutes: 120 (every 2 hours)
+#   - Either trigger forces full graph rebuild from GTFS
+#
+# Why Rebuild?
+#   - Problem: Incremental updates accumulate errors over time
+#   - Solution: Periodic full rebuilds ensure consistency
+#   - Trade-off: Full rebuild is slow (10-15 seconds)
+#   - Benefit: Maintains accuracy over hours of operation
+#
+# Environment Variables:
+#   - STR_GRAPH_UPDATE_MODE: Set to 'full' or 'incremental'
+#   - STR_GRAPH_MAX_DELAY_SECONDS: Override max delay (e.g., 3600)
+#   - STR_GRAPH_REBUILD_INTERVAL: Override interval in minutes
+#
+# Integration Points:
+#   - Used by: stochastic_transit_router.graph.GraphUpdater
+#   - Triggered by: Real-time feed refresh scheduler
+#   - Affects: Routing queries, query latency, result accuracy
+#   - Related: graph/construction.yaml, default.yaml
+#
+# Performance Impact:
+#   - Incremental updates: Minimal overhead (1-2% latency)
+#   - Full rebuild: ~10-15 second pause (occurs periodically)
+#   - Batch updates: 100+ updates processed in single cycle
+#
+# Monitoring and Alerts:
+#   - Metric: graph_update_latency_ms
+#   - Metric: graph_rebuild_count_total
+#   - Alert if: update_latency > 100ms
+#   - Alert if: rebuild fails or takes > 30 seconds
+#
+# Troubleshooting:
+#   - Issue: Graphs diverge from reality over time
+#   - Cause: Too long rebuild interval
+#   - Fix: Reduce force_full_rebuild_interval_minutes to 60
+#
+#   - Issue: High latency during updates
+#   - Cause: Full rebuild happening too often
+#   - Fix: Increase force_full_rebuild_after_updates to 10000
+#
+#   - Issue: Delays not reflected in queries
+#   - Cause: apply_trip_updates set to false
+#   - Fix: Set apply_trip_updates: true
+#
+# Testing Update Policy:
+#   # Load test data
+#   python -m pytest tests/integration/test_graph_updates.py
+#   # Verifies: delays apply correctly, disruptions handled properly
+#
+# Related Documentation:
+#   - GTFS-RT spec: https://gtfs.org/realtime/
+#   - Graph updates: docs/operations/graph-updates.md
+#   - Real-time handling: docs/reference/realtime.md
+#   - Construction config: configs/graph/construction.yaml
+#
+# Last Updated : 2026-04-05
+# Maintained by: Graph Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+update_policy:
+  mode: incremental
+  apply_trip_updates: true
+  apply_service_alerts: true
+  apply_vehicle_positions: false
+
+delays:
+  combine_mode: additive
+  max_delay_seconds: 7200
+
+disruption:
+  penalty_factor_default: 1.5
+  penalty_factor_blocked: inf
+  remove_edge_on_blocked: true
+
+rebuild:
+  force_full_rebuild_after_updates: 5000
+  force_full_rebuild_interval_minutes: 120

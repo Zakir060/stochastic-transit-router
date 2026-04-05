@@ -1,0 +1,37 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : experiments\nyc\configs\exp_005_disruption_stability.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+experiment:
+  id: exp_005
+  name: disruption_stability
+  city: nyc
+  metric: topk_jaccard_similarity
+  disruption_source: gtfs_realtime_service_alert
+  status: experiment not yet executed
+  seed: 20260405

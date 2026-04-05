@@ -1,0 +1,55 @@
+# =============================================================================
+# Stochastic Transit Router - Statistical Distribution Estimation Configuration
+# Route Intelligence Platform - Travel Time Distribution Parameters
+#
+# File        : configs/stats/estimation.yaml
+# Description : Configuration for estimating travel time distributions.
+#               Fits empirical, normal, lognormal, and gamma distributions
+#               to observed transit times for reliability calculations.
+# Purpose     : Configure distribution fitting for stochastic routing
+#
+# Distributions Supported:
+#   - empirical: Histogram from observed data
+#   - normal: Gaussian distribution (fast)
+#   - lognormal: Right-skewed (more realistic)
+#   - gamma: Positive skew (good for travel times)
+#
+# Parameters:
+#   - min_observations: 20 per edge (statistical minimum)
+#   - goodness_of_fit: Alpha=0.05 (95% confidence test)
+#   - regularization: Small epsilon to prevent singularity
+#   - kde: Kernel density estimation for smoothing
+#
+# Covariance Matrix:
+#   - Captures correlation between edge times
+#   - Requires 30+ observations per edge pair
+#   - Fallback to independence if sparse data
+#
+# KDE (Kernel Density Estimation):
+#   - Smooths empirical distribution
+#   - Silverman rule: Automatic bandwidth selection
+#   - Cross-validation: Optimizes bandwidth
+#
+# Related Configs: bootstrap.yaml (confidence intervals)
+# Last Updated: 2026-04-05
+# Owner: Stats Team
+# =============================================================================
+
+estimation:
+  distributions:
+    - empirical
+    - normal
+    - lognormal
+    - gamma
+  minimum_observations_per_edge: 20
+  goodness_of_fit_alpha: 0.05
+
+covariance:
+  minimum_pair_observations: 30
+  regularization_epsilon: 0.000001
+  independence_fallback_on_sparse: true
+
+kde:
+  enable_kde: true
+  silverman_rule_default: true
+  cross_validated_bandwidth: true

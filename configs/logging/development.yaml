@@ -1,0 +1,84 @@
+# =============================================================================
+# Stochastic Transit Router - Development Logging Configuration
+# Route Intelligence Platform - Development Environment Log Output
+#
+# File        : configs/logging/development.yaml
+# Description : Python logging configuration for development environment.
+#               Uses human-readable text format with DEBUG level verbosity.
+#               Console output only (suitable for terminal-based development).
+# Purpose     : Configure development-friendly logging with maximum verbosity
+#
+# Usage:
+#   - Loaded by: stochastic_transit_router.telemetry.setup_logging()
+#   - Applied during: Development startup
+#   - Used for: Debugging, exploration, development visibility
+#   - Format: Human-readable text (not JSON)
+#
+# Configuration Sections:
+#   - formatters: Text formatting
+#   - handlers: Console output configuration
+#   - root & loggers: Log level and handler routing
+#
+# Log Format:
+#   "2026-04-05 14:30:45,123 DEBUG stochastic_transit_router.api Starting server"
+#
+# Logging Levels (development shows all):
+#   - DEBUG: Detailed info for debugging
+#   - INFO: General information
+#   - WARNING: Warnings about potential issues
+#   - ERROR: Errors needing attention
+#   - CRITICAL: Critical errors
+#
+# Development vs Production:
+#   - Development: DEBUG level, human-readable format
+#   - Production: INFO level, JSON format (see production.yaml)
+#
+# Usage Examples:
+#   # Logs in code
+#   import logging
+#   logger = logging.getLogger(__name__)
+#   logger.debug("Entering function with args: x=%s", x)
+#   logger.info("Processing complete")
+#   logger.error("Failed to load file", exc_info=True)
+#
+# Environment Variables:
+#   - STR_LOG_LEVEL: Override to 'WARNING' for less verbose output
+#   - STR_LOG_FORMAT: Override to 'json' to use JSON format
+#
+# Troubleshooting:
+#   - Logs too verbose: Set STR_LOG_LEVEL=INFO
+#   - Missing debug info: Verify DEBUG level enabled
+#   - Logs in wrong format: Check production.yaml for JSON config
+#
+# Related Configs:
+#   - Production logging: configs/logging/production.yaml
+#   - Logging reference: docs/reference/logging.md
+#
+# Last Updated: 2026-04-05
+# Owner: Development Team
+# =============================================================================
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+
+root:
+  level: DEBUG
+  handlers:
+    - console
+
+loggers:
+  stochastic_transit_router:
+    level: DEBUG
+    handlers:
+      - console
+    propagate: false

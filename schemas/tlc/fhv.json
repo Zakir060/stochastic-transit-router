@@ -1,0 +1,29 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "NYC TLC FHV",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "PULocationID":  {
+                                            "type":  "integer"
+                                        },
+                       "dropoff_datetime":  {
+                                                "type":  "string"
+                                            },
+                       "DOLocationID":  {
+                                            "type":  "integer"
+                                        },
+                       "dispatching_base_num":  {
+                                                    "type":  "string"
+                                                },
+                       "pickup_datetime":  {
+                                               "type":  "string"
+                                           }
+                   },
+    "required":  [
+                     "pickup_datetime",
+                     "dropoff_datetime",
+                     "PULocationID",
+                     "DOLocationID"
+                 ]
+}

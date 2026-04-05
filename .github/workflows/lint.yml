@@ -1,0 +1,247 @@
+# =============================================================================
+# GitHub Actions Workflow - Code Quality Linting
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Enforces code quality standards using ruff linter and formatter.
+#   Validates Python code follows project style guide automatically.
+#
+# This workflow:
+#   - Runs on: Every push to main/develop, all PR branches, manual dispatch
+#   - Does: Run ruff lint checks and format verification
+#   - Duration: 1-2 minutes
+#   - Notifications: GitHub commit status, PR checks, inline comments
+#
+# What ruff does:
+#   - Lint checks: Catches unused imports, undefined names, style violations
+#   - Format checks: Validates code follows Black-compatible formatting
+#   - Performance: 10-100x faster than pylint + black separately
+#
+# Ruff rules in use (see .ruff.toml for details):
+#   - E (Pycodestyle errors): Indentation, whitespace, syntax
+#   - W (Pycodestyle warnings): Naming conventions, line length
+#   - F (Pyflakes): Unused imports, undefined names, duplicate arguments
+#   - I (isort): Import statement ordering and grouping
+#   - UP (pyupgrade): Modern Python syntax recommendations
+#   - C (mccabe): Complexity analysis (flagging overly complex functions)
+#   - D (pydocstyle): Docstring format and completeness (disabled by rule)
+#
+# When lint fails:
+#   - Check .ruff.toml for rule configuration
+#   - Run locally: ruff check . && ruff format --check .
+#   - Auto-fix: ruff check --fix . && ruff format .
+#   - Review changes before committing auto-fixes
+#
+# Running locally:
+#   ruff check .             # Show all linting violations
+#   ruff check --fix .       # Auto-fix style issues
+#   ruff format --check .    # Check formatting without fixing
+#   ruff format .            # Auto-format all Python files
+#
+# Common issues and fixes:
+#   "Unused import"        → Remove unused import or add noqa comment
+#   "Line too long"        → Break into multiple lines, increase limit in config
+#   "Undefined name"       → Check spelling, add import statement
+#   "Import not sorted"    → Run: ruff check --fix . (auto-fixes import order)
+#   "Formatting mismatch"  → Run: ruff format . (auto-formats file)
+#
+# Related documentation:
+#   - Style guide: CONTRIBUTING.md (Code style section)
+#   - Ruff configuration: .ruff.toml
+#   - Python standards: PEP 8, PEP 257, PEP 484
+#   - Contributing: CONTRIBUTING.md
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: lint
+
+on:
+  # Trigger on all commits to main/develop
+  push:
+    branches: ["main", "develop"]
+  # Trigger on all PR branches (before merge)
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Ruff Linting and Formatting Check
+# ============================================================================
+# Validates code quality using ruff, the Rust-based Python linter.
+# Runs two checks: lint (catches errors) and format (ensures consistency)
+# Expected duration: 1-2 minutes
+# Status: Required for PR merge
+# ============================================================================
+
+jobs:
+  ruff:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves repository code for linting. Uses GitHub's checkout action.
+      #
+      # Why: Linting must analyze actual source code
+      # Expected: All Python files available for ruff analysis
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime with pip caching. Ruff has minimal
+      # dependencies, so this step is fast even on first run.
+      #
+      # Why: Ruff is a Python tool that needs Python interpreter
+      # Version: 3.12 (matches project specification)
+      # Cache: pip cache still improves subsequent runs
+      # Expected: Python 3.12.x available
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Linting Tools
+      # ========================================================================
+      # Upgrades pip and installs project in development mode. The [dev]
+      # extra includes ruff and other development dependencies.
+      #
+      # Why: Ruff is included in dev dependencies
+      # What gets installed:
+      #   - -e . : Project in editable mode
+      #   - [dev] : Includes ruff, mypy, pre-commit, black, isort
+      #
+      # Expected output:
+      #   Successfully installed ruff and X packages
+      #   (ruff version should be visible)
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # ========================================================================
+      # STEP 4: Run Ruff Lint Check
+      # ========================================================================
+      # Executes ruff linter against entire codebase in current directory.
+      #
+      # Command: ruff check .
+      #   - . : Check all Python files in current directory recursively
+      #   - No options: Use rules from .ruff.toml configuration
+      #
+      # What ruff checks for:
+      #   1. Unused imports: Detects "import X" where X is never referenced
+      #   2. Undefined names: Catches typos in variable/function names
+      #   3. Syntax errors: Identifies malformed code before runtime
+      #   4. Import ordering: Validates imports follow isort conventions
+      #   5. Code style: PEP 8 compliance (line length, spacing, etc)
+      #   6. Complexity: Flags functions exceeding McCabe complexity threshold
+      #
+      # Expected output (success):
+      #   0 errors, 0 warnings
+      #   Process exited with code 0
+      #
+      # Expected output (with issues):
+      #   src/api/server.py:42:8: F841 Local variable assigned but never used
+      #   src/cli/main.py:15:1: E402 Module level import not at top of file
+      #   tests/unit/test_graph.py:8:1: F401 Unused import: json
+      #
+      # Common violations and how to fix:
+      #
+      #   E501 Line too long (>100 chars):
+      #     - Break line into multiple lines using () or \
+      #     - Example: logger.info(f"Value: {x}...") becomes
+      #               logger.info(
+      #                   f"Value: {x}..."
+      #               )
+      #
+      #   F841 Local variable assigned but never used:
+      #     - Remove variable assignment
+      #     - Or prefix with _ if intentionally unused (_unused_var)
+      #
+      #   F401 Unused import:
+      #     - Remove import line
+      #     - Or if needed for re-export: from module import X as X
+      #
+      #   E402 Module level import not at top:
+      #     - Move import to top of file, after docstring/license
+      #     - Exception: Type checking imports can be at end
+      #
+      #   I001 Import blocks unsorted:
+      #     - Run: ruff check --fix . (auto-fixes import order)
+      #
+      # If ruff check fails:
+      #   1. Read error messages carefully (they're very clear)
+      #   2. Try auto-fixing: ruff check --fix .
+      #   3. Review changes: git diff
+      #   4. If output is unclear, run on single file: ruff check src/file.py
+      #   5. Check .ruff.toml for rule configuration if needed
+      # ========================================================================
+      - name: Ruff check
+        run: ruff check .
+
+      # ========================================================================
+      # STEP 5: Run Ruff Format Check
+      # ========================================================================
+      # Validates code formatting matches Black-compatible style. Unlike
+      # ruff check, this doesn't fix issues - it only verifies compliance.
+      #
+      # Command: ruff format --check .
+      #   - --check: Verify formatting without modifying files
+      #   - . : Check all Python files in current directory recursively
+      #
+      # What ruff format checks for:
+      #   1. Line length: Code lines ≤ 100 characters (configurable)
+      #   2. Indentation: 4-space indentation consistently used
+      #   3. Spacing: Around operators, colons, commas
+      #   4. Import grouping: Standard library, third-party, local
+      #   5. String quotes: Consistent quote style (single/double)
+      #   6. Parentheses: Unnecessary parens removed
+      #   7. Trailing commas: Multi-line collections get trailing commas
+      #
+      # Expected output (success):
+      #   0 files reformatted
+      #   Process exited with code 0
+      #
+      # Expected output (with formatting issues):
+      #   Reformat file.py
+      #   1 file would be reformatted
+      #
+      # Common formatting issues:
+      #
+      #   String quotes:
+      #     Current: x = "hello"
+      #     Expected: x = 'hello' (or vice versa, config determines)
+      #     Fix: ruff format . (auto-converts)
+      #
+      #   Line too long:
+      #     Current: result = some_function(arg1, arg2, arg3, arg4, arg5)
+      #     Expected: (breaks to multiple lines)
+      #     Fix: ruff format . (auto-wraps)
+      #
+      #   Spacing around operators:
+      #     Current: x=1+2
+      #     Expected: x = 1 + 2
+      #     Fix: ruff format . (auto-fixes spacing)
+      #
+      # If format check fails:
+      #   1. Auto-fix locally: ruff format .
+      #   2. Review changes: git diff
+      #   3. Commit the formatting changes
+      #   4. Or use --no-verify if temporarily bypassing (not recommended)
+      #
+      # Pro tip: Install ruff pre-commit hook to auto-format before commits
+      # See: CONTRIBUTING.md (Git Hooks section)
+      # ========================================================================
+      - name: Ruff format check
+        run: ruff format --check .
