@@ -680,9 +680,8 @@
   <script>
     const $ = (s) => document.querySelector(s);
 
-    // Name default = Azəri (URL ?name= olsa da işləyir)
     const params = new URLSearchParams(location.search);
-    const defaultName = (params.get("name") || "Azəri").trim() || "Azəri";
+    const defaultName = (params.get("name") || "salam").trim() || "salam";
 
     // Photo fallback
     const photo = $("#photo");
