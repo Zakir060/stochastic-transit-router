@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "city_config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "timestamp", "source"],
+  "properties": {
+    "id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "source": {"type": "string"},
+    "metadata": {"type": "object"}
+  }
+}

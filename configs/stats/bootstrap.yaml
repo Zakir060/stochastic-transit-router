@@ -1,0 +1,63 @@
+# =============================================================================
+# Stochastic Transit Router - Bootstrap Statistics Configuration
+# Route Intelligence Platform - Statistical Analysis Parameters
+#
+# File        : configs/stats/bootstrap.yaml
+# Description : Bootstrap resampling configuration for statistical confidence
+#               intervals. Used for reliability estimation and uncertainty
+#               quantification in routing algorithms.
+# Purpose     : Configure statistical bootstrap analysis parameters
+#
+# Bootstrap Method Explained:
+#   - Technique: Resample observed data with replacement
+#   - Goal: Estimate confidence intervals without assumptions
+#   - Iterations: 1000 resamples per analysis
+#   - Result: Distribution of statistics (mean, variance, percentiles)
+#
+# Configuration Sections:
+#   - bootstrap: Core resampling parameters
+#   - confidence_intervals: What metrics to compute
+#
+# Parameters:
+#   - iterations: 1000 resamples (good balance: accuracy vs speed)
+#   - alpha: 0.05 (95% confidence interval)
+#   - random_seed: Fixed for reproducibility
+#   - method: percentile (compute CI from percentiles)
+#   - stratified_by: Segment data before resampling
+#
+# Stratification:
+#   - time_of_day_segment: Separate bootstrap per time period
+#   - weekday_flag: Separate weekday/weekend
+#   - Benefit: Captures temporal variation
+#
+# Confidence Intervals Computed:
+#   - edge_mean: Average travel time on edge
+#   - path_mean: Average total path time
+#   - reliability: Probability of on-time arrival
+#
+# Example Output:
+#   # Path time CI
+#   mean: 45 minutes
+#   ci_95: [42, 48] minutes  # 95% confidence interval
+#
+# Usage:
+#   from stochastic_transit_router.stats import bootstrap_ci
+#   ci = bootstrap_ci(data, config)  # Returns confidence intervals
+#
+# Last Updated: 2026-04-05
+# Owner: Stats Team
+# =============================================================================
+
+bootstrap:
+  iterations: 1000
+  alpha: 0.05
+  random_seed: 20260405
+  method: percentile
+  stratified_by:
+    - time_of_day_segment
+    - weekday_flag
+
+confidence_intervals:
+  edge_mean: true
+  path_mean: true
+  reliability: true

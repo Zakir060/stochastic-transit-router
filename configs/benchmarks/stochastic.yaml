@@ -1,0 +1,29 @@
+# =============================================================================
+# Stochastic Transit Router - Stochastic Shortest Path Benchmark Configuration
+# Route Intelligence Platform - Expectation-Based Stochastic Optimization
+#
+# File        : configs/benchmarks/stochastic.yaml
+# Description : Benchmark for stochastic shortest path algorithm.
+#               Minimizes expected travel time accounting for random delays.
+# Purpose     : Validate stochastic routing performance
+#
+# Algorithm: Stochastic Shortest Path
+#   - Objective: Minimize E[total travel time]
+#   - Approach: Monte Carlo sampling from travel time distributions
+#   - Metrics: wall_time, expected_time_seconds, variance_seconds2
+#
+# Related: robust.yaml (variance-weighted), cvar.yaml (tail risk)
+# Last Updated: 2026-04-05
+# Owner: Performance Team
+# =============================================================================
+
+benchmark:
+  name: stochastic_shortest_path
+  algorithm: stochastic_shortest_path
+  query_set: nyc_stochastic_pairs
+  repetitions: 10
+  warmup_runs: 2
+  metrics:
+    - wall_time_ms
+    - expected_time_seconds
+    - variance_seconds2

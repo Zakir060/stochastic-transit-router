@@ -1,0 +1,28 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Pathways",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "to_stop_id":  {
+                                          "type":  "string"
+                                      },
+                       "traversal_time":  {
+                                              "type":  "integer"
+                                          },
+                       "pathway_mode":  {
+                                            "type":  "integer"
+                                        },
+                       "pathway_id":  {
+                                          "type":  "string"
+                                      },
+                       "from_stop_id":  {
+                                            "type":  "string"
+                                        }
+                   },
+    "required":  [
+                     "pathway_id",
+                     "from_stop_id",
+                     "to_stop_id"
+                 ]
+}

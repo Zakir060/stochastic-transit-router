@@ -1,0 +1,111 @@
+# =============================================================================
+# Stochastic Transit Router - Default Configuration
+# Route Intelligence Platform - Master Configuration File
+#
+# File        : configs/default.yaml
+# Description : Master configuration file containing project defaults for routing,
+#               data paths, runtime parameters, realtime settings, and provenance
+#               tracking. Used as baseline for all environment-specific configs.
+# Purpose     : Centralized configuration management for STR application
+#
+# Usage:
+#   - Development: Use as-is or override with development.yaml
+#   - Testing: Use with testing.yaml for test-specific settings
+#   - Production: Use with production.yaml for hardened settings
+#   - Custom: Extend with environment-specific YAML files
+#
+# Configuration Sections:
+#   - project: Application name, version, reference date, license, default city
+#   - paths: Data directories (raw, processed, cache, exports, manifests)
+#   - runtime: Timezone, random seed, log level, strict mode flags
+#   - routing: Default routing objectives (fastest, reliable, robust, CVaR)
+#   - realtime: Real-time feed polling and staleness detection
+#   - provenance: Data audit trail tracking (SHA256, timestamps, manifests)
+#
+# Environment Variables:
+#   - STR_TIMEZONE: Override timezone (format: America/New_York)
+#   - STR_LOG_LEVEL: Override log level (DEBUG, INFO, WARNING, ERROR)
+#   - STR_RANDOM_SEED: Override random seed for reproducibility
+#   - STR_CITY: Override default city (nyc, chicago, sf, etc)
+#   - STR_DATA_ROOT: Override data directory root path
+#
+# Integration Points:
+#   - Consumed by: stochastic_transit_router.config.ConfigManager
+#   - Related files: development.yaml, production.yaml, testing.yaml, nyc.yaml
+#   - Used by: All API, CLI, ingest, and routing modules
+#   - Overridden by: Environment-specific configs (development/production/testing)
+#
+# Usage Examples:
+#   # Load default config
+#   from stochastic_transit_router.config import load_config
+#   config = load_config('configs/default.yaml')
+#
+#   # Override specific values
+#   config = load_config('configs/default.yaml', overrides={
+#       'routing.default_objective': 'reliable',
+#       'runtime.log_level': 'DEBUG'
+#   })
+#
+#   # Chain environment-specific config
+#   config = load_config('configs/default.yaml')
+#   config.merge(load_config('configs/production.yaml'))
+#
+# Maintenance Notes:
+#   - Keep timezone in IANA format (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+#   - Change reference_date when bumping minor/patch versions
+#   - Adjust topk_max based on API response time SLAs
+#   - Update realtime settings based on feed publisher capabilities
+#   - Increase polling_interval_seconds for rate-limited feeds
+#
+# Review cycle: Quarterly (with version releases)
+# Last Updated : 2026-04-05
+# Maintained by: Development Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+project:
+  name: stochastic-transit-router
+  version: 0.1.0
+  reference_date: "2026-04-05"
+  license: EUPL-1.2
+  city_default: nyc
+
+paths:
+  data_root: data
+  raw_root: data/raw
+  processed_root: data/processed
+  cache_root: data/cache
+  exports_root: data/exports
+  manifests_root: data/manifests
+
+runtime:
+  timezone: America/New_York
+  random_seed: 20260405
+  log_level: INFO
+  strict_real_data_only: true
+
+routing:
+  default_objective: fastest
+  supported_objectives:
+    - fastest
+    - reliable
+    - robust
+    - cvar
+  topk_default: 3
+  topk_max: 20
+  risk_lambda_default: 1.0
+  reliability_tau_default_seconds: 3600
+  cvar_alpha_default: 0.95
+
+realtime:
+  polling_interval_seconds: 30
+  max_backoff_seconds: 300
+  stale_feed_threshold_seconds: 180
+  enable_service_alert_penalty: true
+
+provenance:
+  record_sha256: true
+  record_download_timestamp: true
+  record_input_manifest: true
+  fail_on_missing_hash: true

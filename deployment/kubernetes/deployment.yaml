@@ -1,0 +1,51 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : deployment\kubernetes\deployment.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stochastic-transit-router
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stochastic-transit-router
+  template:
+    metadata:
+      labels:
+        app: stochastic-transit-router
+    spec:
+      containers:
+        - name: api
+          image: stochastic-transit-router:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"

@@ -1,0 +1,28 @@
+# =============================================================================
+# Stochastic Transit Router - Yen's K-Shortest Paths Benchmark Configuration
+# Route Intelligence Platform - Top-K Routing Performance Testing
+#
+# File        : configs/benchmarks/yens.yaml
+# Description : Benchmark for Yen's K-shortest paths algorithm.
+#               Finds top 5 most promising routes (K=5).
+# Purpose     : Validate K-shortest paths performance
+#
+# Algorithm: Yen's K-Shortest Paths (K=5)
+#   - Objective: Find 5 best routes
+#   - Metrics: wall_time, generated_candidates, accepted_paths
+#
+# Last Updated: 2026-04-05
+# Owner: Performance Team
+# =============================================================================
+
+benchmark:
+  name: yens_topk
+  algorithm: yens
+  k: 5
+  query_set: nyc_core_pairs
+  repetitions: 10
+  warmup_runs: 2
+  metrics:
+    - wall_time_ms
+    - generated_candidates
+    - accepted_paths

@@ -1,0 +1,60 @@
+# =============================================================================
+# Stochastic Transit Router - NYC Taxi and Limousine Commission Trip Data
+# Route Intelligence Platform - Taxi/Rideshare Travel Pattern Data
+#
+# File        : configs/feeds/tlc.yaml
+# Description : Configuration for NYC TLC taxi and rideshare trip records.
+#               Provides historical taxi movement data for travel pattern analysis.
+#               Used to supplement transit travel time distributions.
+# Purpose     : Ingest TLC trip data for travel pattern analysis
+#
+# Feed Details:
+#   - Provider: NYC Taxi and Limousine Commission
+#   - Data: Yellow taxi, green taxi, and FHV (rideshare) trips
+#   - Format: Parquet files (monthly)
+#   - Access: Web listing (dynamically discovered)
+#   - Documentation: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+#
+# Data Processing:
+#   - Stream: One month at a time (manage memory)
+#   - Outlier filtering: 60-10800 seconds (1 min to 3 hours)
+#   - Speed validation: 0.1-80 mph
+#
+# Fields Used:
+#   - pickup_datetime, dropoff_datetime
+#   - pickup_location, dropoff_location
+#   - trip_distance, fare_amount
+#
+# Usage: Analyze travel patterns, validate transit estimates
+#
+# Related: mta_gtfs.yaml, osm.yaml (walking network)
+# Last Updated: 2026-04-05
+# Owner: Data Engineering Team
+# =============================================================================
+
+feed:
+  id: nyc_tlc_trip_records
+  provider: New York City Taxi and Limousine Commission
+  city: nyc
+  access_method: html_listing_then_parquet_download
+  format: parquet
+  documentation_urls:
+    - https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+  registration_required: false
+  listing_strategy: scrape_official_listing
+  notes:
+    - Monthly files are discovered from the official web page at runtime.
+    - File names are never hardcoded when not present on the official listing.
+
+processing:
+  stream_one_month_at_a_time: true
+  outlier_policy:
+    min_duration_seconds: 60
+    max_duration_seconds: 10800
+    min_speed_mph: 0.1
+    max_speed_mph: 80.0
+
+provenance:
+  record_source_url: true
+  record_download_timestamp: true
+  record_sha256: true

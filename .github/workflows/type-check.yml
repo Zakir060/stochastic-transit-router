@@ -1,0 +1,244 @@
+# =============================================================================
+# GitHub Actions Workflow - Static Type Checking
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Validates Python code using mypy in strict mode. Catches type mismatches,
+#   null pointer errors, and undefined attributes before runtime.
+#
+# This workflow:
+#   - Runs on: Every push to main/develop, all PR branches, manual dispatch
+#   - Does: Run mypy static type checker in strict mode
+#   - Duration: 2-3 minutes
+#   - Notifications: GitHub commit status, PR checks
+#
+# Why mypy strict mode:
+#   - Catches: Unhandled None values, wrong function arguments
+#   - Prevents: Silent bugs at runtime (common with dynamic languages)
+#   - Documents: Code contracts through type hints
+#
+# What mypy checks:
+#   - All return types match declared types
+#   - All function arguments match parameter types
+#   - No undefined attributes on objects
+#   - No operations on None values without checking
+#   - Generic types properly instantiated (List[str] vs List)
+#
+# When type check fails:
+#   - Review error message (mypy is very specific)
+#   - Add type hints to annotate variables/functions
+#   - Use Union[Type1, Type2] for multiple possible types
+#   - Use Optional[Type] for values that can be None
+#   - Use assert statements or if checks for narrowing types
+#
+# Running locally:
+#   mypy src              # Check all source code
+#   mypy src/file.py      # Check specific file
+#   mypy --strict src     # Check with strict mode
+#   mypy --help           # See all options
+#
+# Common type errors and fixes:
+#   "error: Argument 1 has incompatible type X; expected Y"
+#     → Check function signature, ensure correct types passed
+#
+#   "error: Item 'X' of 'list' has no attribute 'Y'"
+#     → Add type hints or check list element type with isinstance
+#
+#   "error: Unsupported target for indexed assignment"
+#     → Ensure you're not trying to index immutable types
+#
+#   "error: 'None' has no attribute 'X'"
+#     → Check for None before accessing attributes, use Optional type
+#
+# Related documentation:
+#   - Type hints guide: https://peps.python.org/pep-0484/
+#   - Mypy documentation: https://mypy.readthedocs.io/
+#   - Contributing: CONTRIBUTING.md (Type Annotations section)
+#   - Code style: CONTRIBUTING.md (Code style section)
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: type-check
+
+on:
+  # Trigger on all commits to main/develop
+  push:
+    branches: ["main", "develop"]
+  # Trigger on all PR branches (before merge)
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Static Type Checking with Mypy (Strict Mode)
+# ============================================================================
+# Validates type correctness across entire codebase using mypy strict mode.
+# Strict mode catches more issues: requires all functions have return types,
+# all parameters have types, and all return values are properly handled.
+# Expected duration: 2-3 minutes
+# Status: Required for PR merge
+# ============================================================================
+
+jobs:
+  mypy:
+    name: mypy-strict
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves repository code for type checking. Type checking must
+      # analyze the actual source code to find type mismatches.
+      #
+      # Why: Mypy needs all source files to verify type consistency
+      # Expected: All Python files in src/ available for analysis
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime with pip caching. Mypy analysis
+      # speed depends on having all dependencies installed.
+      #
+      # Why: Type checking requires Python 3.12 (matches project specification)
+      # Version: 3.12 (must match runtime version for accurate checking)
+      # Cache: pip cache speeds up dependency installation
+      # Expected: Python 3.12.x available with cached packages
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Type Checker and Dependencies
+      # ========================================================================
+      # Upgrades pip and installs project in development mode. The [dev]
+      # extra includes mypy and type stubs for common libraries.
+      #
+      # Why: Mypy needs all dependencies installed to resolve types correctly
+      # What gets installed:
+      #   - -e . : Project in editable mode
+      #   - [dev] : Development tools including mypy
+      #   - Type stubs: types-* packages for standard library and common libs
+      #
+      # Expected output:
+      #   Successfully installed mypy and X packages
+      #   (mypy version should be visible)
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      # ========================================================================
+      # STEP 4: Run MyPy Type Checker (Strict Mode)
+      # ========================================================================
+      # Executes mypy against src/ directory in strict mode.
+      #
+      # Command: mypy src
+      #   - src : Type check all files in src/ directory
+      #   - Strict mode enabled in .mypy.ini configuration
+      #
+      # What mypy strict mode checks:
+      #
+      #   1. Function return types:
+      #      Every function must declare what type it returns
+      #      Example: def get_routes() -> List[Route]:
+      #
+      #   2. Function parameter types:
+      #      Every parameter must have a type annotation
+      #      Example: def compute_route(graph: Graph, start: Node) -> Route:
+      #
+      #   3. Attribute types:
+      #      Class attributes must have declared types or annotations
+      #      Example: self.routes: List[Route] = []
+      #
+      #   4. None handling:
+      #      Must check for None before accessing attributes
+      #      Example: if node is not None: result = node.value
+      #
+      #   5. Generic types:
+      #      List must be List[Type], not generic List
+      #      Example: routes: List[Route] not routes: list
+      #
+      #   6. Union types:
+      #      Multiple possible types must be explicit
+      #      Example: result: Union[Route, None] or Optional[Route]
+      #
+      # Expected output (success):
+      #   Success: no issues found in 205 files
+      #   Process exited with code 0
+      #
+      # Expected output (with type errors):
+      #   src/api/server.py:42: error: Argument 1 to "process" has incompatible
+      #     type "int"; expected "Route"
+      #   src/models/graph.py:18: error: Unsupported target for indexed assignment
+      #   tests/unit/test_route.py:7: error: Function is missing a return type
+      #
+      # Common type errors and how to fix them:
+      #
+      #   "Function is missing a return type annotation":
+      #   Issue: Function doesn't declare what it returns
+      #   Example:
+      #     def calculate_distance(lat1, lon1, lat2, lon2):  # Missing return type
+      #     return math.sqrt((lat2-lat1)**2 + (lon2-lon1)**2)
+      #   Fix:
+      #     def calculate_distance(lat1: float, lon1: float, lat2: float,
+      #                            lon2: float) -> float:
+      #       return math.sqrt((lat2-lat1)**2 + (lon2-lon1)**2)
+      #
+      #   "Argument X has incompatible type Y; expected Z":
+      #   Issue: Passing wrong type to function
+      #   Example:
+      #     def process_route(route: Route) -> None: ...
+      #     process_route("not a route")  # Error: expected Route
+      #   Fix:
+      #     route_obj = Route(...)
+      #     process_route(route_obj)
+      #
+      #   "'None' has no attribute 'X'":
+      #   Issue: Accessing attribute on value that might be None
+      #   Example:
+      #     node = find_node(graph, id)  # Can return None
+      #     print(node.value)  # Error: node might be None
+      #   Fix:
+      #     node = find_node(graph, id)
+      #     if node is not None:
+      #       print(node.value)
+      #
+      #   "Incompatible types in assignment":
+      #   Issue: Assigning wrong type to variable
+      #   Example:
+      #     count: int = "5"  # Error: expected int, got str
+      #   Fix:
+      #     count: int = 5  # or int("5") if parsing string
+      #
+      #   "Missing type annotation for variable":
+      #   Issue: Variable type cannot be inferred
+      #   Example:
+      #     routes = []  # Mypy doesn't know what List[?]
+      #   Fix:
+      #     routes: List[Route] = []
+      #
+      # If type check fails:
+      #   1. Read error message (mypy messages are clear and helpful)
+      #   2. Add type annotations to fix the issue
+      #   3. Use type narrowing (isinstance checks) for complex types
+      #   4. Use # type: ignore only as absolute last resort
+      #   5. See mypy docs for complex type patterns
+      #
+      # Type checking philosophy:
+      #   Types are documentation. They help other developers (and future you)
+      #   understand what a function expects and returns without reading
+      #   the entire implementation. Types also catch bugs before runtime.
+      # ========================================================================
+      - name: Run mypy
+        run: mypy src

@@ -1,0 +1,31 @@
+# =============================================================================
+# Stochastic Transit Router - A* Algorithm Benchmark Configuration
+# Route Intelligence Platform - Heuristic Search Performance Testing
+#
+# File        : configs/benchmarks/astar.yaml
+# Description : Benchmark for A* heuristic shortest-path algorithm.
+#               Uses Haversine heuristic to guide search. Faster than Dijkstra.
+# Purpose     : Validate A* performance vs Dijkstra baseline
+#
+# Algorithm: A* with Haversine Heuristic
+#   - Heuristic: Straight-line distance to destination
+#   - Speed: 2-5× faster than Dijkstra (fewer nodes expanded)
+#   - Optimality: Guaranteed optimal with admissible heuristic
+#   - Metrics: wall_time, nodes_expanded, path_cost, heuristic_calls
+#
+# Related: dijkstra.yaml (baseline), cvar.yaml (stochastic)
+# Last Updated: 2026-04-05
+# Owner: Performance Team
+# =============================================================================
+
+benchmark:
+  name: astar_haversine
+  algorithm: astar
+  query_set: nyc_core_pairs
+  repetitions: 20
+  warmup_runs: 3
+  metrics:
+    - wall_time_ms
+    - nodes_expanded
+    - path_cost_seconds
+    - heuristic_calls

@@ -1,0 +1,38 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : deployment\kubernetes\configmap.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stochastic-transit-router-config
+  labels:
+    app: stochastic-transit-router
+data:
+  DEFAULT_CONFIG_PATH: configs/default.yaml
+  CITY_CONFIG_PATH: configs/nyc.yaml

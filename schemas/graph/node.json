@@ -1,0 +1,27 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Graph Node",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "node_type":  {
+                                         "type":  "string"
+                                     },
+                       "node_id":  {
+                                       "type":  "string"
+                                   },
+                       "lat":  {
+                                   "type":  "number"
+                               },
+                       "metadata":  {
+                                        "type":  "object"
+                                    },
+                       "lon":  {
+                                   "type":  "number"
+                               }
+                   },
+    "required":  [
+                     "node_id",
+                     "node_type"
+                 ]
+}

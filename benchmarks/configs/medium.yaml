@@ -1,0 +1,153 @@
+# =============================================================================
+# Stochastic Transit Router - Medium Benchmark Suite Configuration
+# Route Intelligence Platform - Standard Performance Testing
+#
+# File        : benchmarks/configs/medium.yaml
+# Description : Medium benchmark suite for comprehensive performance validation.
+#               Balances test execution time with statistical significance.
+#               Standard suite for nightly regression testing and releases.
+# Purpose     : Comprehensive performance validation with reasonable runtime
+#
+# Usage:
+#   - Loaded by: benchmarks/runner.py --suite medium
+#   - Used for: Nightly testing, release validation, trend analysis
+#   - Duration: 15-20 minutes (good balance)
+#   - When: Nightly CI, before releases, weekly regression checks
+#
+# Configuration Sections:
+#   - suite.name: Suite identifier (medium)
+#   - suite.query_count: Number of queries to execute (100)
+#   - suite.graph_profile: Graph size (medium = 5000 stops)
+#   - suite.repetitions: Number of times to repeat each query (10)
+#
+# Benchmark Suite Sizes:
+#   - small: 25 queries × 5 reps = 125 total (~5 min)
+#   - medium: 100 queries × 10 reps = 1000 total (~15 min)
+#   - large: 500 queries × 20 reps = 10000 total (~60+ min)
+#
+# Graph Profiles:
+#   - small: ~1,000 stops, ~5,000 edges (lightweight)
+#   - medium: ~5,000 stops, ~30,000 edges (realistic)
+#   - large: ~12,000 stops, ~150,000 edges (full NYC)
+#
+# Usage Examples:
+#   # Run medium benchmark suite
+#   python benchmarks/runner.py --suite medium
+#
+#   # Run with JSON output for analysis
+#   python benchmarks/runner.py --suite medium --output results.json
+#
+#   # Run specific algorithms
+#   python benchmarks/runner.py --suite medium --algorithms cvar,robust
+#
+# Performance Expectations (medium suite):
+#   - Dijkstra: 1.5-2.5 ms per query
+#   - A*: 0.8-1.5 ms per query
+#   - K-shortest: 5-10 ms per query
+#   - Robust: 10-20 ms per query
+#   - Stochastic: 8-15 ms per query
+#   - CVaR: 12-25 ms per query
+#
+# Benchmark Methodology:
+#   1. Load graph with medium profile (5000 stops)
+#   2. Generate 100 random origin-destination pairs
+#   3. Execute each pair 10 times (to warm up cache)
+#   4. Record: latency, memory, correctness for each
+#   5. Report: mean, median, p95, p99 latencies
+#   6. Trend: Compare to historical baseline
+#
+# Metrics Collected:
+#   - Latency: Query execution time (milliseconds)
+#   - Memory: Peak memory usage during query (MB)
+#   - Correctness: Route validity and optimality
+#   - Throughput: Queries per second (achieved)
+#   - Scalability: Latency vs query complexity
+#
+# Configuration Values Explained:
+#   - query_count: 100 provides good statistical power
+#     * Statistical significance: ±5% confidence interval
+#     * Distribution analysis: Detect outliers/anomalies
+#     * Trend detection: Spot regressions reliably
+#
+#   - graph_profile: medium is realistic production data
+#     * Similar to: Real NYC metro graph
+#     * Balance: Performance validation vs runtime
+#     * Benefit: Results generalize to production
+#
+#   - repetitions: 10 allows multiple measurements
+#     * Warm-up: First 2-3 runs populate caches
+#     * Steady state: Last 7-8 runs show real perf
+#     * Variability: Detect cache effects
+#
+# Workflow: Nightly Regression Testing
+#   1. Checkout main branch
+#   2. Run medium suite → baseline.json
+#   3. Run all unit tests
+#   4. Run medium suite → latest.json
+#   5. Compare: Baseline vs Latest
+#   6. Alert: If regression > 5%
+#   7. Report: Post results to dashboard
+#
+# Release Validation Checklist:
+#   ☐ Run medium suite on main branch
+#   ☐ Record results as baseline
+#   ☐ Run medium suite after changes
+#   ☐ Compare for regressions
+#   ☐ If regression > 2%: Investigate
+#   ☐ If regression > 5%: Revert or fix
+#   ☐ Approve release if no regression
+#
+# Trend Analysis:
+#   # Track performance over time
+#   date | latency_ms | throughput | algorithm
+#   -----|-----------|-----------|----------
+#   Week 1 | 15.2 | 66 | dijkstra
+#   Week 2 | 14.8 | 68 | dijkstra
+#   Week 3 | 15.5 | 65 | dijkstra
+#   Action: Investigate Week 3 regression
+#
+# Comparing Suites:
+#   - Small: For every commit (5 min) - development
+#   - Medium: Nightly tests (15 min) - regression detection
+#   - Large: Weekly tests (60 min) - stress testing
+#
+# Environment Variables:
+#   - STR_BENCHMARK_SUITE: Set to 'medium'
+#   - STR_BENCHMARK_QUERIES: Override to 200 for extra data
+#   - STR_BENCHMARK_REPS: Override to 20 for more precision
+#
+# Integration Points:
+#   - Used by: benchmarks/runner.py
+#   - Called from: .github/workflows/benchmark-nightly.yml
+#   - Compared to: Small suite (for scalability)
+#   - Analyzed by: Performance dashboard
+#
+# Troubleshooting:
+#   - Benchmark too slow (> 25 min): Reduce repetitions to 5
+#   - High variance in results: Increase repetitions
+#   - Memory issues: Reduce query_count to 50
+#   - Timeout in CI: Increase job timeout or run locally
+#
+# Results Analysis:
+#   # After benchmark completes
+#   python benchmarks/analyze.py results.json
+#   # Shows: latency distribution, percentiles, trends
+#
+# Related Documentation:
+#   - Benchmarking: docs/operations/benchmarking.md
+#   - Performance SLA: docs/operations/performance-sla.md
+#   - Small suite: benchmarks/configs/small.yaml
+#   - Large suite: benchmarks/configs/large.yaml
+#   - Historical results: benchmarks/results/
+#
+# Last Updated : 2026-04-05
+# Maintained by: Performance Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+suite:
+  name: medium
+  query_count: 100
+  graph_profile: medium
+  repetitions: 10

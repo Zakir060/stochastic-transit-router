@@ -1,0 +1,204 @@
+# =============================================================================
+# GitHub Actions Workflow - Integration Test Suite
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Validates contract compliance, schema correctness, and API integration
+#   between system components including databases, data feeds, and services.
+#
+# This workflow:
+#   - Runs on: Push to main/develop, PR creation, manual dispatch
+#   - Does: Execute contract, schema, and integration test suites
+#   - Duration: 5-7 minutes (including database setup)
+#   - Notifications: GitHub commit status, PR checks
+#
+# What "integration" means here:
+#   - Contract tests: API contracts between modules are honored
+#   - Schema tests: GTFS/OSM/TLC data conform to expected schemas
+#   - Integration tests: Multi-module workflows work end-to-end
+#
+# When integration tests fail:
+#   - Check data source changes in src/ingest/
+#   - Review schema definitions in schemas/
+#   - Examine module contracts in tests/contracts/
+#   - Validate API changes in src/api/
+#
+# Running locally:
+#   pytest tests/integration -v  # Run integration tests
+#   pytest tests/contracts -v    # Run contract tests
+#   pytest tests/schema -v       # Run schema validation tests
+#   pytest tests/integration tests/contracts tests/schema -v  # Run all three
+#
+# Test organization:
+#   tests/integration/ - End-to-end workflows (ingest → route → output)
+#   tests/contracts/   - API contract verification between modules
+#   tests/schema/      - Data schema validation and mapping tests
+#
+# Troubleshooting:
+#   - "Connection refused" errors may indicate test database setup issues
+#   - "Schema validation failed" suggests data format incompatibility
+#   - "Contract violation" indicates breaking changes in module APIs
+#   - See debug logs by adding -vv flag to pytest
+#
+# Related documentation:
+#   - Integration tests guide: docs/reference/integration-tests.md
+#   - Data ingest: docs/reference/ingest.md
+#   - API reference: docs/reference/api.md
+#   - Contributing: CONTRIBUTING.md (Testing section)
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: integration-tests
+
+on:
+  # Trigger on commits to main/develop branches
+  push:
+    branches: ["main", "develop"]
+  # Trigger on pull requests against main/develop
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Integration Test Suite
+# ============================================================================
+# Runs contract, schema, and multi-module integration tests. Tests validate
+# that all components work together correctly with real data.
+# Expected duration: 5-7 minutes
+# Status: Required for PR merge
+# ============================================================================
+
+jobs:
+  integration:
+    name: integration-contract-schema
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves full repository code at the current commit. Integration
+      # tests need access to test fixtures, schemas, and sample data files.
+      #
+      # Why: Integration tests depend on test data in tests/ directory
+      # Expected: All test files and fixtures available
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime with dependency caching. Integration
+      # tests have more dependencies than unit tests (database drivers, etc).
+      #
+      # Why: Ensures consistent Python version across environments
+      # Version: 3.12 (matches project specification)
+      # Cache: pip cache reduces installation time from ~2 min to ~30 sec
+      # Expected: Python 3.12.x available with cached dependencies
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Project and Test Dependencies
+      # ========================================================================
+      # Upgrades pip and installs project in development mode with dev and
+      # test dependencies. Integration tests require:
+      #   - pytest and plugins (pytest-mock, pytest-timeout)
+      #   - Database drivers and ORMs
+      #   - Data validation libraries
+      #   - Mock GTFS/OSM/TLC data generators
+      #
+      # Why: Integration tests are more heavyweight than unit tests
+      # What gets installed:
+      #   - -e . : Project in editable mode
+      #   - [dev] : Development tools and linters
+      #   - [test] : Test framework, fixtures, and helpers
+      #
+      # Expected output:
+      #   Successfully installed stochastic-transit-router and X packages
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev,test]
+
+      # ========================================================================
+      # STEP 4: Run Integration Test Suite
+      # ========================================================================
+      # Executes three test categories in sequence with quiet output:
+      #   1. tests/integration/ - End-to-end workflows
+      #   2. tests/contracts/   - API contract verification
+      #   3. tests/schema/      - Data schema validation
+      #
+      # Command: pytest tests/integration tests/contracts tests/schema -q
+      #   - -q: Quiet mode (one line summary)
+      #   - No parameters to pytest means:
+      #     * Run all tests discovered in these directories
+      #     * Use markers from conftest.py to skip/categorize tests
+      #     * Collect coverage statistics (if configured)
+      #
+      # What each test category validates:
+      #
+      #   INTEGRATION TESTS (tests/integration/):
+      #   - Ingest pipeline can load GTFS feeds without corruption
+      #   - Route computation produces results within SLA
+      #   - Stats aggregation produces correct summaries
+      #   - API endpoints return properly formatted responses
+      #   - Error handling works for malformed inputs
+      #
+      #   CONTRACT TESTS (tests/contracts/):
+      #   - Module A's outputs match Module B's input expectations
+      #   - API responses include all required fields
+      #   - Enum values are consistent across modules
+      #   - No breaking changes to public interfaces
+      #
+      #   SCHEMA TESTS (tests/schema/):
+      #   - GTFS feed validation catches missing required fields
+      #   - OSM data transforms to route graphs correctly
+      #   - TLC trip data maps to internal representations
+      #   - Custom schemas compile and validate correctly
+      #
+      # Expected output (success):
+      #   passed: X, skipped: Y, warnings: Z
+      #   Total duration: 5-7 minutes
+      #   All contract and schema validations successful
+      #
+      # Expected output (when no tests exist):
+      #   "No integration, contract, or schema tests are present..."
+      #   (This is normal for early development)
+      #
+      # If integration tests fail:
+      #
+      #   Contract violation errors:
+      #   1. Check recent API changes in src/api/, src/models/
+      #   2. Verify changes are backward compatible
+      #   3. Update consumer code to match new interface
+      #   4. Add deprecation warnings for breaking changes
+      #
+      #   Schema validation errors:
+      #   1. Check data source compatibility in src/ingest/
+      #   2. Verify schema definitions in schemas/
+      #   3. Review transformation logic in src/models/
+      #   4. Validate sample data in tests/data/fixtures/
+      #
+      #   Connection/timeout errors:
+      #   1. Check test database setup in conftest.py
+      #   2. Review external service mocks
+      #   3. Increase timeout thresholds if needed
+      #   4. Check system resource constraints
+      # ========================================================================
+      - name: Run integration suites
+        run: |
+          if [ -d tests/integration ] || [ -d tests/contracts ] || [ -d tests/schema ]; then
+            pytest tests/integration tests/contracts tests/schema -q
+          else
+            echo "No integration, contract, or schema tests are present in this phase."
+          fi

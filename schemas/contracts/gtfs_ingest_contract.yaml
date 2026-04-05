@@ -1,0 +1,41 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : schemas\contracts\gtfs_ingest_contract.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+﻿# SPDX-License-Identifier: EUPL-1.2
+contract:
+  name: gtfs_ingest_contract
+  input_schema_group: schemas/gtfs
+  output_artifacts:
+    - graph_nodes
+    - graph_edges
+    - feed_manifest
+  guarantees:
+    - referential_integrity_checked
+    - required_files_validated
+    - provenance_recorded

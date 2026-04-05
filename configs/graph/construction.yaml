@@ -1,0 +1,180 @@
+# =============================================================================
+# Stochastic Transit Router - Graph Construction Configuration
+# Route Intelligence Platform - Transit Network Graph Building Parameters
+#
+# File        : configs/graph/construction.yaml
+# Description : Configuration for transit network graph construction from GTFS data.
+#               Defines node/edge types, validation rules, and feature inclusion.
+#               Critical for data integrity and routing algorithm correctness.
+# Purpose     : Control how transit network graph is built from raw GTFS data
+#
+# Usage:
+#   - Loaded by: GraphBuilder during ingest pipeline
+#   - Applied to: GTFS stop, trip, shape, and transfer data
+#   - Used for: Network construction, validation, and optimization
+#   - Impact: Routing accuracy, algorithm performance, query latency
+#
+# Configuration Sections:
+#   - graph.node_types: Types of vertices in network graph
+#   - graph.edge_types: Types of edges connecting vertices
+#   - graph.build: Feature inclusion flags and limits
+#   - graph.validation: Data quality and integrity checks
+#
+# Node Types in Network:
+#   1. transit_stop: GTFS stop point (primary)
+#   2. station_entrance: Multi-stop station entry points
+#   3. platform: Physical platform within stop
+#   4. transfer_point: Connection point between lines
+#   5. pedestrian_connector: Walking path node
+#   6. virtual_origin: Source node for origin queries
+#   7. virtual_destination: Sink node for destination queries
+#
+# Edge Types in Network:
+#   1. scheduled_movement: GTFS trip segment (fixed schedule)
+#   2. transfer_edge: Connection between stops (walking)
+#   3. waiting_edge: Time spent waiting at stop
+#   4. footpath_edge: Pedestrian path between stops
+#   5. disruption_adjusted_edge: Edge with service disruption
+#   6. service_alert_edge: Edge with service alert
+#   7. boarding_edge: Passenger boarding (GTFS access)
+#   8. alighting_edge: Passenger alighting (GTFS egress)
+#
+# Build Configuration Explanation:
+#   - include_pathways: Include GTFS pathways (transfers within stations)
+#   - include_transfers: Include GTFS transfers (between stops/routes)
+#   - include_shapes: Include GTFS shapes (actual route geometry)
+#   - include_frequency_service: Include frequency-based routes (vs schedule)
+#   - max_transfer_time_seconds: Maximum time between stops (1800s = 30 min)
+#
+# Validation Configuration:
+#   - require_referential_integrity: Enforce all stops exist in stops.txt
+#   - fail_on_missing_stop_reference: Block ingest if stop ID missing
+#   - fail_on_negative_edge_weight: Reject edges with negative time/distance
+#
+# Usage Examples:
+#   # Build graph with NYC GTFS
+#   from stochastic_transit_router.graph import GraphBuilder
+#   config = load_config('configs/default.yaml', 'configs/graph/construction.yaml')
+#   builder = GraphBuilder(config)
+#   graph = builder.build_from_gtfs('data/raw/nyc/gtfs/')
+#
+#   # Inspect graph statistics
+#   print(f"Nodes: {graph.number_of_nodes()}")  # typically 6,000-15,000
+#   print(f"Edges: {graph.number_of_edges()}")  # typically 50,000-200,000
+#   print(f"Node types: {set(d['type'] for n, d in graph.nodes(data=True))}")
+#
+# Development Configuration (current):
+#   - Include: pathways, transfers, shapes, frequency services
+#   - Transfer limit: 1800 seconds (30 minutes)
+#   - Validation: Strict (referential integrity required)
+#
+# Production Configuration (recommended):
+#   - Include: Same as development
+#   - Transfer limit: 1200 seconds (20 minutes for reliability)
+#   - Validation: Strict (same)
+#
+# NYC Network Statistics (typical):
+#   - Nodes: ~12,000 (5,800 stops + 6,200 other nodes)
+#   - Edges: ~150,000 (scheduled movements + transfers + walking)
+#   - Daily trips: ~25,000 scheduled + frequency
+#   - Shapes: ~3,500 unique route geometries
+#
+# Environment Variables:
+#   - STR_GRAPH_MAX_TRANSFER_TIME: Override max transfer time (seconds)
+#   - STR_GRAPH_INCLUDE_PATHWAYS: Set to 'false' to exclude pathways
+#   - STR_GRAPH_INCLUDE_TRANSFERS: Set to 'false' to exclude transfers
+#
+# Integration Points:
+#   - Used by: stochastic_transit_router.graph.GraphBuilder
+#   - Consumed by: Routing algorithms (Dijkstra, A*, K-shortest-paths)
+#   - Affects: Query latency, result accuracy, memory usage
+#   - Related: update_policy.yaml, walking_edges.yaml
+#
+# Graph Building Process:
+#   1. Parse GTFS files (stops, trips, stop_times, transfers)
+#   2. Create stop nodes for each stop in GTFS
+#   3. Create edges from stop_times (scheduled movements)
+#   4. Add transfer edges from transfers.txt
+#   5. Add walking edges (if include_pathways: true)
+#   6. Validate referential integrity (if required: true)
+#   7. Optimize graph structure (sorting, indexing)
+#   8. Compute transitive closure for reachability
+#
+# Performance Impact:
+#   - include_shapes: +5-10% memory (stores geometry)
+#   - include_transfers: +2-3% edges, -2% query latency
+#   - include_frequency: +15-20% edges, -5-10% accuracy
+#   - strict validation: +5-10% build time
+#
+# Memory Estimation (NYC):
+#   - Base graph: ~200-300 MB (nodes + edges)
+#   - With shapes: ~250-350 MB (+50 MB shapes)
+#   - With caching: ~500-700 MB (query cache + indices)
+#
+# Build Time Estimation (NYC):
+#   - Parse GTFS: 2-3 seconds
+#   - Build graph: 5-10 seconds
+#   - Optimize: 2-3 seconds
+#   - Total: 10-15 seconds
+#
+# Troubleshooting Build Issues:
+#   - Issue: "Missing stop reference" errors
+#   - Cause: GTFS data quality issue (stop_time references invalid stop)
+#   - Fix: Set fail_on_missing_stop_reference: false (allows recovery)
+#
+#   - Issue: "Negative edge weight" errors
+#   - Cause: Stop times out of order or clock issues
+#   - Fix: Enable data cleaning or set fail_on_negative_edge_weight: false
+#
+#   - Issue: Graph too large or slow queries
+#   - Cause: Too many transfer edges or frequency services
+#   - Fix: Reduce max_transfer_time_seconds or disable frequency
+#
+# Optimization Tips:
+#   - Remove unreliable transfers: Reduce max_transfer_time_seconds to 1200
+#   - Speed up routing: Disable include_shapes (geometric storage)
+#   - Reduce memory: Disable include_pathways (rarely used)
+#   - Parallel queries: Increase topk to leverage multi-core
+#
+# Related Documentation:
+#   - GTFS reference: https://gtfs.org/
+#   - Graph algorithms: docs/math/graph-algorithms.md
+#   - Graph optimization: docs/operations/graph-optimization.md
+#   - Update policies: configs/graph/update_policy.yaml
+#
+# Last Updated : 2026-04-05
+# Maintained by: Graph Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+graph:
+  node_types:
+    - transit_stop
+    - station_entrance
+    - platform
+    - transfer_point
+    - pedestrian_connector
+    - virtual_origin
+    - virtual_destination
+  edge_types:
+    - scheduled_movement
+    - transfer_edge
+    - waiting_edge
+    - footpath_edge
+    - disruption_adjusted_edge
+    - service_alert_edge
+    - boarding_edge
+    - alighting_edge
+
+build:
+  include_pathways: true
+  include_transfers: true
+  include_shapes: true
+  include_frequency_service: true
+  max_transfer_time_seconds: 1800
+
+validation:
+  require_referential_integrity: true
+  fail_on_missing_stop_reference: true
+  fail_on_negative_edge_weight: true

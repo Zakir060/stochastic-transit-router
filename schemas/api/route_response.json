@@ -1,0 +1,28 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Route Response",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "request_id":  {
+                                          "type":  "string"
+                                      },
+                       "paths":  {
+                                     "items":  {
+                                                   "type":  "object"
+                                               },
+                                     "type":  "array"
+                                 },
+                       "objective":  {
+                                         "type":  "string"
+                                     },
+                       "metadata":  {
+                                        "type":  "object"
+                                    }
+                   },
+    "required":  [
+                     "request_id",
+                     "objective",
+                     "paths"
+                 ]
+}

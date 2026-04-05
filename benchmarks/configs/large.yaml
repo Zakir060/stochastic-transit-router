@@ -1,0 +1,170 @@
+# =============================================================================
+# Stochastic Transit Router - Large Benchmark Suite Configuration
+# Route Intelligence Platform - Comprehensive Stress Testing
+#
+# File        : benchmarks/configs/large.yaml
+# Description : Large benchmark suite for comprehensive stress testing and
+#               performance validation under realistic load. Uses full-size
+#               graph and extensive query set for production readiness validation.
+# Purpose     : Comprehensive stress testing with full production-scale data
+#
+# Usage:
+#   - Loaded by: benchmarks/runner.py --suite large
+#   - Used for: Release validation, stress testing, production readiness
+#   - Duration: 60-90 minutes (comprehensive but time-intensive)
+#   - When: Pre-release, weekly deep validation, quarterly audits
+#
+# Configuration Sections:
+#   - suite.name: Suite identifier (large)
+#   - suite.query_count: Number of queries to execute (250)
+#   - suite.graph_profile: Graph size (large = full NYC ~12k stops)
+#   - suite.repetitions: Number of times to repeat each query (10)
+#
+# Benchmark Suite Sizes:
+#   - small: 25 queries × 5 reps = 125 total (~5 min)
+#   - medium: 100 queries × 10 reps = 1000 total (~15 min)
+#   - large: 250 queries × 10 reps = 2500 total (~60 min)
+#
+# Graph Profiles:
+#   - small: ~1,000 stops, ~5,000 edges (development)
+#   - medium: ~5,000 stops, ~30,000 edges (testing)
+#   - large: ~12,000 stops, ~150,000 edges (full NYC)
+#
+# Usage Examples:
+#   # Run large benchmark suite (be patient!)
+#   python benchmarks/runner.py --suite large
+#
+#   # Run with profiling
+#   python benchmarks/runner.py --suite large --profile
+#
+#   # Run in background and save results
+#   python benchmarks/runner.py --suite large --output results.json &
+#
+# Performance Expectations (large suite):
+#   - Dijkstra: 5-8 ms per query
+#   - A*: 2-4 ms per query
+#   - K-shortest: 20-40 ms per query
+#   - Robust: 50-100 ms per query
+#   - Stochastic: 30-60 ms per query
+#   - CVaR: 60-120 ms per query
+#
+# Benchmark Methodology:
+#   1. Load full graph with large profile (12,000 stops)
+#   2. Generate 250 random origin-destination pairs
+#   3. Execute each pair 10 times
+#   4. Record: latency, memory, correctness for each query
+#   5. Report: comprehensive statistics and comparisons
+#   6. Analyze: Scalability, bottlenecks, algorithmic behavior
+#
+# Metrics Collected:
+#   - Latency: 50th, 95th, 99th percentiles
+#   - Memory: Peak memory, GC behavior
+#   - Correctness: Route validity, optimality
+#   - Throughput: Queries per second
+#   - Algorithm comparison: Which performs best?
+#   - Scalability: How does size affect performance?
+#
+# Configuration Values Explained:
+#   - query_count: 250 provides excellent statistical power
+#     * Confidence: ±2-3% confidence interval
+#     * Outliers: Detect anomalies reliably
+#     * Trends: Strong signal for comparison
+#
+#   - graph_profile: large uses full production graph
+#     * Benefit: True production performance data
+#     * Cost: Runtime 30x larger than small suite
+#     * Use case: Certification/release validation
+#
+#   - repetitions: 10 provides stability measurements
+#     * Warm-up: First 1-2 runs
+#     * Steady-state: Last 8-9 runs
+#     * Variance: Detect cache/GC effects
+#
+# Release Certification Checklist:
+#   ☐ Pass all unit tests
+#   ☐ Pass all integration tests
+#   ☐ Run large suite on main branch → baseline
+#   ☐ Run large suite on release → current
+#   ☐ Compare: No regression > 2% for any algorithm
+#   ☐ Memory: Peak memory < 1.5x previous release
+#   ☐ Throughput: > 100 queries/sec at P95
+#   ☐ Approve for release
+#
+# Production Readiness Criteria:
+#   ✓ P95 latency < 500ms (SLA)
+#   ✓ P99 latency < 1000ms (SLA)
+#   ✓ Memory < 1GB sustained
+#   ✓ No timeout violations
+#   ✓ No correctness issues
+#   ✓ Algorithm comparison shows expected behavior
+#
+# When to Run Large Suite:
+#   - Pre-release validation (ALWAYS)
+#   - After major algorithm changes (code review required)
+#   - Performance optimization verification
+#   - Quarterly audits (trends over time)
+#   - Stress test before high-traffic events
+#
+# Suite Progression for New Feature:
+#   1. Develop: Run small suite every commit (~5 min)
+#   2. PR review: Run medium suite on feature branch (~15 min)
+#   3. Merge to main: Run medium suite on main (~15 min)
+#   4. Pre-release: Run large suite (~60 min)
+#   5. Release: Pass large suite with no regression
+#
+# Comparing to Production Metrics:
+#   # Large suite results should closely match production P95/P99
+#   Small suite:   mean 5ms (lower bound)
+#   Medium suite:  mean 15ms (typical load)
+#   Large suite:   mean 25ms (peak load)
+#   Production:    P95 50ms (real-world load)
+#
+# Environment Variables:
+#   - STR_BENCHMARK_SUITE: Set to 'large'
+#   - STR_BENCHMARK_TIMEOUT: Increase from 120min default if needed
+#   - STR_BENCHMARK_PARALLEL: Set to '4' for 4 threads
+#
+# Integration Points:
+#   - Used by: benchmarks/runner.py
+#   - Called from: Manual trigger or scheduled weekly
+#   - Compared to: Historical data for trend analysis
+#   - Reported to: Performance dashboard, release notes
+#
+# Interpreting Results:
+#   # After large suite completes
+#   python benchmarks/compare.py baseline.json latest.json
+#
+#   # Looks for:
+#   # - Latency regression > 2% (investigate)
+#   # - Memory increase > 10% (review)
+#   # - Algorithm behavior changes (verify correct)
+#   # - New bottlenecks (profile with --profile flag)
+#
+# Troubleshooting:
+#   - Benchmark timeout (> 90 min): Increase timeout or reduce repetitions
+#   - Memory exceeded: Run with --profile to identify leaks
+#   - Unexpected slowdown: Compare algorithm-by-algorithm
+#   - High variance: Disable background apps, rerun
+#
+# Results Storage:
+#   # Results automatically saved to
+#   benchmarks/results/YYYYMMDD_HHMMSS.json
+#   # Use for trend analysis and regression detection
+#
+# Related Documentation:
+#   - Benchmarking guide: docs/operations/benchmarking.md
+#   - Performance SLA: docs/operations/performance-sla.md
+#   - Release process: docs/operations/release-process.md
+#   - Algorithm comparison: docs/math/algorithm-comparison.md
+#
+# Last Updated : 2026-04-05
+# Maintained by: Performance Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+suite:
+  name: large
+  query_count: 250
+  graph_profile: large
+  repetitions: 10

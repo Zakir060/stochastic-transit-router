@@ -1,0 +1,32 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Graph Edge",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "from_node":  {
+                                         "type":  "string"
+                                     },
+                       "edge_type":  {
+                                         "type":  "string"
+                                     },
+                       "edge_id":  {
+                                       "type":  "string"
+                                   },
+                       "metadata":  {
+                                        "type":  "object"
+                                    },
+                       "to_node":  {
+                                       "type":  "string"
+                                   },
+                       "base_weight_seconds":  {
+                                                   "type":  "number"
+                                               }
+                   },
+    "required":  [
+                     "edge_id",
+                     "from_node",
+                     "to_node",
+                     "edge_type"
+                 ]
+}

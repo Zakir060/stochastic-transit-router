@@ -1,0 +1,654 @@
+# =============================================================================
+# Stochastic Transit Router - Pre-commit Hooks Configuration
+# Automated Code Quality, Security, and Format Checks on Git Commit
+#
+# This file configures pre-commit hooks that automatically run before each
+# commit to enforce code quality standards, security checks, formatting,
+# type safety, and other quality gates. These hooks catch issues early
+# and prevent commits that violate project standards.
+#
+# Installation: pre-commit install
+# Manual run:   pre-commit run --all-files
+# Documentation: https://pre-commit.com/
+# =============================================================================
+
+# ============================================================================
+# GLOBAL CONFIGURATION
+# ============================================================================
+
+# Minimum pre-commit framework version
+minimum_pre_commit_version: "3.8.0"
+
+# Default stages where hooks run (can be overridden per hook)
+# commit: Run before commit (default)
+# push: Run before push
+# merge-commit: Run before merge commits
+# push commit: Run on both commit and push
+default_stages:
+  - commit
+
+# Number of parallel processes for hook execution
+# Set to 0 to disable parallelization (useful for debugging)
+# Defaults to CPU count
+default_language_version:
+  python: "python3.12"
+
+# ============================================================================
+# REPOSITORY HOOKS - RUFF (FORMATTER & LINTER)
+# ============================================================================
+
+repos:
+  # ========================================================================
+  # RUFF - Python Linter and Formatter (astral-sh)
+  # ========================================================================
+  # Fast, all-in-one Python linter and formatter written in Rust
+  # Replaces: black, isort, flake8, pylint, and more
+  # Documentation: https://docs.astral.sh/ruff/
+  # ========================================================================
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.7
+    hooks:
+      # ====================================================================
+      # RUFF CHECK (Linting - Auto-fix where possible)
+      # ====================================================================
+      # Runs code quality checks (linting) and fixes issues automatically
+      # Rules checked: unused imports, undefined names, unused variables, etc.
+      # Automatically fixes: sorting imports, removing unused imports, etc.
+      # ====================================================================
+      - id: ruff-check
+        name: "Ruff lint (auto-fix)"
+        description: "Fast Python linter with automatic fixes"
+        stages: [commit]
+        args:
+          - "--fix"                    # Auto-fix issues where possible
+          - "--exit-zero"              # Don't fail on unfixable issues
+          - "--show-fixes"             # Show what was fixed
+          - "--show-settings"          # Show which rules are enabled
+        exclude: |
+          (?x)^(
+            setup\.py|
+            setup\.cfg|
+            __pycache__|
+            \.git/
+          )$
+
+      # ====================================================================
+      # RUFF FORMAT (Code Formatting - Auto-format)
+      # ====================================================================
+      # Formats Python code to consistent style (similar to Black)
+      # Settings: 100-char line length, 4-space indentation
+      # Enforces: line length, import sorting, string formatting
+      # ====================================================================
+      - id: ruff-format
+        name: "Ruff format (auto-format code)"
+        description: "Format Python code with Ruff"
+        stages: [commit]
+        args:
+          - "--line-length=100"        # Maximum line length
+          - "--indent-width=4"         # Indentation size
+        exclude: |
+          (?x)^(
+            setup\.py|
+            setup\.cfg|
+            __pycache__|
+            \.git/
+          )$
+
+  # ========================================================================
+  # MYPY - Static Type Checker
+  # ========================================================================
+  # Checks Python code for type errors using static analysis
+  # Enforces strict mode: all functions must have type hints
+  # Documentation: https://www.mypy-lang.org/
+  # ========================================================================
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.16.1
+    hooks:
+      - id: mypy
+        name: "MyPy (static type checking)"
+        description: "Type check Python code with mypy"
+        stages: [commit]
+        args:
+          - "--config-file=.mypy.ini"   # Use project configuration
+          - "--strict"                  # Strict mode: all types required
+          - "--show-error-codes"        # Show error codes for filtering
+          - "src/"                      # Check source code only
+        types: [python]
+        additional_dependencies:
+          - "pydantic>=2.11"            # Type stubs for Pydantic
+          - "types-PyYAML>=6.0.12"      # Type stubs for PyYAML
+          - "types-requests>=2.32"      # Type stubs for requests
+        exclude: |
+          (?x)^(
+            tests/.*|
+            setup\.py
+          )$
+
+  # ========================================================================
+  # SECURITY HOOKS - Code Quality and Security Analysis
+  # ========================================================================
+
+  # ========================================================================
+  # BANDIT - Security Issue Scanner
+  # ========================================================================
+  # Scans Python code for common security issues:
+  # - Hardcoded passwords and secrets
+  # - SQL injection vulnerabilities
+  # - Insecure cryptography usage
+  # - Unsafe pickles
+  # Documentation: https://bandit.readthedocs.io/
+  # ========================================================================
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        name: "Bandit (security checks)"
+        description: "Scan Python code for security vulnerabilities"
+        stages: [commit]
+        args:
+          - "-c=.bandit"               # Use project configuration
+          - "-r"                       # Recursive
+          - "--severity-level=high"    # Only report high/medium severity
+        exclude: |
+          (?x)^(
+            tests/.*|
+            setup\.py
+          )$
+        types: [python]
+
+  # ========================================================================
+  # DETECT SECRETS - Secret/Credential Detection
+  # ========================================================================
+  # Prevents committing secrets (API keys, passwords, tokens)
+  # Detects patterns: AWS keys, private keys, tokens, etc.
+  # Documentation: https://github.com/Yelp/detect-secrets
+  # ========================================================================
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: "Detect Secrets"
+        description: "Prevent committing secrets and credentials"
+        stages: [commit]
+        args:
+          - "--baseline"
+          - ".secrets.baseline"
+        exclude: |
+          (?x)^(
+            setup\.py|
+            poetry\.lock|
+            requirements\.lock
+          )$
+
+  # ========================================================================
+  # PRETTIER - Code Formatter (multiple languages)
+  # ========================================================================
+  # Formats JavaScript, TypeScript, JSON, YAML, Markdown, etc.
+  # Enforces consistent code style across all languages
+  # Documentation: https://prettier.io/
+  # ========================================================================
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: "Prettier (format: JSON, YAML, Markdown)"
+        description: "Format JSON, YAML, and Markdown files"
+        stages: [commit]
+        args:
+          - "--print-width=100"        # Line length
+          - "--tab-width=2"            # Indentation for YAML/JSON
+          - "--use-tabs=false"         # Use spaces, not tabs
+        types_or:
+          - json
+          - yaml
+          - markdown
+
+  # ========================================================================
+  # MARKDOWN LINTING - mdformat
+  # ========================================================================
+  # Ensures consistent markdown formatting across documentation
+  # Fixes: spacing, heading styles, list markers, code blocks
+  # Documentation: https://mdformat.readthedocs.io/
+  # ========================================================================
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.22
+    hooks:
+      - id: mdformat
+        name: "mdformat (markdown formatting)"
+        description: "Format markdown files"
+        stages: [commit]
+        args:
+          - "--wrap=100"               # Wrap lines at 100 chars
+          - "--number"                 # Number ordered lists
+        additional_dependencies:
+          - "mdformat-gfm"             # GitHub-flavored markdown support
+          - "mdformat-tables"          # Table formatting
+        types: [markdown]
+
+  # ========================================================================
+  # YAML VALIDATION - yaml (basic syntax check)
+  # ========================================================================
+  # Validates YAML syntax (catches invalid YAML before commit)
+  # Checks: valid YAML structure, no syntax errors
+  # ========================================================================
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.7.0
+    hooks:
+      # ====================================================================
+      # YAML Linting - yamllint
+      # ====================================================================
+      - id: check-yaml
+        name: "Check YAML syntax"
+        description: "Validate YAML files for syntax errors"
+        stages: [commit]
+        args:
+          - "--unsafe"                 # Allow dangerous constructs
+        types: [yaml]
+
+      # ====================================================================
+      # JSON Linting - check-json
+      # ====================================================================
+      - id: check-json
+        name: "Check JSON syntax"
+        description: "Validate JSON files for syntax errors"
+        stages: [commit]
+        args:
+          - "--autofix"                # Auto-fix formatting
+        types: [json]
+
+      # ====================================================================
+      # TOML Validation - check-toml
+      # ====================================================================
+      - id: check-toml
+        name: "Check TOML syntax"
+        description: "Validate TOML files (pyproject.toml, etc.)"
+        stages: [commit]
+        types: [toml]
+
+      # ====================================================================
+      # Trailing Whitespace - detect-private-key
+      # ====================================================================
+      - id: trailing-whitespace
+        name: "Trim trailing whitespace"
+        description: "Remove trailing whitespace from files"
+        stages: [commit]
+        args:
+          - "--markdown-args=--markdown-args"
+        exclude: |
+          (?x)^(
+            \.md$|
+            CHANGELOG\.md
+          )$
+
+      # ====================================================================
+      # End of File Fixer - ensures LF at EOF
+      # ====================================================================
+      - id: end-of-file-fixer
+        name: "Fix end of file"
+        description: "Ensure files end with newline"
+        stages: [commit]
+        exclude: |
+          (?x)^(
+            \.egg-info/|
+            __pycache__/
+          )$
+
+      # ====================================================================
+      # Mixed Line Ending - detect CRLF vs LF
+      # ====================================================================
+      - id: mixed-line-ending
+        name: "Check line endings"
+        description: "Detect mixed line endings (CRLF vs LF)"
+        stages: [commit]
+        args:
+          - "--fix=lf"                 # Fix to Unix line endings (LF)
+
+      # ====================================================================
+      # Merge Conflict Checker - detect unresolved merges
+      # ====================================================================
+      - id: check-merge-conflict
+        name: "Check for merge conflicts"
+        description: "Detect unresolved merge conflict markers"
+        stages: [commit]
+
+      # ====================================================================
+      # Debugger Imports - detect pdb/ipdb imports
+      # ====================================================================
+      - id: debug-statements
+        name: "Check for debugger imports"
+        description: "Detect debugger imports (pdb, ipdb, breakpoint)"
+        stages: [commit]
+
+      # ====================================================================
+      # Reserved Keywords - detect Python reserved syntax
+      # ====================================================================
+      - id: check-ast
+        name: "Check Python AST"
+        description: "Verify Python syntax (AST parse)"
+        stages: [commit]
+        types: [python]
+
+  # ========================================================================
+  # COMMITLINT - Commit Message Validation
+  # ========================================================================
+  # Enforces conventional commit format for commit messages
+  # Format: <type>(<scope>): <subject>
+  # Types: feat, fix, docs, style, refactor, perf, test, chore
+  # Documentation: https://commitlint.js.org/
+  # ========================================================================
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        name: "Commitlint (validate commit message)"
+        description: "Check commit message follows conventional commits"
+        stages: [commit-msg]
+        args:
+          - "--force-scope"            # Require scope
+          - "--scope-regex=^(feat|fix|docs|style|refactor|perf|test|chore)"
+
+  # ========================================================================
+  # GIT HOOKS - Common git-related checks
+  # ========================================================================
+  # Prevent common mistakes when using git
+  # Documentation: https://github.com/pre-commit/pre-commit-hooks
+  # ========================================================================
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.7.0
+    stages: [commit]
+    hooks:
+      # ====================================================================
+      # Check Large Files
+      # ====================================================================
+      - id: check-added-large-files
+        name: "Check for large files"
+        description: "Prevent commits of large files (> 500KB)"
+        args:
+          - "--maxkb=500"              # Max 500KB per file
+          - "--enforce-all"            # Check all commits
+
+      # ====================================================================
+      # Check Case Conflicts in Filenames
+      # ====================================================================
+      - id: check-case-conflict
+        name: "Check filename case conflicts"
+        description: "Prevent case-conflicting filenames on case-sensitive fs"
+
+      # ====================================================================
+      # Forbid New Hooks
+      # ====================================================================
+      - id: no-commit-to-branch
+        name: "Prevent direct commits to main"
+        description: "Require pull requests for main branch"
+        args:
+          - "--branch=main"            # Prevent commits to main
+          - "--branch=master"          # Prevent commits to master
+
+  # ========================================================================
+  # LOCAL HOOKS - Project-Specific Checks
+  # ========================================================================
+  # Custom hooks defined locally using system utilities
+  # ========================================================================
+
+  - repo: local
+    hooks:
+      # ====================================================================
+      # PYTEST UNIT TESTS - Unit Test Suite
+      # ====================================================================
+      # Runs unit tests before commit to catch regressions early
+      # Only runs tests marked 'not slow' for speed
+      # ====================================================================
+      - id: pytest-unit
+        name: "pytest unit tests"
+        description: "Run unit tests before commit"
+        entry: pytest tests/unit -q --tb=short -m "not slow"
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [commit]
+        always_run: false             # Only run if Python files changed
+
+      # ====================================================================
+      # PYLINT - Additional Linting (Complementary to Ruff)
+      # ====================================================================
+      # Additional checks beyond Ruff (code complexity, style issues)
+      # ====================================================================
+      - id: pylint
+        name: "Pylint (code quality)"
+        description: "Additional linting checks beyond Ruff"
+        entry: pylint
+        language: system
+        types: [python]
+        pass_filenames: true
+        stages: [commit]
+        args:
+          - "--disable=all"
+          - "--enable=E,W"             # Enable errors and warnings only
+
+      # ====================================================================
+      # SHELL SCRIPT LINTING - ShellCheck
+      # ====================================================================
+      # Finds and fixes issues in shell scripts
+      # Checks: syntax errors, style issues, security problems
+      # ====================================================================
+      - id: shellcheck
+        name: "ShellCheck (shell script linting)"
+        description: "Lint shell scripts for errors"
+        entry: shellcheck
+        language: system
+        types: [shell]
+        pass_filenames: true
+        stages: [commit]
+        args:
+          - "-x"                       # Follow file sourcing
+          - "-W50"                     # Max warnings per line
+
+      # ====================================================================
+      # DOCKERFILE LINTING - Hadolint
+      # ====================================================================
+      # Validates Dockerfile best practices and security
+      # ====================================================================
+      - id: hadolint
+        name: "Hadolint (Dockerfile linting)"
+        description: "Lint Dockerfile for best practices"
+        entry: hadolint
+        language: system
+        types: [dockerfile]
+        pass_filenames: true
+        stages: [commit]
+
+# ============================================================================
+# EXCLUSIONS AND SPECIAL CASES
+# ============================================================================
+
+# Global exclusions
+exclude: |
+  (?x)^(
+    \.git/|
+    \.github/|
+    __pycache__/|
+    \.pytest_cache/|
+    \.mypy_cache/|
+    \.ruff_cache/|
+    htmlcov/|
+    build/|
+    dist/|
+    \.egg-info/|
+    \.tox/|
+    \.venv/|
+    venv/|
+    node_modules/|
+    \.vscode/|
+    \.idea/|
+    \.DS_Store|
+    .*\.lock
+  )$
+
+# Files to never check
+files: |
+  (?x)^(
+    src/|
+    tests/|
+    scripts/|
+    docs/.*\.py|
+    Makefile|
+    pyproject\.toml|
+    setup\.py|
+    tox\.ini
+  )$
+
+# ============================================================================
+# CONFIGURATION NOTES
+# ============================================================================
+
+# INSTALLATION:
+#
+#   1. Install pre-commit framework:
+#      pip install pre-commit
+#
+#   2. Install git hooks:
+#      pre-commit install
+#      pre-commit install --hook-type commit-msg
+#
+#   3. (Optional) Install additional tools:
+#      pip install pylint      # Complementary linting
+#      pip install shellcheck  # Shell script linting
+#      apt install shellcheck  # On Linux
+#      brew install shellcheck # On macOS
+#
+
+# COMMON COMMANDS:
+#
+#   Run all hooks on all files:
+#     pre-commit run --all-files
+#
+#   Run specific hook:
+#     pre-commit run ruff-check --all-files
+#
+#   Update hook versions:
+#     pre-commit autoupdate
+#
+#   Bypass hooks (use carefully):
+#     git commit --no-verify
+#
+#   See what hooks will run:
+#     pre-commit run --all-files --dry-run
+#
+
+# DEBUGGING:
+#
+#   See detailed hook output:
+#     pre-commit run --all-files --verbose
+#
+#   Run only failing hooks:
+#     pre-commit run --all-files --show-diff-on-failure
+#
+
+# STAGES EXPLANATION:
+#
+#   - commit: Runs on `git commit` (default)
+#   - merge-commit: Runs on merge commits
+#   - push: Runs before `git push`
+#   - manual: Only run with `pre-commit run --hook-stage manual`
+#   - commit-msg: Validates commit message
+#
+
+# HOOK BEHAVIOR:
+#
+#   - Auto-fix hooks (ruff, prettier, mdformat):
+#     Stage files again after commit if hooks modify files
+#
+#   - Failing hooks:
+#     Commit is blocked until issues are resolved or bypassed
+#
+#   - Performance:
+#     Hooks run in parallel by default (configurable with --parallel)
+#
+
+# PERFORMANCE TIPS:
+#
+#   1. Run subset of hooks for slower operations:
+#      pre-commit run mypy --all-files      # Only type checking
+#      pre-commit run ruff-check --all-files # Only linting
+#
+#   2. Skip slow hooks during development:
+#      Add to .pre-commit-config.yaml: stages: [manual]
+#      Then run manually: pre-commit run --hook-stage manual
+#
+#   3. Disable hooks temporarily:
+#      git commit --no-verify               # Skip all hooks
+#      SKIP=mypy git commit                 # Skip specific hook
+#
+
+# ============================================================================
+# PROVIDED HOOKS REFERENCE
+# ============================================================================
+
+# This configuration includes:
+#
+# ✓ CODE FORMATTING & LINTING:
+#   - Ruff (check + format): Python linting and formatting
+#   - Prettier: JSON, YAML, Markdown formatting
+#   - mdformat: Markdown-specific formatting
+#
+# ✓ TYPE CHECKING:
+#   - MyPy: Static type checking (strict mode)
+#
+# ✓ SECURITY:
+#   - Bandit: Security vulnerability scanning
+#   - Detect Secrets: Password/credential detection
+#
+# ✓ SYNTAX VALIDATION:
+#   - YAML checker: YAML syntax validation
+#   - JSON checker: JSON syntax and formatting
+#   - TOML checker: TOML syntax validation
+#   - Python AST: Python syntax validation
+#
+# ✓ GIT INTEGRATION:
+#   - Large file detection: Prevent accidentally committing large files
+#   - Merge conflict detection: Catch unresolved conflicts
+#   - Debugger imports: Prevent accidental pdb/ipdb commits
+#
+# ✓ TESTING:
+#   - pytest: Unit test execution before commit
+#
+# ✓ ADVANCED (optional):
+#   - pylint: Complementary linting
+#   - ShellCheck: Shell script validation
+#   - Hadolint: Dockerfile validation
+#
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Issue: "pre-commit hook failed"
+#   Solution: Run hook manually to see full error:
+#   pre-commit run <hook-id> --all-files
+#
+# Issue: Hook modifies files but commit still needs to be staged
+#   Solution: Stage modified files again:
+#   git add .
+#   git commit
+#
+# Issue: "language executable not found: system"
+#   Solution: Install the tool system-wide or in your Python environment
+#   For hadolint: brew install hadolint (macOS) or apt install hadolint (Linux)
+#
+# Issue: Hooks are slow
+#   Solution: Run only specific hooks or disable slow ones:
+#   SKIP=mypy,pytest-unit git commit
+#
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+

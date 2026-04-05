@@ -1,0 +1,28 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "OSM Pedestrian Way",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "tags":  {
+                                    "type":  "object"
+                                },
+                       "id":  {
+                                  "type":  "integer"
+                              },
+                       "type":  {
+                                    "type":  "string"
+                                },
+                       "geometry":  {
+                                        "items":  {
+                                                      "type":  "object"
+                                                  },
+                                        "type":  "array"
+                                    }
+                   },
+    "required":  [
+                     "id",
+                     "type",
+                     "geometry"
+                 ]
+}

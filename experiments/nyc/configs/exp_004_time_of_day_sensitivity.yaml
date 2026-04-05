@@ -1,0 +1,37 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : experiments\nyc\configs\exp_004_time_of_day_sensitivity.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+experiment:
+  id: exp_004
+  name: time_of_day_sensitivity
+  city: nyc
+  segments: [early_morning, am_peak, midday, pm_peak, evening, overnight]
+  metric: expected_time_variance_across_segments
+  status: experiment not yet executed
+  seed: 20260405

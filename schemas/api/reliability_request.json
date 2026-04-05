@@ -1,0 +1,17 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Reliability Request",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "tau":  {
+                                   "type":  "integer"
+                               },
+                       "path_id":  {
+                                       "type":  "string"
+                                   }
+                   },
+    "required":  [
+                     "tau"
+                 ]
+}

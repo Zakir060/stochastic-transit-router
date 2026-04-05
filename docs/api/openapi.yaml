@@ -1,0 +1,121 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : docs\api\openapi.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+openapi: 3.1.0
+info:
+  title: stochastic-transit-router API
+  version: 0.1.0
+  description: API for deterministic and stochastic public transit routing.
+paths:
+  /health:
+    get:
+      summary: Service health status
+      responses:
+        '200':
+          description: Health payload
+  /feeds/status:
+    get:
+      summary: Feed freshness status
+      responses:
+        '200':
+          description: Feed status payload
+  /graph/status:
+    get:
+      summary: Graph metadata status
+      responses:
+        '200':
+          description: Graph status payload
+  /routes:
+    post:
+      summary: Route query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteRequest'
+      responses:
+        '200':
+          description: Route response
+  /routes/topk:
+    post:
+      summary: Top k route query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopKRequest'
+      responses:
+        '200':
+          description: Top k response
+  /routes/reliability:
+    get:
+      summary: Reliability of a route
+      responses:
+        '200':
+          description: Reliability response
+  /disruptions:
+    get:
+      summary: Active disruption status
+      responses:
+        '200':
+          description: Disruption list
+  /benchmarks/status:
+    get:
+      summary: Benchmark status
+      responses:
+        '200':
+          description: Benchmark status payload
+  /experiments/metadata:
+    get:
+      summary: Experiment metadata
+      responses:
+        '200':
+          description: Experiment metadata payload
+components:
+  schemas:
+    RouteRequest:
+      type: object
+      required: [source, destination, departure_time, objective]
+      properties:
+        source: {type: string}
+        destination: {type: string}
+        departure_time: {type: string}
+        objective: {type: string}
+        lambda: {type: number}
+        tau: {type: integer}
+        alpha: {type: number}
+    TopKRequest:
+      allOf:
+        - $ref: '#/components/schemas/RouteRequest'
+        - type: object
+          required: [k]
+          properties:
+            k: {type: integer, minimum: 1, maximum: 20}

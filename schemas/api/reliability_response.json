@@ -1,0 +1,30 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Reliability Response",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "tau":  {
+                                   "type":  "integer"
+                               },
+                       "path_id":  {
+                                       "type":  "string"
+                                   },
+                       "reliability":  {
+                                           "type":  "number"
+                                       },
+                       "confidence_interval":  {
+                                                   "minItems":  2,
+                                                   "items":  {
+                                                                 "type":  "number"
+                                                             },
+                                                   "type":  "array",
+                                                   "maxItems":  2
+                                               }
+                   },
+    "required":  [
+                     "tau",
+                     "reliability",
+                     "confidence_interval"
+                 ]
+}

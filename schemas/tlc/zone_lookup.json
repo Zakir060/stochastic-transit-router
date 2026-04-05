@@ -1,0 +1,25 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "NYC TLC Zone Lookup",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "Borough":  {
+                                       "type":  "string"
+                                   },
+                       "Zone":  {
+                                    "type":  "string"
+                                },
+                       "service_zone":  {
+                                            "type":  "string"
+                                        },
+                       "LocationID":  {
+                                          "type":  "integer"
+                                      }
+                   },
+    "required":  [
+                     "LocationID",
+                     "Borough",
+                     "Zone"
+                 ]
+}

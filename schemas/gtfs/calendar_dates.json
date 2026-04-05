@@ -1,0 +1,22 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Calendar Dates",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "service_id":  {
+                                          "type":  "string"
+                                      },
+                       "exception_type":  {
+                                              "type":  "integer"
+                                          },
+                       "date":  {
+                                    "type":  "string"
+                                }
+                   },
+    "required":  [
+                     "service_id",
+                     "date",
+                     "exception_type"
+                 ]
+}

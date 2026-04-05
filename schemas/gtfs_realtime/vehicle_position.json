@@ -1,0 +1,32 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Realtime VehiclePosition",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "latitude":  {
+                                        "type":  "number"
+                                    },
+                       "trip_id":  {
+                                       "type":  "string"
+                                   },
+                       "timestamp":  {
+                                         "type":  "integer"
+                                     },
+                       "vehicle_id":  {
+                                          "type":  "string"
+                                      },
+                       "entity_id":  {
+                                         "type":  "string"
+                                     },
+                       "longitude":  {
+                                         "type":  "number"
+                                     }
+                   },
+    "required":  [
+                     "entity_id",
+                     "vehicle_id",
+                     "latitude",
+                     "longitude"
+                 ]
+}

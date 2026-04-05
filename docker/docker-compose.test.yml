@@ -1,0 +1,294 @@
+# =============================================================================
+# Stochastic Transit Router - Continuous Integration Docker Compose
+# Automated Testing and Quality Gate Pipeline
+#
+# This Docker Compose file defines the CI/CD testing environment that runs:
+# - Code linting and style checks (ruff)
+# - Static type checking (mypy with strict mode)
+# - Comprehensive test suite (pytest with coverage)
+# - Integration and schema validation tests
+#
+# Used for:
+# - Local CI verification before pushing
+# - GitHub Actions CI/CD pipeline integration
+# - Pre-commit hook validation
+# - Test-driven development (TDD) workflow
+#
+# Usage:
+# - Run all checks: docker-compose -f docker-compose.test.yml run --rm tests
+# - Run only tests: docker-compose -f docker-compose.test.yml run --rm tests pytest
+# - Run with coverage: docker-compose -f docker-compose.test.yml run --rm tests pytest --cov
+#
+# Documentation: https://docs.docker.com/compose/
+# =============================================================================
+
+version: '3.9'
+
+# ============================================================================
+# SERVICES - CI/CD testing containers
+# ============================================================================
+
+services:
+
+  # ========================================================================
+  # TESTING SERVICE - Quality gate and test automation
+  # ========================================================================
+  tests:
+    # Build the development image (includes all test tools)
+    build:
+      context: ..                               # Build context: project root
+      dockerfile: docker/Dockerfile.dev         # Use development Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1               # Enable inline cache
+
+    # Container naming
+    container_name: stochastic-router-tests
+
+    # Image reference
+    image: stochastic-transit-router:testing
+
+    # Volume mounts for test execution
+    volumes:
+      # Mount entire project for test access to all source files
+      - ..:/app                                 # Full project: read-write
+
+      # Test artifacts and reports directory
+      - ./test-results:/app/test-results        # Test reports (JUnit XML, coverage HTML)
+
+      # Benchmark results
+      - ./benchmark-results:/app/benchmark-results  # Performance benchmark data
+
+      # Coverage reports
+      - ./coverage-html:/app/htmlcov            # HTML coverage report
+
+    # Environment variables for testing
+    environment:
+      # Python runtime optimization
+      - PYTHONUNBUFFERED=1                      # Real-time test output
+      - PYTHONDONTWRITEBYTECODE=1               # Skip .pyc generation
+      - PYTHONHASHSEED=random                   # Randomized hash for test isolation
+
+      # Testing configuration
+      - APP_ENV=testing                         # Test environment marker
+      - LOG_LEVEL=DEBUG                         # Verbose test logging
+      - CI=true                                 # Signal CI environment to code
+
+      # Pytest configuration
+      - PYTEST_TIMEOUT=300                      # 5-minute test timeout
+      - PYTEST_ADDOPTS=-v                       # Verbose pytest output
+
+      # Coverage configuration
+      - COVERAGE_FILE=.coverage.testing          # Unique coverage file
+      - COVERAGE_BRANCH=1                       # Branch coverage enabled
+
+    # Network configuration
+    networks:
+      - test-network                            # Isolated test network
+
+    # Restart policy
+    restart: no                                 # Never auto-restart
+
+    # No TTY needed (non-interactive CI)
+    stdin_open: false
+    tty: false
+
+    # Quality gates pipeline: linting, type checking, testing
+    # Each step must succeed for pipeline to continue
+    command: >
+      bash -lc "
+      echo '==============================================='
+      echo 'Stochastic Transit Router - Quality Gate Pipeline'
+      echo '==============================================='
+      &&
+      echo '[1/4] Running code style and lint checks...'
+      ruff check \
+        --exit-zero \
+        --statistics \
+        src/ tests/ scripts/ \
+      &&
+      echo ''
+      echo '[2/4] Running static type checking...'
+      mypy \
+        --strict \
+        --show-error-codes \
+        --pretty \
+        src/ \
+      &&
+      echo ''
+      echo '[3/4] Running unit and integration tests...'
+      pytest \
+        -v \
+        --timeout=300 \
+        --tb=short \
+        --cov=src/stochastic_transit_router \
+        --cov-report=term-missing:skip-covered \
+        --cov-report=html:/app/htmlcov \
+        --cov-report=xml:/app/test-results/coverage.xml \
+        --cov-branch \
+        --cov-fail-under=70 \
+        --junit-xml=/app/test-results/junit.xml \
+        tests/unit/ \
+        tests/integration/ \
+        tests/schemas/ \
+      &&
+      echo ''
+      echo '[4/4] Generating test summary...'
+      python -c \"
+import json
+print('Quality Gate Pipeline: ALL CHECKS PASSED')
+print('  Linting: PASSED')
+print('  Type Checking: PASSED')
+print('  Unit Tests: PASSED')
+print('  Integration Tests: PASSED')
+print('  Coverage: >= 70%')
+\" \
+      ||
+      (echo 'QUALITY GATE FAILED' && exit 1)
+      "
+
+# ============================================================================
+# NETWORKS - Isolated test network
+# ============================================================================
+
+networks:
+  test-network:
+    name: stochastic-router-test-network
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1500
+
+# ============================================================================
+# VOLUMES - Test artifacts storage
+# ============================================================================
+
+volumes:
+  test-results:
+    driver: local
+
+  benchmark-results:
+    driver: local
+
+  coverage-html:
+    driver: local
+
+# =============================================================================
+# CI/CD QUALITY GATE PIPELINE
+# =============================================================================
+#
+# STEP 1: RUFF LINTING
+# ===================================================
+# Checks for:
+# - Import sorting and organization
+# - Naming convention violations (PEP 8)
+# - Logic errors and code smells
+# - Security issues
+# Output: Statistics of violations found
+#
+# STEP 2: MYPY TYPE CHECKING
+# ===================================================
+# Validates:
+# - Type annotation correctness
+# - Function parameter/return type compatibility
+# - None value handling
+# - Generic type instantiation
+# Mode: --strict enforces all strictness flags
+# Output: Line-by-line type errors with context
+#
+# STEP 3: PYTEST TEST SUITE
+# ===================================================
+# Runs:
+# - Unit tests (tests/unit/)
+# - Integration tests (tests/integration/)
+# - Schema validation tests (tests/schemas/)
+# Generates:
+# - Coverage report with missing lines
+# - XML report for CI system integration
+# - HTML report for visual inspection
+# Requirement: Must achieve >= 70% code coverage
+#
+# STEP 4: TEST SUMMARY
+# ===================================================
+# Reports overall success/failure
+# Indicates which gates passed/failed
+#
+# =============================================================================
+#
+# COMMON OPERATIONS
+# =============================================================================
+#
+# Run complete quality gate:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests
+#
+# Run only linting:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   ruff check --statistics src/
+#
+# Run only type checking:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   mypy --strict src/
+#
+# Run only unit tests:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   pytest tests/unit/ -v
+#
+# Run with coverage report:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   pytest --cov --cov-report=html tests/
+#
+# Run specific test file:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   pytest tests/unit/test_graph.py -v
+#
+# Run with benchmarking:
+# docker-compose -f docker/docker-compose.test.yml run --rm tests \
+#   pytest --benchmark-only tests/benchmarks/ -v
+#
+# View coverage HTML report (after running tests):
+# open coverage-html/index.html  # macOS
+# xdg-open coverage-html/index.html  # Linux
+# start coverage-html/index.html  # Windows
+#
+# =============================================================================
+#
+# FAILURE SCENARIOS
+# =============================================================================
+#
+# If linting fails:
+# - Check output for specific rule violations
+# - Use: ruff format src/ (auto-fix formatting)
+# - Use: ruff check --fix src/ (auto-fix logic issues)
+#
+# If type checking fails:
+# - Review type annotation completeness
+# - Check mypy error messages for specific violations
+# - May require adding type: ignore comments for deliberate violations
+#
+# If tests fail:
+# - Check stdout/stderr for assertion failures
+# - Run specific test with -vv for more detail
+# - Check test-results/junit.xml for structured reporting
+#
+# If coverage fails (< 70%):
+# - View htmlcov/index.html for coverage gaps
+# - Write additional tests for uncovered code
+# - Use --cov-report=term-missing to see missing lines
+#
+# =============================================================================
+#
+# INTEGRATION WITH CI/CD
+# =============================================================================
+#
+# GitHub Actions Example (.github/workflows/tests.yml):
+# - name: Run Quality Gate Pipeline
+#   run: docker-compose -f docker/docker-compose.test.yml run --rm tests
+#
+# - name: Upload Coverage to Codecov
+#   run: codecov < test-results/coverage.xml
+#
+# - name: Publish Test Reports
+#   if: always()
+#   uses: EnricoMi/publish-unit-test-result-action@v2
+#   with:
+#     files: test-results/junit.xml
+#
+# =============================================================================

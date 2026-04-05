@@ -1,0 +1,86 @@
+# =============================================================================
+# Stochastic Transit Router - Development Environment Configuration
+# Route Intelligence Platform - Developer Configuration Overrides
+#
+# File        : configs/development.yaml
+# Description : Development-specific configuration overrides for local development
+#               and testing. Enables debug logging, verbose output, and fast
+#               iterations without performance optimization.
+# Purpose     : Provide developer-friendly settings for rapid iteration
+#
+# Usage:
+#   - Load after default.yaml: merges over defaults
+#   - Enables detailed logging and debug metrics
+#   - Reduces realtime polling interval for faster feedback
+#   - Limits topk results for faster query processing
+#   - Writes intermediate artifacts for debugging
+#
+# Configuration Sections:
+#   - environment: Environment identifier (development)
+#   - runtime: Logging level (DEBUG), debug metrics enabled
+#   - realtime: Faster polling (60s vs 30s production) for dev feedback
+#   - routing: Smaller topk limits for faster iteration
+#   - storage: Writes intermediate artifacts for debug inspection
+#
+# Usage Examples:
+#   # Load with development settings
+#   from stochastic_transit_router.config import load_config
+#   config = load_config('configs/default.yaml')
+#   config.merge(load_config('configs/development.yaml'))
+#
+#   # Or set environment variable
+#   export STR_ENV=development
+#
+# Environment Variables:
+#   - STR_ENV: Set to 'development' to auto-load this file
+#   - STR_LOG_LEVEL: Override to TRACE for more verbose logging
+#   - STR_DEBUG_METRICS: Set to 'false' to disable metric collection
+#
+# Integration Points:
+#   - Merged into: ConfigManager after default.yaml
+#   - Related files: default.yaml, testing.yaml, production.yaml
+#   - Used by: All modules during development
+#   - Affects: Logging output, polling rates, API response times
+#
+# Maintenance Notes:
+#   - polling_interval_seconds: Increase if feeds are rate-limiting (> 60s)
+#   - topk_max: Increase for more thorough testing (max 20)
+#   - Keep log_level as DEBUG for development
+#   - write_intermediate_artifacts: Useful for debugging, disable if disk space limited
+#
+# Performance Impact:
+#   - Debug logging: 10-15% slowdown vs INFO level
+#   - Intermediate artifacts: 2-5% disk I/O increase
+#   - Metric collection: Minimal overhead (<1%)
+#
+# Troubleshooting:
+#   - Logs too verbose: Lower log_level to INFO
+#   - Slow performance: Increase polling_interval_seconds
+#   - Disk full: Disable write_intermediate_artifacts
+#
+# Related Documentation:
+#   - Development setup: CONTRIBUTING.md (Development Setup)
+#   - Code style: CONTRIBUTING.md (Code Style)
+#   - Testing: CONTRIBUTING.md (Testing)
+#
+# Last Updated : 2026-04-05
+# Maintained by: Development Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+environment: development
+
+runtime:
+  log_level: DEBUG
+  enable_debug_metrics: true
+
+realtime:
+  polling_interval_seconds: 60
+
+routing:
+  topk_default: 3
+  topk_max: 10
+
+storage:
+  write_intermediate_artifacts: true

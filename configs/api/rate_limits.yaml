@@ -1,0 +1,160 @@
+# =============================================================================
+# Stochastic Transit Router - API Rate Limiting Configuration
+# Route Intelligence Platform - API Usage Throttling and Protection
+#
+# File        : configs/api/rate_limits.yaml
+# Description : API rate limiting configuration per endpoint to prevent abuse,
+#               ensure fair resource allocation, and protect against DOS attacks.
+#               Uses token bucket algorithm: requests_per_minute + burst capacity.
+# Purpose     : Control API request rates and prevent resource exhaustion
+#
+# Usage:
+#   - Applied to: All API endpoints at middleware level
+#   - Algorithm: Token bucket (steady rate with burst capacity)
+#   - Behavior: Requests rejected when bucket empty
+#   - Headers: X-RateLimit-Limit, X-RateLimit-Remaining returned
+#
+# Configuration Sections:
+#   - rate_limits.default: Default limits for unspecified endpoints
+#   - rate_limits.routes: Single route queries
+#   - rate_limits.routes_topk: Top-K route queries (more expensive)
+#   - rate_limits.reliability: Reliability analysis queries
+#
+# Rate Limiting Tiers:
+#   1. Default: 120 req/min base rate
+#   2. Routes: 30 req/min (expensive graph traversal)
+#   3. TopK: 20 req/min (most expensive - multiple paths)
+#   4. Reliability: 60 req/min (statistical analysis)
+#
+# Token Bucket Algorithm Explanation:
+#   - requests_per_minute: Steady-state rate (tokens/minute)
+#   - burst: Maximum burst capacity (tokens)
+#   - Behavior:
+#     * Clients get burst tokens initially
+#     * 1 request = 1 token consumed
+#     * Tokens refill at requests_per_minute rate
+#     * Requests denied when tokens = 0
+#   - Benefits: Fair allocation, prevents sudden spikes
+#
+# Usage Examples:
+#   # Make requests within limit
+#   for i in range(120):  # 120 = rate_limits.default.requests_per_minute
+#       response = requests.get('http://api/routes', ...)
+#
+#   # Handle rate limit exceeded (HTTP 429)
+#   response = requests.get('http://api/routes-topk', ...)
+#   if response.status_code == 429:
+#       retry_after = int(response.headers.get('Retry-After', 60))
+#       print(f"Rate limited. Retry after {retry_after} seconds")
+#       time.sleep(retry_after)
+#
+#   # Check rate limit headers
+#   response = requests.get('http://api/routes', ...)
+#   print(f"Limit: {response.headers['X-RateLimit-Limit']}")
+#   print(f"Remaining: {response.headers['X-RateLimit-Remaining']}")
+#
+# Rate Limit Scenarios:
+#   - Client 1: Single route queries (30 req/min limit)
+#   - Client 2: Top-K queries (20 req/min limit)
+#   - Client 3: Monitoring endpoints (120 req/min default)
+#   - Client 4: Reliability analysis (60 req/min limit)
+#
+# Development Configuration (current):
+#   - Default: 120 req/min, burst 20
+#   - Routes: 30 req/min, burst 10
+#   - TopK: 20 req/min, burst 5
+#   - Reliability: 60 req/min, burst 10
+#
+# Production Configuration (recommended):
+#   - Default: 60 req/min, burst 10 (conservative)
+#   - Routes: 10 req/min, burst 5 (expensive operation)
+#   - TopK: 5 req/min, burst 2 (very expensive)
+#   - Reliability: 20 req/min, burst 5
+#
+# Environment Variables:
+#   - STR_API_RATE_LIMIT_DEFAULT: Override default rate (req/min)
+#   - STR_API_RATE_LIMIT_ROUTES: Override routes rate
+#   - STR_API_RATE_LIMIT_TOPK: Override topk rate
+#   - STR_API_RATE_LIMIT_BURST: Override burst multiplier
+#
+# Integration Points:
+#   - Used by: stochastic_transit_router.api.middleware.RateLimitMiddleware
+#   - Applied to: All endpoints via FastAPI middleware
+#   - Checked by: Request handler before processing
+#   - Metrics: Rate limit hits tracked in Prometheus
+#
+# Request Processing Flow:
+#   1. Incoming HTTP request
+#   2. Middleware checks endpoint rate limit config
+#   3. Middleware checks client token bucket
+#   4. If tokens available: request proceeds, token consumed
+#   5. If tokens unavailable: HTTP 429 returned, Retry-After header set
+#   6. Response includes X-RateLimit headers
+#
+# Rate Limit Response Headers:
+#   - X-RateLimit-Limit: Maximum requests allowed (per minute)
+#   - X-RateLimit-Remaining: Tokens remaining in bucket
+#   - X-RateLimit-Reset: Unix timestamp when bucket refills
+#   - Retry-After: Seconds to wait before retrying (on HTTP 429)
+#
+# Cost Estimation (relative):
+#   - /routes: 1 unit (simple shortest path)
+#   - /routes-topk: 5 units (K shortest paths)
+#   - /reliability: 2 units (statistical analysis)
+#   - /robust: 3 units (robust optimization)
+#
+# Monitoring and Alerts:
+#   - Prometheus metric: api_rate_limit_exceeded_total
+#   - Alert if: 429 responses > 10% of traffic
+#   - Action: Investigate client usage pattern
+#   - Possible causes: Bug, load test, DOS attempt
+#
+# Common Issues and Solutions:
+#   - Issue: Client gets 429 responses
+#   - Causes:
+#     * Exceeding configured rate (intended behavior)
+#     * Clock skew (server/client time mismatch)
+#     * Burst capacity exceeded
+#   - Solution:
+#     * Implement exponential backoff with Retry-After
+#     * Batch requests where possible
+#     * Contact admin if legitimate high volume
+#
+# Troubleshooting:
+#   - Check X-RateLimit-Remaining header value
+#   - Verify client clock is synchronized
+#   - Monitor API metrics for traffic patterns
+#   - Review burst capacity vs steady rate
+#
+# Best Practices:
+#   - Production: Use conservative rates initially
+#   - Monitor: Track 429 response rates
+#   - Scale: Increase rates as capacity verified
+#   - Communicate: Document limits in API docs
+#   - Exempt: Internal/admin clients may have higher limits
+#
+# Related Documentation:
+#   - Rate limiting: docs/operations/rate-limiting.md
+#   - API performance: docs/reference/api-performance.md
+#   - Token bucket: https://en.wikipedia.org/wiki/Token_bucket
+#   - HTTP 429: RFC 6585 Section 4
+#
+# Last Updated : 2026-04-05
+# Maintained by: API Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+rate_limits:
+  default:
+    requests_per_minute: 120
+    burst: 20
+  routes:
+    requests_per_minute: 30
+    burst: 10
+  routes_topk:
+    requests_per_minute: 20
+    burst: 5
+  reliability:
+    requests_per_minute: 60
+    burst: 10

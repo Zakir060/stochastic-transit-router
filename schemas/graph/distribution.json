@@ -1,0 +1,33 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Edge Travel Time Distribution",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "observation_count":  {
+                                                 "type":  "integer"
+                                             },
+                       "is_weekday":  {
+                                          "type":  "boolean"
+                                      },
+                       "edge_id":  {
+                                       "type":  "string"
+                                   },
+                       "mean_seconds":  {
+                                            "type":  "number"
+                                        },
+                       "segment":  {
+                                       "type":  "string"
+                                   },
+                       "variance_seconds2":  {
+                                                 "type":  "number"
+                                             }
+                   },
+    "required":  [
+                     "edge_id",
+                     "segment",
+                     "is_weekday",
+                     "mean_seconds",
+                     "variance_seconds2"
+                 ]
+}

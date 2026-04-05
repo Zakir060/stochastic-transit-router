@@ -1,0 +1,485 @@
+# =============================================================================
+# Stochastic Transit Router - Git Attributes Configuration
+# Line Ending, Binary, and Diff Management for Version Control
+#
+# This file configures how Git handles line endings, binary files, and
+# other version control attributes across the repository. It ensures:
+# - Consistent line endings (LF) across all platforms (Windows, macOS, Linux)
+# - Proper binary file handling to prevent corruption
+# - Correct diff display for different file types
+# - Language-specific merge strategies where applicable
+#
+# Documentation: https://git-scm.com/docs/gitattributes
+# =============================================================================
+
+# ============================================================================
+# GLOBAL CONFIGURATION - DEFAULT BEHAVIOR
+# ============================================================================
+
+# Default: Auto-detect text files and use LF line endings (Unix standard)
+# This prevents CRLF line endings on Windows from being committed
+* text=auto eol=lf
+
+# ============================================================================
+# SOURCE CODE FILES - TEXT WITH LINE ENDING NORMALIZATION
+# ============================================================================
+
+# ------ Python Files (.py) ------
+*.py text eol=lf diff=python
+*.pyi text eol=lf diff=python
+
+# ------ Shell Scripts (.sh, .bash) ------
+*.sh text eol=lf diff=bash
+*.bash text eol=lf diff=bash
+*.zsh text eol=lf diff=bash
+
+# ------ Batch/PowerShell Scripts ------
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf diff=powershell
+
+# ------ Markdown Documentation (.md) ------
+*.md text eol=lf diff=markdown
+
+# ------ Configuration Files (Text) ------
+*.yaml text eol=lf diff=yaml
+*.yml text eol=lf diff=yaml
+*.toml text eol=lf diff=toml
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+
+# ------ JSON Files ------
+*.json text eol=lf diff=json
+*.jsonc text eol=lf diff=json
+
+# ------ SQL Files ------
+*.sql text eol=lf diff=sql
+
+# ------ XML/HTML Files ------
+*.xml text eol=lf diff=xml
+*.html text eol=lf
+*.htm text eol=lf
+
+# ------ CSS/SCSS/LESS ------
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+
+# ------ JavaScript/TypeScript ------
+*.js text eol=lf diff=javascript
+*.ts text eol=lf diff=javascript
+*.tsx text eol=lf diff=javascript
+*.jsx text eol=lf diff=javascript
+
+# ------ Build and Make Files ------
+Makefile text eol=lf diff=makefile
+makefile text eol=lf diff=makefile
+*.mk text eol=lf
+
+# ------ Gradle/Maven ------
+*.gradle text eol=lf
+pom.xml text eol=lf diff=xml
+
+# ------ Docker ------
+Dockerfile text eol=lf
+dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# ------ Docker Compose ------
+docker-compose.yaml text eol=lf diff=yaml
+docker-compose.yml text eol=lf diff=yaml
+docker-compose*.yaml text eol=lf diff=yaml
+docker-compose*.yml text eol=lf diff=yaml
+
+# ------ Git Configuration ------
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.gitmodules text eol=lf
+
+# ------ Pre-commit Hooks ------
+.pre-commit-config.yaml text eol=lf diff=yaml
+.pre-commit-config.yml text eol=lf diff=yaml
+
+# ------ License and Documentation Files ------
+LICENSE text eol=lf
+LICENSE.txt text eol=lf
+AUTHORS text eol=lf
+AUTHORS.md text eol=lf
+CHANGELOG text eol=lf
+CHANGELOG.md text eol=lf
+SECURITY text eol=lf
+SECURITY.md text eol=lf
+README text eol=lf
+README.md text eol=lf
+CONTRIBUTING text eol=lf
+CONTRIBUTING.md text eol=lf
+CITATION.cff text eol=lf
+
+# ------ Dependency Files ------
+requirements.txt text eol=lf
+requirements*.txt text eol=lf
+Pipfile text eol=lf
+Pipfile.lock text eol=lf
+poetry.lock text eol=lf
+setup.py text eol=lf
+setup.cfg text eol=lf
+pyproject.toml text eol=lf diff=toml
+
+# ------ Environment Files ------
+.env text eol=lf
+.env.example text eol=lf
+.env.local text eol=lf
+.env.*.local text eol=lf
+
+# ------ Plain Text Files ------
+*.txt text eol=lf
+*.TXT text eol=lf
+*.text text eol=lf
+
+# ------ EditorConfig ------
+.editorconfig text eol=lf
+
+# ------ GitLab/GitHub Specific ------
+.gitlab-ci.yml text eol=lf diff=yaml
+.github text eol=lf
+.github/** text eol=lf
+.github/workflows/*.yaml text eol=lf diff=yaml
+.github/workflows/*.yml text eol=lf diff=yaml
+
+# ============================================================================
+# IMAGE FILES - BINARY (NOT TEXT NORMALIZED)
+# ============================================================================
+
+# ------ PNG Images ------
+*.png binary
+*.PNG binary
+
+# ------ JPEG Images ------
+*.jpg binary
+*.JPG binary
+*.jpeg binary
+*.JPEG binary
+
+# ------ GIF Images ------
+*.gif binary
+*.GIF binary
+
+# ------ BMP Images ------
+*.bmp binary
+*.BMP binary
+
+# ------ SVG Images (vectorized, usually text but treated as binary) ------
+*.svg binary
+
+# ------ TIFF Images ------
+*.tiff binary
+*.tif binary
+
+# ------ WebP Images ------
+*.webp binary
+
+# ------ Icon Files ------
+*.ico binary
+*.icns binary
+
+# ============================================================================
+# DOCUMENT FILES
+# ============================================================================
+
+# ------ PDF Documents ------
+*.pdf binary
+
+# ------ Microsoft Office Documents ------
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.ppts binary
+
+# ------ OpenOffice Documents ------
+*.odt binary
+*.ods binary
+*.odp binary
+
+# ============================================================================
+# BINARY DATA FILES
+# ============================================================================
+
+# ------ Tabular Data Formats (Apache Formats) ------
+*.parquet binary
+*.feather binary
+*.arrow binary
+*.arrowfile binary
+
+# ------ Python Pickle Files ------
+*.pkl binary
+*.pickle binary
+*.dill binary
+
+# ------ Protocol Buffers ------
+*.pb binary
+*.protobuf binary
+
+# ------ MessagePack ------
+*.msgpack binary
+*.mp binary
+
+# ------ HDF5 Data Files ------
+*.h5 binary
+*.hdf5 binary
+*.he5 binary
+
+# ------ NetCDF Data Files ------
+*.nc binary
+*.netcdf binary
+
+# ------ SQLite Databases ------
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# ------ Other Data Formats ------
+*.npy binary
+*.npz binary
+
+# ============================================================================
+# ARCHIVE AND COMPRESSED FILES
+# ============================================================================
+
+# ------ ZIP Archives ------
+*.zip binary
+
+# ------ TAR Archives ------
+*.tar binary
+*.tar.gz binary
+*.tgz binary
+*.tar.bz2 binary
+*.tbz binary
+*.tar.xz binary
+*.txz binary
+
+# ------ RAR Archives ------
+*.rar binary
+
+# ------ 7-Zip Archives ------
+*.7z binary
+
+# ------ Gzip Compressed ------
+*.gz binary
+*.gzip binary
+
+# ------ Bzip2 Compressed ------
+*.bz2 binary
+*.bzip2 binary
+
+# ------ XZ Compressed ------
+*.xz binary
+
+# ------ Other Compressed ------
+*.z binary
+*.Z binary
+
+# ============================================================================
+# EXECUTABLE AND LIBRARY FILES
+# ============================================================================
+
+# ------ Executables ------
+*.exe binary
+*.bin binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+*.lib binary
+
+# ------ Java Class Files ------
+*.class binary
+*.jar binary
+
+# ============================================================================
+# GIT-SPECIFIC INTERNAL FILES
+# ============================================================================
+
+# Git internal files should not be normalized
+.git text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.gitmodules text eol=lf
+
+# ============================================================================
+# TEMPORARY AND CACHE FILES (USUALLY IN .gitignore)
+# ============================================================================
+
+# Python Cache
+__pycache__ text eol=lf
+*.pyc binary
+*.pyo binary
+*.pyd binary
+.Python binary
+
+# MyPy Cache
+.mypy_cache text eol=lf
+.pytest_cache text eol=lf
+
+# Ruff Cache
+.ruff_cache text eol=lf
+
+# IDEs
+.vscode text eol=lf
+.idea text eol=lf
+.venv text eol=lf
+venv text eol=lf
+
+# ============================================================================
+# MERGE STRATEGIES - CUSTOM HANDLING FOR CONFLICTS
+# ============================================================================
+
+# ------ Prefer ours/theirs for specific files ------
+# Lock files should typically use ours (left) when merging
+poetry.lock merge=ours
+Pipfile.lock merge=ours
+
+# ------ Union merge for documentation ------
+# Multiple CHANGELOG entries can exist
+CHANGELOG.md merge=union
+
+# ============================================================================
+# DIFF STRATEGIES - CUSTOM DIFF DISPLAY
+# ============================================================================
+
+# ------ JSON Diff ------
+*.json diff=json
+
+# ------ YAML Diff ------
+*.yaml diff=yaml
+*.yml diff=yaml
+
+# ------ Python Diff ------
+*.py diff=python
+
+# ------ Markdown Diff ------
+*.md diff=markdown
+
+# ------ XML Diff ------
+*.xml diff=xml
+
+# ============================================================================
+# EXPORT IGNORE - EXCLUDE FROM ARCHIVES
+# ============================================================================
+
+# Files to exclude from git archive (e.g., `git archive` or GitHub release)
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
+.gitlab-ci.yml export-ignore
+.pre-commit-config.yaml export-ignore
+tests/ export-ignore
+benchmarks/ export-ignore
+notebooks/ export-ignore
+experiments/ export-ignore
+docker/ export-ignore
+deployment/ export-ignore
+scripts/ export-ignore
+docs/adr/ export-ignore
+.mypy.ini export-ignore
+.ruff.toml export-ignore
+tox.ini export-ignore
+Makefile export-ignore
+.editorconfig export-ignore
+
+# ============================================================================
+# DOCUMENTATION AND GUIDELINES
+# ============================================================================
+
+# LINE ENDING EXPLANATION:
+# =====================
+#
+# `eol=lf` - Ensures Unix line endings (LF, \n) on all platforms:
+#   - Windows developers: Git converts CRLF (local) ↔ LF (repository)
+#   - macOS/Linux developers: No conversion needed (already LF)
+#   - Result: Repository is always LF, working directory uses native OS
+#
+# `eol=crlf` - Windows-specific files that REQUIRE CRLF:
+#   - Batch files (.bat, .cmd): Windows batch interpreter requires CRLF
+#   - PowerShell (.ps1): Usually works with LF but CRLF is more compatible
+#
+# `text=auto` - Auto-detect text files:
+#   - Git automatically detects whether file is text or binary
+#   - Applied to all files by default in `*`
+#
+# `binary` - Treat file as binary:
+#   - No line ending conversion
+#   - No text diffs
+#   - Used for images, archives, serialized data
+#
+
+# DIFF STRATEGIES EXPLANATION:
+# ===========================
+#
+# `diff=python` - Python-specific diff highlighting
+# `diff=yaml` - YAML-specific diff highlighting
+# `diff=json` - JSON-specific diff highlighting
+# `diff=markdown` - Markdown-specific diff highlighting
+# `diff=xml` - XML-specific diff highlighting
+# `diff=bash` - Bash script-specific diff highlighting
+# `diff=makefile` - Makefile-specific diff highlighting
+# `diff=javascript` - JavaScript/TypeScript-specific diff highlighting
+# `diff=toml` - TOML-specific diff highlighting
+# `diff=sql` - SQL-specific diff highlighting
+#
+
+# MERGE STRATEGIES EXPLANATION:
+# ============================
+#
+# `merge=ours` - In a merge conflict, prefer "ours" (current branch)
+#   - Useful for lock files that should not be merged
+#   - Changes from other branch are ignored
+#
+# `merge=union` - In a merge conflict, take both sides
+#   - Useful for changelogs where entries are additive
+#   - Prevents conflicts when multiple developers add entries
+#
+
+# EXPORT-IGNORE EXPLANATION:
+# ==========================
+#
+# Files marked `export-ignore` are excluded when running:
+#   - `git archive --format=tar main | tar xf -`
+#   - GitHub release downloads
+#   - Package distributions
+#
+# These are development/internal files not needed by end users
+#
+
+# ============================================================================
+# CONFIGURATION NOTES
+# ============================================================================
+
+# This .gitattributes file ensures:
+# ✓ Consistent LF line endings across all platforms
+# ✓ Binary files are not corrupted by line ending conversion
+# ✓ Proper diff display for language-specific files
+# ✓ Correct merge behavior for lock files
+# ✓ Development files excluded from distributions
+# ✓ Archives (git archive) don't include unnecessary files
+
+# Benefits:
+# ✓ Windows developers don't see "all lines changed" due to CRLF
+# ✓ No accidental binary file corruption
+# ✓ Better diffs in GitHub, GitLab, etc.
+# ✓ Cleaner git history
+# ✓ Reproducible builds across platforms
+
+# To verify attributes on a file:
+#   git check-attr -a <filename>
+#
+# To debug line ending issues:
+#   git config core.safecrlf true  # Warn before auto-conversion
+#   git config core.autocrlf false # Manual control (recommended with .gitattributes)
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+

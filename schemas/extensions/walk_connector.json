@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "walk_connector",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "timestamp", "source"],
+  "properties": {
+    "id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "source": {"type": "string"},
+    "metadata": {"type": "object"}
+  }
+}

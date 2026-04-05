@@ -1,0 +1,43 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GTFS Calendar",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "wednesday":  {
+                                         "type":  "integer"
+                                     },
+                       "start_date":  {
+                                          "type":  "string"
+                                      },
+                       "service_id":  {
+                                          "type":  "string"
+                                      },
+                       "thursday":  {
+                                        "type":  "integer"
+                                    },
+                       "tuesday":  {
+                                       "type":  "integer"
+                                   },
+                       "saturday":  {
+                                        "type":  "integer"
+                                    },
+                       "sunday":  {
+                                      "type":  "integer"
+                                  },
+                       "end_date":  {
+                                        "type":  "string"
+                                    },
+                       "friday":  {
+                                      "type":  "integer"
+                                  },
+                       "monday":  {
+                                      "type":  "integer"
+                                  }
+                   },
+    "required":  [
+                     "service_id",
+                     "start_date",
+                     "end_date"
+                 ]
+}

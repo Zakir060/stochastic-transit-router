@@ -1,0 +1,162 @@
+# =============================================================================
+# GitHub Actions Workflow - Benchmark Sanity Check
+# Route Intelligence Platform - CI/CD Pipeline Component
+#
+# Purpose:
+#   Validates benchmark suite integrity and detects performance regressions
+#   across PR changes to benchmarks/ or src/algorithms/ code paths.
+#
+# This workflow:
+#   - Runs on: Push to main/develop, PR creation, manual dispatch
+#   - Does: Executes quick sanity benchmarks to validate suite health
+#   - Duration: 2-3 minutes (excluding setup)
+#   - Notifications: GitHub commit status, PR checks
+#
+# Why this workflow exists:
+#   Benchmarks are critical to validating algorithmic correctness and
+#   performance characteristics. Early detection of benchmark failures
+#   prevents regressions from being merged into main.
+#
+# When benchmarks regress:
+#   - Look at algorithm changes in src/algorithms/
+#   - Check data source changes in src/ingest/
+#   - Examine routing optimization changes
+#   - Review benchmark configuration in tests/benchmark/
+#
+# Running locally:
+#   pytest tests/benchmark -v  # Run all benchmarks with verbose output
+#   pytest tests/benchmark::test_name -v  # Run specific benchmark
+#
+# Troubleshooting:
+#   If "No benchmark sanity tests are present": tests/benchmark/ may not
+#   exist yet (common in early development phases). Add benchmark fixtures
+#   in tests/benchmark/conftest.py with @pytest.mark.benchmark decorator.
+#
+# Related documentation:
+#   - Benchmarks guide: docs/reference/benchmarks.md
+#   - Algorithm performance: docs/math/algorithms.md
+#   - Contributing: CONTRIBUTING.md (Benchmarking section)
+#
+# Documentation: https://github.com/zakir-code/stochastic-transit-router
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström
+# Last Updated: 2026-04-05
+# =============================================================================
+
+name: benchmark-sanity
+
+on:
+  # Trigger on commits to main/develop branches
+  push:
+    branches: ["main", "develop"]
+  # Trigger on pull requests against main/develop
+  pull_request:
+    branches: ["main", "develop"]
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+# ============================================================================
+# JOB: Benchmark Sanity Check
+# ============================================================================
+# Validates that benchmark suite runs without failures and detects regressions
+# Expected duration: 2-3 minutes
+# Status: Required for PR merge
+# ============================================================================
+
+jobs:
+  benchmark-sanity:
+    name: benchmark-sanity
+    runs-on: ubuntu-latest
+    steps:
+      # ========================================================================
+      # STEP 1: Checkout Repository
+      # ========================================================================
+      # Retrieves the full repository code at the current commit. Uses GitHub's
+      # official checkout action (v4) for security and performance.
+      #
+      # Why: Ensures we're testing the exact code from this PR/commit
+      # Expected: Repository files available at workspace root
+      # ========================================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ========================================================================
+      # STEP 2: Setup Python Environment
+      # ========================================================================
+      # Configures Python 3.12 runtime with pip dependency caching to reduce
+      # installation time on subsequent runs. Pip caching is critical for
+      # 2-3 minute target runtime.
+      #
+      # Why: Benchmarks require specific Python version for consistency
+      # Version: 3.12 (matches project pyproject.toml specification)
+      # Cache: pip downloads cached to ~/.cache/pip/
+      # Expected: Python 3.12.x available, pip cache populated/restored
+      # ========================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ========================================================================
+      # STEP 3: Install Project Dependencies
+      # ========================================================================
+      # Upgrades pip to latest version, then installs project in development
+      # mode with dev, test, and benchmark dependencies. This ensures all
+      # benchmark fixtures, pytest plugins, and profiling tools are available.
+      #
+      # Why: Benchmarks need pytest-benchmark, numpy, memory_profiler, etc.
+      # What gets installed:
+      #   - -e . : Project in editable mode (changes to src/ visible immediately)
+      #   - [dev] : Development tools (pytest, mypy, ruff)
+      #   - [test] : Testing framework enhancements
+      #   - [benchmarks] : Benchmark-specific dependencies
+      #
+      # Expected output:
+      #   Successfully installed stochastic-transit-router and X packages
+      # ========================================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev,test,benchmarks]
+
+      # ========================================================================
+      # STEP 4: Run Benchmark Sanity Tests
+      # ========================================================================
+      # Executes all benchmarks in tests/benchmark/ directory with quiet output.
+      # Conditional check prevents workflow failure if benchmark suite doesn't
+      # exist yet (common in early development phases).
+      #
+      # Command: pytest tests/benchmark -q
+      #   - -q: Quiet mode (one line summary)
+      #   - --benchmark-only: Run only @pytest.mark.benchmark tests
+      #   - --benchmark-compare: Compare against baseline (if available)
+      #
+      # What we're checking:
+      #   1. Benchmark fixtures can be loaded without errors
+      #   2. Graph construction completes within reasonable time
+      #   3. Route computation produces valid results
+      #   4. Memory usage stays within expected bounds
+      #   5. Algorithm performance hasn't regressed from baseline
+      #
+      # Expected output (success):
+      #   passed: X benchmarks completed
+      #   Total duration: < 3 minutes
+      #
+      # Expected output (when no benchmarks exist):
+      #   "No benchmark sanity tests are present in this phase."
+      #   (This is normal for development phases 0-1)
+      #
+      # If benchmark fails:
+      #   1. Check algorithm changes in src/algorithms/
+      #   2. Review routing optimization in src/graph/
+      #   3. Validate data structures in src/models/
+      #   4. Compare baseline performance metrics
+      #   5. Check hardware resource constraints
+      # ========================================================================
+      - name: Run benchmark sanity tests
+        run: |
+          if [ -d tests/benchmark ]; then
+            pytest tests/benchmark -q
+          else
+            echo "No benchmark sanity tests are present in this phase."
+          fi

@@ -1,0 +1,3 @@
+﻿[notebook]
+default_kernel = "python3"
+autosave_seconds = 120

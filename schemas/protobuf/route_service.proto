@@ -1,0 +1,14 @@
+﻿syntax = "proto3";
+package transit.router;
+
+message RouteRequest {
+  string source = 1;
+  string destination = 2;
+  string departure_time = 3;
+  string objective = 4;
+}
+
+message RouteReply {
+  repeated string nodes = 1;
+  double cost = 2;
+}

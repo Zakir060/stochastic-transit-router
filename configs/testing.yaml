@@ -1,0 +1,124 @@
+# =============================================================================
+# Stochastic Transit Router - Testing Environment Configuration
+# Route Intelligence Platform - Test Suite Configuration Overrides
+#
+# File        : configs/testing.yaml
+# Description : Test-specific configuration for unit, integration, and contract
+#               testing. Uses deterministic settings for reproducible tests,
+#               minimal external I/O, and fast execution.
+# Purpose     : Provide reproducible, fast test settings
+#
+# Usage:
+#   - Load after default.yaml: merges over defaults
+#   - Ensures reproducible results (fixed random seed)
+#   - Uses fast polling for test feedback
+#   - Limits topk to reduce result set complexity
+#   - Lower bootstrap iterations for faster statistical tests
+#
+# Configuration Sections:
+#   - environment: Environment identifier (testing)
+#   - runtime: Logging level (DEBUG), fixed random seed
+#   - realtime: Fast polling (5s) for quick test iterations
+#   - routing: Small topk for test speed
+#   - stats: Reduced bootstrap iterations (200 vs 1000 production)
+#
+# Usage Examples:
+#   # Load with testing settings
+#   from stochastic_transit_router.config import load_config
+#   config = load_config('configs/default.yaml')
+#   config.merge(load_config('configs/testing.yaml'))
+#
+#   # Via pytest configuration
+#   export STR_ENV=testing
+#   pytest tests/
+#
+#   # Or in conftest.py
+#   @pytest.fixture(scope='session')
+#   def config():
+#       return load_config('configs/default.yaml', 'configs/testing.yaml')
+#
+# Environment Variables:
+#   - STR_ENV: Set to 'testing' to auto-load this file
+#   - STR_RANDOM_SEED: Fixed to 20260405 for reproducibility
+#   - STR_LOG_LEVEL: Override to TRACE for test debugging
+#
+# Integration Points:
+#   - Merged into: ConfigManager in test fixtures
+#   - Used by: pytest, tox, CI/CD pipelines
+#   - Related files: default.yaml, development.yaml, production.yaml
+#   - Affects: Test execution time, result reproducibility, log output
+#
+# Maintenance Notes:
+#   - random_seed: NEVER CHANGE - ensures all tests are reproducible
+#   - polling_interval_seconds: 5s for fast feedback in tests
+#   - topk_default/max: Keep small for test speed
+#   - bootstrap_iterations: 200 is fast yet statistically meaningful
+#
+# Test Coverage:
+#   - Unit tests: Fast path tests (< 1s per test)
+#   - Integration tests: End-to-end workflows (< 5s per test)
+#   - Contract tests: API contract validation (< 2s per test)
+#   - Performance tests: Use benchmark.yaml instead
+#
+# Performance Impact:
+#   - Fixed seed: Deterministic results (REQUIRED for reproducibility)
+#   - Low polling: 5s interval allows 100 test iterations/min
+#   - Low bootstrap: 200 iterations vs 1000 saves ~4s per test
+#   - Small topk: Reduces graph size, faster algorithm execution
+#
+# Troubleshooting:
+#   - Test non-deterministic: Check random_seed is 20260405
+#   - Test timeout: Increase polling_interval_seconds or mark @pytest.mark.slow
+#   - Memory issues: Reduce bootstrap_iterations or topk_max
+#   - CI failure: Run locally with same config to reproduce
+#
+# Test Categories:
+#   - Unit: Tests individual functions in isolation
+#   - Integration: Tests workflows with multiple components
+#   - Contract: Tests API contracts between modules
+#   - Schema: Tests data schema validation and transformation
+#   - E2E: Tests full application flows
+#
+# Running Tests:
+#   # All tests
+#   pytest tests/
+#
+#   # Unit tests only
+#   pytest tests/unit -v
+#
+#   # Integration tests
+#   pytest tests/integration -v
+#
+#   # Specific test file
+#   pytest tests/unit/test_graph.py -vv
+#
+#   # Tests matching pattern
+#   pytest tests/ -k "test_dijkstra" -v
+#
+# Related Documentation:
+#   - Testing: CONTRIBUTING.md (Testing section)
+#   - Test structure: tests/README.md
+#   - Fixtures: tests/conftest.py
+#   - Markers: pytest.ini or pyproject.toml
+#
+# Last Updated : 2026-04-05
+# Maintained by: QA Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+environment: testing
+
+runtime:
+  log_level: DEBUG
+  random_seed: 20260405
+
+realtime:
+  polling_interval_seconds: 5
+
+routing:
+  topk_default: 2
+  topk_max: 5
+
+stats:
+  bootstrap_iterations: 200

@@ -1,0 +1,144 @@
+# =============================================================================
+# Stochastic Transit Router - New York City Configuration
+# Route Intelligence Platform - NYC Metro Area Configuration Overrides
+#
+# File        : configs/nyc.yaml
+# Description : NYC-specific geospatial, temporal, and algorithmic configuration.
+#               Defines NYC metro bounding box, time segments for peak periods,
+#               transit speed limits, and statistical parameters for NYC data.
+# Purpose     : City-specific routing and data analysis parameters
+#
+# Usage:
+#   - Load after default.yaml: merges over defaults
+#   - Provides NYC-specific geospatial bounds
+#   - Defines NYC-specific time segments (early morning through overnight)
+#   - Sets NYC transit speed and walking parameters
+#   - Configures statistical thresholds for NYC network
+#
+# Configuration Sections:
+#   - city: City identifier (code: nyc, name: New York City)
+#   - geospatial: Bounding box, SRID, transfer radius (400m)
+#   - segments: Time-of-day segments for peak analysis
+#   - algorithm: Max speed (33.34 m/s = ~75 mph), walk speed (1.4 m/s)
+#
+# Usage Examples:
+#   # Load NYC configuration
+#   from stochastic_transit_router.config import load_config
+#   config = load_config('configs/default.yaml', 'configs/nyc.yaml')
+#
+#   # Query routes with NYC settings
+#   from stochastic_transit_router.api import query_routes
+#   routes = query_routes(
+#       origin=(40.7128, -74.0060),  # Manhattan
+#       destination=(40.6501, -73.9496),  # Brooklyn
+#       config=config
+#   )
+#
+# Geospatial Reference:
+#   - SRID: 4326 (WGS 84 - standard GPS coordinates)
+#   - Bounding box: Approximate NYC metro area (Manhattan to outer boroughs)
+#   - Transfer radius: 400m (typical walking distance between stops)
+#   - Coordinates: (lat, lon) format for all geospatial operations
+#
+# Time Segments (NYC Business Hours):
+#   - early_morning: 05:00-06:59 (early commute start)
+#   - am_peak: 07:00-09:59 (morning rush hour)
+#   - midday: 10:00-15:59 (off-peak service)
+#   - pm_peak: 16:00-18:59 (evening rush hour)
+#   - evening: 19:00-22:59 (post-work travel)
+#   - overnight: 23:00-04:59 (night shift and off-hour service)
+#
+# Algorithm Parameters (NYC Transit Network):
+#   - max_transit_speed: 33.34 m/s (120 km/h, ~75 mph)
+#   - walk_speed: 1.4 m/s (5 km/h, ~3.1 mph average)
+#   - min_covariance_observations: 30 (minimum samples for statistics)
+#   - outlier_zscore_threshold: 3.5 (outlier detection sensitivity)
+#   - ema_alpha_default: 0.2 (exponential moving average smoothing)
+#
+# Environment Variables:
+#   - STR_CITY: Override to 'nyc' to auto-load this file
+#   - STR_BOUNDING_BOX: Override geospatial bounds
+#   - STR_TRANSFER_RADIUS: Override transfer radius (meters)
+#
+# Integration Points:
+#   - Merged into: ConfigManager after default.yaml
+#   - Related files: default.yaml, development.yaml, production.yaml
+#   - Used by: Graph construction, routing algorithms, ingest pipeline
+#   - Affects: Query results, transfer suggestions, data filtering
+#
+# Maintenance Notes:
+#   - Bounding box: Update if NYC metro area changes (rarely)
+#   - Transfer radius: 400m is MTA standard; adjust for accessibility
+#   - Algorithm parameters: Based on empirical NYC data analysis
+#   - Time segments: Adjust if NYC commute patterns change
+#   - SRID: Keep as 4326 (WGS 84) for GPS compatibility
+#
+# Geospatial Validation:
+#   - Bounding box defines data ingestion area
+#   - All stops outside box: filtered out during GTFS ingest
+#   - All queries outside box: rejected with bounds error
+#   - Transfer radius: used for stop connection analysis
+#
+# Statistical Thresholds (NYC-specific):
+#   - min_covariance_observations: 30 trips minimum for variance
+#   - outlier_zscore_threshold: 3.5-sigma for outlier detection
+#   - ema_alpha_default: 0.2 (20% recent weight vs 80% historical)
+#
+# Related Documentation:
+#   - City configuration: docs/reference/city-configs.md
+#   - NYC GTFS: data/manifests/nyc.yaml
+#   - Geospatial reference: docs/math/geospatial.md
+#   - Time-of-day analysis: docs/math/temporal-segmentation.md
+#
+# Data Sources:
+#   - GTFS: MTA NYC Transit (MTA Bus, Subway, LIRR, Metro North)
+#   - Real-time: MTA Real-time API (GTFS-RT)
+#   - Walking: OSM (OpenStreetMap)
+#   - Taxi: NYC TLC Taxi/Limousine Commission
+#
+# Last Updated : 2026-04-05
+# Maintained by: Research Team
+# Owner: Olaf Laitinen (olaf.laitinen@uni.lu)
+# Classification: Internal
+# =============================================================================
+
+city:
+  code: nyc
+  name: New York City
+  timezone: America/New_York
+
+geospatial:
+  srid: 4326
+  bounding_box:
+    min_lat: 40.477399
+    min_lon: -74.25909
+    max_lat: 40.916178
+    max_lon: -73.700181
+  transfer_radius_meters: 400
+
+segments:
+  early_morning:
+    start: "05:00:00"
+    end: "06:59:59"
+  am_peak:
+    start: "07:00:00"
+    end: "09:59:59"
+  midday:
+    start: "10:00:00"
+    end: "15:59:59"
+  pm_peak:
+    start: "16:00:00"
+    end: "18:59:59"
+  evening:
+    start: "19:00:00"
+    end: "22:59:59"
+  overnight:
+    start: "23:00:00"
+    end: "04:59:59"
+
+algorithm:
+  max_transit_speed_mps: 33.34
+  default_walk_speed_mps: 1.4
+  min_covariance_observations: 30
+  outlier_zscore_threshold: 3.5
+  ema_alpha_default: 0.2

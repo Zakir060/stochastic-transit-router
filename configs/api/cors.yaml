@@ -1,0 +1,127 @@
+# =============================================================================
+# Stochastic Transit Router - CORS (Cross-Origin Resource Sharing) Configuration
+# Route Intelligence Platform - API Security Configuration
+#
+# File        : configs/api/cors.yaml
+# Description : CORS configuration for API endpoints. Controls which origins can
+#               make cross-origin requests, allowed HTTP methods, headers, and
+#               credential handling. Security-critical for web client integration.
+# Purpose     : Define CORS policy for web-based API access
+#
+# Usage:
+#   - Loaded by: API middleware during startup
+#   - Applied to: All FastAPI routes (unless explicitly disabled)
+#   - Used for: Browser-based requests from web applications
+#   - Security: Prevents unauthorized cross-origin requests
+#
+# Configuration Sections:
+#   - cors.allow_origins: Allowed request origins (localhost in development)
+#   - cors.allow_methods: Allowed HTTP methods (GET, POST, etc)
+#   - cors.allow_headers: Allowed custom headers
+#   - cors.allow_credentials: Whether to allow credentials (cookies, auth)
+#   - cors.max_age_seconds: Browser cache duration for preflight responses
+#
+# CORS Request Flow:
+#   1. Browser makes cross-origin request
+#   2. Browser sends OPTIONS preflight request
+#   3. Server responds with CORS headers
+#   4. Browser checks if origin is allowed
+#   5. If allowed: actual request proceeds; otherwise: blocked
+#
+# Usage Examples:
+#   # Python client (cross-origin)
+#   import requests
+#   response = requests.get(
+#       'http://localhost:8000/api/routes',
+#       params={'origin': '40.7,-74.0', 'destination': '40.6,-73.9'}
+#   )
+#
+#   # JavaScript client (browser, cross-origin)
+#   fetch('http://localhost:8000/api/routes', {
+#       method: 'GET',
+#       headers: {
+#           'Authorization': 'Bearer token',
+#           'Content-Type': 'application/json'
+#       },
+#       credentials: 'include'
+#   })
+#
+# Development Configuration (current):
+#   - allow_origins: localhost:3000 (React dev server)
+#   - allow_methods: GET, POST
+#   - allow_headers: Authorization, Content-Type, X-Request-ID
+#   - credentials: true (allows authentication cookies)
+#   - max_age: 600s (10 minutes cache)
+#
+# Production Configuration (recommended):
+#   - allow_origins: ['https://myapp.com', 'https://api.myapp.com']
+#   - allow_methods: ['GET', 'POST', 'OPTIONS']
+#   - allow_credentials: true (if using cookies)
+#   - max_age_seconds: 86400 (24 hours, to minimize preflight requests)
+#
+# Environment Variables:
+#   - STR_API_CORS_ORIGINS: Comma-separated origins (overrides config)
+#   - STR_API_CORS_CREDENTIALS: 'true'/'false' (overrides config)
+#
+# Integration Points:
+#   - Used by: stochastic_transit_router.api.middleware.CORSMiddleware
+#   - Consumed by: All API endpoints (GET /routes, POST /routes-topk, etc)
+#   - Affects: Web application access to API
+#
+# Security Considerations:
+#   - Allowed origins: Restrict to known domains only
+#   - Credentials: Use with caution (allows auth bypassing with XSS)
+#   - Methods: Only allow methods actually needed
+#   - Headers: Whitelist specific headers, not wildcard
+#   - Preflight cache: Longer cache reduces overhead but less flexibility
+#
+# Common Issues:
+#   - Origin not in allow_origins: Browser blocks request with CORS error
+#   - Fix: Add origin to allow_origins list
+#   - CORS error in browser console: Check allow_origins, allow_methods, allow_headers
+#   - Issue: credentials mode but allow_credentials is false
+#   - Fix: Set allow_credentials: true and specify origin (not wildcard)
+#
+# Best Practices:
+#   - Development: Keep as-is (localhost)
+#   - Production: Use specific HTTPS origins
+#   - Never use: allow_origins: ['*'] with allow_credentials: true
+#   - Consider: Using API key header instead of credentials
+#   - Monitor: CORS preflight requests in API metrics
+#
+# Testing CORS:
+#   # Check preflight response headers
+#   curl -i -X OPTIONS http://localhost:8000/api/routes \
+#     -H "Origin: http://localhost:3000" \
+#     -H "Access-Control-Request-Method: GET"
+#
+#   # Expected response includes:
+#   # Access-Control-Allow-Origin: http://localhost:3000
+#   # Access-Control-Allow-Methods: GET, POST
+#   # Access-Control-Allow-Headers: Authorization, Content-Type, X-Request-ID
+#
+# Related Documentation:
+#   - CORS spec: https://fetch.spec.whatwg.org/#cors-protocol
+#   - FastAPI CORS: https://fastapi.tiangolo.com/tutorial/cors/
+#   - API security: docs/reference/security.md
+#   - API endpoints: docs/reference/api.md
+#
+# Last Updated : 2026-04-05
+# Maintained by: API Team
+# Owner: Zakir Bayramov (zakirbayramov942@gmail.com)
+# Classification: Internal
+# =============================================================================
+
+cors:
+  allow_origins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+  allow_methods:
+    - GET
+    - POST
+  allow_headers:
+    - Authorization
+    - Content-Type
+    - X-Request-ID
+  allow_credentials: true
+  max_age_seconds: 600

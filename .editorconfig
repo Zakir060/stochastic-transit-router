@@ -1,0 +1,1008 @@
+# =============================================================================
+# Stochastic Transit Router - EditorConfig Configuration
+# Universal Editor Settings - Consistent Code Formatting Across Tools
+#
+# This file defines consistent editor settings for all contributors and tools.
+# EditorConfig helps maintain consistent coding styles and formatting across
+# different editors and IDEs (VSCode, PyCharm, Vim, Emacs, Sublime, Atom, etc.).
+#
+# EditorConfig ensures:
+# ✓ Consistent indentation (spaces vs tabs, size)
+# ✓ Consistent line endings (LF on all platforms, no CRLF on Windows)
+# ✓ Proper character encoding (UTF-8 for international support)
+# ✓ Trailing whitespace removal (cleaner Git diffs)
+# ✓ Final newlines in all files (POSIX compliance)
+# ✓ Language-specific conventions (PEP 8 for Python, etc.)
+# ✓ No diff pollution (CRLF vs LF changes are invisible in diffs)
+#
+# Supported Editors:
+# - VS Code: "EditorConfig for VS Code" extension (ms-vscode.EditorConfig)
+# - PyCharm: Built-in support (Settings > Editor > Code Style > EditorConfig)
+# - Vim: editorconfig plugin (vim-airline/vim-editorconfig)
+# - Emacs: editorconfig package (editorconfig/editorconfig-emacs)
+# - Sublime Text: EditorConfig plugin
+# - Atom: editorconfig package
+# - Neovim: editorconfig-nvim plugin
+# - IntelliJ IDEA: Built-in support
+#
+# Official Documentation: https://editorconfig.org/
+# Specification: https://spec.editorconfig.org/
+# Property Reference: https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+# =============================================================================
+
+# ============================================================================
+# ROOT CONFIGURATION - CRITICAL
+# ============================================================================
+#
+# This must be set to 'true' for the top-level EditorConfig file.
+# When set to true, EditorConfig stops searching for additional EditorConfig
+# files in parent directories. This prevents inheriting settings from your
+# home directory or system-level EditorConfig files.
+#
+# Without this setting, if users have (~/.editorconfig), those settings might
+# override project settings, causing inconsistencies across the team.
+
+root = true
+
+# ============================================================================
+# UNIVERSAL SETTINGS - Applied to all files in project
+# ============================================================================
+#
+# These settings apply as defaults to every file unless overridden by
+# more specific patterns below. Keep this minimal - override only when needed.
+
+[*]
+description = Universal settings for all files in the project
+
+# Character encoding: UTF-8 is modern standard, required for international support
+# UTF-8 without BOM: Most files should use plain UTF-8
+# Why: Allows international characters, emoji, etc. BOM causes issues in some tools
+charset = utf-8
+
+# Line ending style: LF (Unix/Linux standard) on all platforms
+# - LF (\n): Unix/Linux/macOS standard, compatible with git
+# - CRLF (\r\n): Windows default, causes problems in version control
+# - CR (\r): Old Mac, rarely used
+# Why: Prevents Git from treating CRLF/LF differences as file changes
+end_of_line = lf
+
+# Insert final newline: POSIX compliance, prevents Git warnings
+# If false: Last line has no newline (causes 'No newline at end of file' marker in Git)
+# If true: All files end with newline character (POSIX standard)
+# Why: POSIX-compliant, prevents Git merge conflicts over newlines, cleaner diffs
+insert_final_newline = true
+
+# Indentation style: spaces preferred over tabs
+# - space: Use space characters for indentation (modern standard)
+# - tab: Use tab character for indentation (legacy)
+# Why: Spaces are more portable, render consistently across editors (tabs can be 4-8 characters)
+indent_style = space
+
+# Indentation size: 2 spaces by default for non-Python files
+# Can be overridden per file type (Python uses 4)
+indent_size = 2
+
+# Trim trailing whitespace: Remove spaces/tabs at end of lines
+# Why: Cleaner diffs, fewer Git conflicts, reduces file size slightly
+trim_trailing_whitespace = true
+
+# Max line length: 100 characters default
+# Longer lines are harder to read on narrow screens, split diffs, cause wrapping
+# Can be overridden per file type (YAML often uses 120)
+max_line_length = 100
+
+# ============================================================================
+# PYTHON FILES (.py) - PEP 8 / PEP 484 Compliance
+# ============================================================================
+#
+# PEP 8 (Python Enhancement Proposal 8) defines the standard style guide for
+# Python code. Most Python tools (pytest, mypy, ruff) enforce PEP 8 standards.
+#
+# Reference: https://www.python.org/dev/peps/pep-0008/
+# Enforcement: ruff (in .ruff.toml) and mypy (in .mypy.ini)
+
+[*.py]
+description = Python source code files - PEP 8 compliance
+
+# Python standard: 4 spaces per indentation level
+# Rationale: PEP 8 mandates 4 spaces; this is non-negotiable for Python
+indent_style = space
+indent_size = 4
+
+# Tab width: 4 (for display purposes)
+tab_width = 4
+
+# Python PEP 8 maximum line length: 79 or 100
+# We use 100 to allow slightly longer lines while maintaining readability
+# Tools: ruff and black both support this setting
+max_line_length = 100
+
+# Remove trailing whitespace from Python files
+trim_trailing_whitespace = true
+
+# ============================================================================
+# PYTHON STUB FILES (.pyi) - Type Annotations
+# ============================================================================
+#
+# Stub files (.pyi) contain type annotations for libraries, especially
+# third-party packages without type hints. They must be syntactically valid Python.
+#
+# Reference: https://www.python.org/dev/peps/pep-0484/#stub-files
+
+[*.pyi]
+description = Python type stub files (.pyi) - Type annotations
+
+# Same conventions as .py files
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# YAML FILES - YAML 1.2 Specification
+# ============================================================================
+#
+# YAML (YAML Ain't Markup Language) is used for configuration files.
+# - Cloud-native configs: Kubernetes, Docker Compose, Ansible
+# - Project configs: GitHub Actions workflows, pre-commit
+# - Serialization-like syntax but human-friendly
+#
+# Common practice: 2-space indentation (narrower than Python's 4)
+# Rationale: YAML files tend to be nested deeply, 2-space prevents excessive indentation
+#
+# Reference: https://yaml.org/spec/1.2/spec.html
+
+[*.{yaml,yml}]
+description = YAML configuration files
+
+# YAML conventional indentation: 2 spaces
+# Deep nesting is common in YAML (lists, dicts, nested configs)
+# 2 spaces prevent over-indentation on narrow terminals
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# YAML files can be longer (complex configs), allow 120 characters
+max_line_length = 120
+
+# ============================================================================
+# TOML FILES - TOML Configuration Format
+# ============================================================================
+#
+# TOML (Tom's Obvious, Minimal Language) is used for Python configuration.
+# - pyproject.toml: Python project configuration (PEP 621)
+# - tox.ini: Testing automation
+# - .ruff.toml: Linting/formatting with ruff
+#
+# Reference: https://toml.io/en/
+# Python packaging: https://packaging.python.org/en/latest/
+
+[*.toml]
+description = TOML configuration files (pyproject.toml, ruff.toml, etc.)
+
+# TOML convention: 2-space indentation
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# TOML files can be verbose, allow 120 characters
+max_line_length = 120
+
+# ============================================================================
+# JSON FILES - JavaScript Object Notation
+# ============================================================================
+#
+# JSON is used for data serialization and configuration in some tools.
+# - .vscode/settings.json: VS Code settings
+# - package.json: JavaScript package configuration (if applicable)
+# - Any API responses or data files
+#
+# Note: JSON is not meant for human editing (no comments), prefer TOML/YAML
+#
+# Reference: https://www.json.org/json-en.html
+# JSON Schema: https://json-schema.org/
+
+[*.json]
+description = JSON data and configuration files
+
+# JSON convention: 2-space indentation
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# JSON files kept reasonably concise
+max_line_length = 100
+
+# ============================================================================
+# JSONC FILES - JSON with Comments (VS Code Extension)
+# ============================================================================
+#
+# JSONC is JSON with C-style comments. Used primarily for:
+# - VS Code settings (.vscode/settings.json, launch.json)
+# - VS Code extensions configuration
+# - Configuration files that need comments but aren't YAML
+#
+# Note: Not valid JSON, but supported by VS Code natively
+#
+# Reference: https://code.visualstudio.com/docs/languages/json
+
+[*.jsonc]
+description = JSON with Comments (VS Code configuration)
+
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+# ============================================================================
+# INI / CFG FILES - Configuration Files
+# ============================================================================
+#
+# INI and CFG files use key=value format with sections [section_name].
+# Used by older tools (tox.ini, setup.cfg, pytest.ini).
+#
+# Reference: https://en.wikipedia.org/wiki/INI_file
+# Example: tox.ini, pytest.ini, .flake8, setup.cfg
+
+[*.{ini,cfg}]
+description = INI/CFG configuration files (tox.ini, setup.cfg, pytest.ini, etc.)
+
+indent_style = space
+indent_size = 2
+
+# Config files can have variable-length values, allow 100 characters
+max_line_length = 100
+
+# ============================================================================
+# MARKDOWN FILES - Documentation
+# ============================================================================
+#
+# Markdown is used for all documentation files (.md).
+# - README.md: Project overview
+# - docs/: Comprehensive documentation
+# - Contributing guides, changelog, etc.
+#
+# Special consideration: trim_trailing_whitespace = false
+# Markdown uses double-space at end of line for hard line breaks.
+# Trimming would break intentional line break formatting.
+#
+# Reference: https://www.markdownguide.org/
+# CommonMark: https://spec.commonmark.org/
+
+[*.md]
+description = Markdown documentation files
+
+indent_style = space
+indent_size = 2
+
+# Do NOT trim trailing whitespace in Markdown
+# Markdown interpretation: 2 trailing spaces = hard line break
+trim_trailing_whitespace = false
+
+# Documentation lines can be longer, allow 100 characters
+max_line_length = 100
+
+# ============================================================================
+# SHELL SCRIPTS - Bash/SH Scripting
+# ============================================================================
+#
+# Shell scripts (.sh, .bash, .zsh) for automation and container entry points.
+# - Docker entrypoint.sh: Container startup
+# - CI/CD scripts: GitHub Actions, GitLab CI setup
+# - Deployment scripts: Infrastructure automation
+#
+# Convention: 2-space indentation (matches YAML, Makefiles readability)
+#
+# Reference: https://www.gnu.org/software/bash/manual/
+# Style Guide: https://google.github.io/styleguide/shell.xml
+
+[*.{sh,bash,zsh}]
+description = Shell script files (.sh, .bash, .zsh)
+
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# Shell scripts: 100 character line limit
+max_line_length = 100
+
+# ============================================================================
+# DOCKERFILE - Container Configuration
+# ============================================================================
+#
+# Dockerfiles define container images. Special considerations:
+# - Each RUN command is a layer (affects image size)
+# - Volume paths and ports need clarity
+# - Comment explanations improve maintainability
+#
+# Reference: https://docs.docker.com/engine/reference/builder/
+# Best Practices: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+[Dockerfile]
+description = Docker container configuration
+
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# Dockerfile commands can be long, allow 100 characters
+max_line_length = 100
+
+# ============================================================================
+# DOCKER COMPOSE FILES - Multi-Container Orchestration
+# ============================================================================
+#
+# Docker Compose files (docker-compose.yml, docker-compose.dev.yml) define
+# multi-container applications. YAML format with service definitions.
+#
+# Files:
+# - docker-compose.yml: Production deployment
+# - docker-compose.dev.yml: Development environment
+# - docker-compose.test.yml: CI/CD testing pipeline
+#
+# Reference: https://docs.docker.com/compose/
+# Compose File Format: https://docs.docker.com/compose/compose-file/
+
+[docker-compose*.{yaml,yml}]
+description = Docker Compose orchestration files
+
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# Compose configs can be complex, allow 120 characters
+max_line_length = 120
+
+# ============================================================================
+# MAKE FILES - Build Automation
+# ============================================================================
+#
+# GNU Make is an ancient but powerful build tool. SPECIAL REQUIREMENT:
+# Makefiles REQUIRE TAB characters for indentation under targets.
+# Using spaces causes "missing separator" errors.
+#
+# This is a legacy quirk of Make, not a style choice.
+#
+# Important: MUST use TAB characters (not spaces) for recipe lines.
+#
+# Reference: https://www.gnu.org/software/make/manual/make.html
+# Best Practices: https://www.gnu.org/software/make/manual/make.html#Makefile-Basics
+
+[Makefile]
+description = GNU Make build automation - REQUIRES TABS FOR RECIPES
+
+# Make REQUIRES tab characters for recipe indentation (this is non-negotiable)
+indent_style = tab
+tab_width = 4
+
+# Make commands can span multiple lines
+max_line_length = 100
+
+# ============================================================================
+# SQL FILES - Database Queries
+# ============================================================================
+#
+# SQL files contain database queries and schemas.
+# - Migrations: Database schema changes
+# - Queries: Complex SQL for analysis or initialization
+# - Fixtures: Test data
+#
+# Reference: https://en.wikipedia.org/wiki/SQL
+# Style Guide: https://github.com/SqlServerIO/sql-style-guide
+
+[*.sql]
+description = SQL query and schema files
+
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# SQL queries can be complex, allow 100 characters
+max_line_length = 100
+
+# ============================================================================
+# CSV / TSV FILES - Data Files
+# ============================================================================
+#
+# CSV (Comma-Separated Values) and TSV (Tab-Separated Values) are data formats.
+# Special considerations:
+# - These are DATA, not human-edited configuration
+# - No final newline requirement (data may be parsed byte-for-byte)
+# - Trailing whitespace may be meaningful in data values
+#
+# Note: Do NOT apply formatting rules to data files
+
+[*.{csv,tsv}]
+description = Data files (CSV/TSV)
+
+# Don't trim trailing whitespace (may be meaningful in data)
+trim_trailing_whitespace = false
+
+# Don't insert final newline (data parsing may fail)
+insert_final_newline = false
+
+# ============================================================================
+# TEXT FILES - Plain Text
+# ============================================================================
+#
+# Plain text files without specific formatting requirements.
+# - README.txt: Text-based readmes
+# - .txt files: Miscellaneous text documents
+
+[*.txt]
+description = Plain text files (.txt)
+
+indent_style = space
+indent_size = 2
+
+# Text files: standard 100 character limit
+max_line_length = 100
+
+# ============================================================================
+# SPECIFIC PROJECT FILES - Override for Project Files
+# ============================================================================
+#
+# These files have special requirements within the project.
+
+# .editorconfig: This file itself
+[.editorconfig]
+description = EditorConfig configuration file
+indent_size = 2
+max_line_length = 100
+
+# Git configuration files
+[.gitignore]
+description = Git ignore patterns file
+indent_size = 2
+
+[.gitattributes]
+description = Git attributes file (line ending, diff, merge config)
+indent_size = 2
+
+# Pre-commit hooks configuration
+[.pre-commit-config.yaml]
+description = Pre-commit hooks configuration
+indent_size = 2
+max_line_length = 120
+
+# Tox testing configuration
+[tox.ini]
+description = Tox testing orchestration configuration
+indent_size = 4
+max_line_length = 100
+
+# MyPy type checking configuration
+[.mypy.ini]
+description = MyPy static type checking configuration
+indent_size = 4
+max_line_length = 100
+
+# Ruff linter and formatter configuration
+[.ruff.toml]
+description = Ruff linter and code formatter configuration
+indent_size = 2
+max_line_length = 100
+
+# Citation File Format for academic citation
+[CITATION.cff]
+description = Citation File Format for academic citation
+indent_size = 2
+max_line_length = 120
+
+# ============================================================================
+# GITHUB WORKFLOWS AND TEMPLATES
+# ============================================================================
+#
+# GitHub Actions workflows and issue templates use YAML.
+# These are critical for CI/CD automation and issue management.
+
+[.github/workflows/*.{yaml,yml}]
+description = GitHub Actions CI/CD workflow files
+indent_size = 2
+max_line_length = 120
+
+# GitHub issue templates: Markdown with YAML frontmatter
+[.github/ISSUE_TEMPLATE/*.md]
+description = GitHub issue template files
+indent_size = 2
+
+# Don't trim markdown trailing spaces (for line breaks)
+trim_trailing_whitespace = false
+
+# ============================================================================
+# JUPYTER NOTEBOOKS - Interactive Computing
+# ============================================================================
+#
+# Jupyter Notebooks (.ipynb) are JSON files with code and output cells.
+# They're typically machine-generated, not hand-edited.
+#
+# Reference: https://jupyter.org/
+# Notebook Format: https://nbformat.readthedocs.io/
+
+[*.ipynb]
+description = Jupyter Notebook files (interactive computing)
+
+indent_style = space
+indent_size = 2
+
+# Notebooks can have long cell content
+max_line_length = 120
+
+# Notebooks are JSON, preserve whitespace for compatibility
+trim_trailing_whitespace = false
+
+# ============================================================================
+# DOCUMENTATION SUBDIRECTORY - Docs Organization
+# ============================================================================
+#
+# Documentation files in docs/ subdirectories maintain consistency.
+
+[docs/**/*.md]
+description = Documentation markdown files in docs/
+indent_size = 2
+
+# Documentation lines might be longer, flexible limit
+trim_trailing_whitespace = false
+max_line_length = 100
+
+# Python examples in documentation
+[docs/**/*.py]
+description = Python example files in documentation
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# TEST FILES - Testing Organization
+# ============================================================================
+#
+# Test files follow same conventions as production code for consistency.
+
+[tests/**/*.py]
+description = Python test files
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# DEPENDENCY AND BUILD FILES
+# ============================================================================
+#
+# Files related to dependencies and building. Most are configuration files.
+
+[requirements*.txt]
+description = Python requirements files (pip)
+indent_size = 2
+max_line_length = 100
+
+[setup.py]
+description = Python package setup script
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[setup.cfg]
+description = Python package setup configuration
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[poetry.lock]
+description = Poetry package lock file (machine-generated, do not edit manually)
+
+[Pipfile]
+description = Pipenv dependency file
+
+# ============================================================================
+# BINARY AND COMPRESSED FILES - NO FORMATTING
+# ============================================================================
+#
+# These are binary formats or computed archives. Do not apply any
+# formatting rules. Mark as 'unset' to disable all formatting.
+
+[*.{pkl,pickle,parquet,arrow,msgpack}]
+description = Binary data files (Python pickles, Parquet, etc.)
+
+# Don't apply any formatting to binary files
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# Compressed archives: zip, tar, gzip, etc.
+[*.{gz,zip,tar,tar.gz,tgz,bz2,7z}]
+description = Compressed archive files
+
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# ============================================================================
+# SPECIAL PROJECT FILES - License and Metadata
+# ============================================================================
+#
+# Special files like LICENSE, AUTHORS, CHANGELOG have specific requirements.
+
+[{LICENSE,AUTHORS,CHANGELOG,SECURITY}]
+description = Special project files (license, authors, changelog, security)
+
+# These files must have proper line endings and final newlines
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+# ============================================================================
+# TROUBLESHOOTING AND COMMON ISSUES
+# ============================================================================
+#
+# Issue: "missing separator" in Makefile
+# Solution: Ensure Makefile uses TAB for recipe indentation, not spaces.
+# This is an EditorConfig setting: indent_style = tab
+#
+# Issue: VS Code not picking up EditorConfig
+# Solution: Install "EditorConfig for VS Code" extension from marketplace
+# Some projects include .editorconfig in .gitignore (remove it!)
+#
+# Issue: Different indentation in different editors
+# Solution: Verify EditorConfig extension is installed and enabled
+# Check: Help > About > Extensions (EditorConfig should be installed)
+#
+# Issue: CRLF vs LF differences in Git
+# Solution: Set end_of_line = lf in EditorConfig (this file)
+# This ensures git status is clean and diffs are minimal
+#
+# Issue: Trailing whitespace in Markdown breaks line breaks
+# Solution: Set trim_trailing_whitespace = false for .md files
+# Markdown uses double-space for hard line breaks
+#
+# ============================================================================
+# QUICK REFERENCE - Common Properties
+# ============================================================================
+#
+# charset = utf-8                  Character encoding (UTF-8 recommended)
+# end_of_line = lf|crlf|cr         Line ending (lf for Unix/Mac/Linux)
+# indent_style = space|tab         Spaces vs tabs (space recommended)
+# indent_size = 2|4|8              Spaces per indentation (Python=4, others=2)
+# tab_width = 2|4|8                Tab width for display (usually = indent_size)
+# trim_trailing_whitespace = true  Remove trailing spaces/tabs on lines
+# insert_final_newline = true      All files end with newline (POSIX)
+# max_line_length = 80|100|120     Maximum characters per line
+#
+# ============================================================================
+# EDITOR-SPECIFIC NOTES
+# ============================================================================
+#
+# VS Code:
+# - Install: "EditorConfig for VS Code" (ms-vscode.EditorConfig)
+# - Settings apply automatically when extension detects .editorconfig
+# - Override in settings.json using [python] or [markdown] keys
+#
+# PyCharm / IntelliJ IDEA:
+# - Built-in support (no extension needed)
+# - Settings > Editor > Code Style > EditorConfig
+# - Can show notifications if EditorConfig overrides IDE settings
+#
+# Vim:
+# - Plugin: vim-airline/vim-editorconfig (vim-plug, Vundle, pathogen)
+# - Automatically applies settings on file load
+#
+# Emacs:
+# - Package: editorconfig/editorconfig-emacs
+# - Add to .emacs.d/init.el: (editorconfig-mode 1)
+#
+# ============================================================================
+
+# Metadata and version information
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+# License: EUPL-1.2
+
+# ============================================================================
+# UNIVERSAL SETTINGS (All files)
+# ============================================================================
+
+[*]
+description = Universal settings for all files
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+max_line_length = 100
+
+# ============================================================================
+# PYTHON FILES (.py)
+# ============================================================================
+
+[*.py]
+description = Python source code files
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 100
+
+# ============================================================================
+# PYTHON STUB FILES (.pyi)
+# ============================================================================
+
+[*.pyi]
+description = Python type stub files
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# YAML FILES (.yaml, .yml)
+# ============================================================================
+
+[*.{yaml,yml}]
+description = YAML configuration files
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 120
+
+# ============================================================================
+# TOML FILES (.toml)
+# ============================================================================
+
+[*.toml]
+description = TOML configuration files (pyproject.toml, etc.)
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 120
+
+# ============================================================================
+# JSON FILES (.json, .jsonc)
+# ============================================================================
+
+[*.json]
+description = JSON data files
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+[*.jsonc]
+description = JSON with Comments (VS Code settings)
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+# ============================================================================
+# INI/CFG FILES
+# ============================================================================
+
+[*.{ini,cfg}]
+description = INI/CFG configuration files
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ============================================================================
+# MARKDOWN FILES (.md)
+# ============================================================================
+
+[*.md]
+description = Markdown documentation files
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = 100
+
+# ============================================================================
+# SHELL SCRIPTS (.sh, .bash, .zsh)
+# ============================================================================
+
+[*.{sh,bash,zsh}]
+description = Shell script files
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+# ============================================================================
+# DOCKERFILE
+# ============================================================================
+
+[Dockerfile]
+description = Docker container configuration
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+# ============================================================================
+# DOCKER COMPOSE FILES
+# ============================================================================
+
+[docker-compose*.{yaml,yml}]
+description = Docker Compose orchestration files
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 120
+
+# ============================================================================
+# MAKE FILES (Makefile)
+# ============================================================================
+
+[Makefile]
+description = GNU Make build automation - REQUIRES TABS
+indent_style = tab
+tab_width = 4
+max_line_length = 100
+
+# ============================================================================
+# SQL FILES (.sql)
+# ============================================================================
+
+[*.sql]
+description = SQL query files
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 100
+
+# ============================================================================
+# CSV/TSV FILES
+# ============================================================================
+
+[*.{csv,tsv}]
+description = Data files (CSV/TSV)
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+# ============================================================================
+# TEXT FILES (.txt)
+# ============================================================================
+
+[*.txt]
+description = Plain text files
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ============================================================================
+# SPECIFIC CONFIGURATION FILES
+# ============================================================================
+
+[.editorconfig]
+description = EditorConfig file itself
+indent_size = 2
+max_line_length = 100
+
+[.gitignore]
+description = Git ignore patterns
+indent_size = 2
+
+[.gitattributes]
+description = Git attributes
+indent_size = 2
+
+[.pre-commit-config.yaml]
+description = Pre-commit templates configuration
+indent_size = 2
+max_line_length = 120
+
+[tox.ini]
+description = Tox testing configuration
+indent_size = 4
+max_line_length = 100
+
+[.mypy.ini]
+description = MyPy type checking configuration
+indent_size = 4
+max_line_length = 100
+
+[.ruff.toml]
+description = Ruff linter configuration
+indent_size = 2
+max_line_length = 100
+
+[CITATION.cff]
+description = Citation File Format
+indent_size = 2
+max_line_length = 120
+
+# ============================================================================
+# GITHUB WORKFLOWS
+# ============================================================================
+
+[.github/workflows/*.{yaml,yml}]
+description = GitHub Actions workflows
+indent_size = 2
+max_line_length = 120
+
+[.github/ISSUE_TEMPLATE/*.md]
+description = GitHub issue templates
+indent_size = 2
+trim_trailing_whitespace = false
+
+# ============================================================================
+# JUPYTER NOTEBOOKS
+# ============================================================================
+
+[*.ipynb]
+description = Jupyter Notebook files
+indent_size = 2
+max_line_length = 120
+trim_trailing_whitespace = false
+
+# ============================================================================
+# DOCUMENTATION FILES
+# ============================================================================
+
+[docs/**/*.md]
+description = Documentation markdown files
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = 100
+
+[docs/**/*.py]
+description = Python examples in docs
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# TEST FILES
+# ============================================================================
+
+[tests/**/*.py]
+description = Python test files
+indent_size = 4
+max_line_length = 100
+
+# ============================================================================
+# BUILD/DEPENDENCY FILES
+# ============================================================================
+
+[{requirements*.txt,setup.py,setup.cfg,poetry.lock,Pipfile}]
+description = Dependency management files
+indent_size = 2
+max_line_length = 100
+
+# ============================================================================
+# BINARY AND COMPRESSED FILES (NO FORMATTING)
+# ============================================================================
+
+[*.{pkl,pickle,parquet,arrow,msgpack}]
+description = Binary data files
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+[*.{gz,zip,tar,tar.gz}]
+description = Compressed data files
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# ============================================================================
+# SPECIAL PROJECT FILES
+# ============================================================================
+
+[{LICENSE,AUTHORS,CHANGELOG,SECURITY}]
+description = Special project files
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+# ============================================================================
+# CONFIGURATION NOTES
+# ============================================================================
+
+# This EditorConfig ensures:
+# ✓ Consistent indentation across all editors
+# ✓ Consistent line endings (LF on all platforms)
+# ✓ Proper UTF-8 encoding throughout
+# ✓ No trailing whitespace (cleaner diffs)
+# ✓ Final newline in all text files
+# ✓ Language-specific conventions followed
+# ✓ Compliance with Python PEP 8, YAML standards
+
+# Required extensions:
+# - VS Code: "EditorConfig for VS Code" extension
+# - PyCharm: Built-in support
+# - Vim: editorconfig plugin
+# - Emacs: editorconfig package
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov

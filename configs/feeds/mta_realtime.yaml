@@ -1,0 +1,117 @@
+# =============================================================================
+# Stochastic Transit Router - MTA GTFS-Realtime Feed Configuration
+# Route Intelligence Platform - NYC Real-time Transit Updates Feed
+#
+# File        : configs/feeds/mta_realtime.yaml
+# Description : Configuration for MTA GTFS-Realtime (GTFS-RT) feed.
+#               Provides real-time trip updates, service alerts, and vehicle positions.
+#               Enables live route updates with current delays and disruptions.
+# Purpose     : Manage MTA GTFS-RT real-time data ingestion
+#
+# Feed Details:
+#   - Provider: MTA API (api.mta.info)
+#   - Data: Trip delays, service alerts, vehicle positions
+#   - Format: Protocol Buffers (protobuf)
+#   - Update frequency: Every 30 seconds
+#   - Polling: HTTP with optional API key
+#
+# Feed Categories:
+#   - Subway GTFS-RT: 7 line groups (A/C/E, B/D/F/M, G, J/Z, N/Q/R/W, L, numbered)
+#   - LIRR/Metro-North: Long Island Rail Road, Metro-North Railroad
+#   - Service alerts: Subway, Bus, LIRR, Metro-North
+#   - Elevator/Escalator status (XML and JSON)
+#
+# Configuration Sections:
+#   - feed: Basic metadata and URLs
+#   - polling: Update strategy and timing
+#   - provenance: Tracking of real-time updates
+#
+# Polling Strategy:
+#   - interval: 30 seconds (balance freshness vs API load)
+#   - timeout: 15 seconds (prevent hung connections)
+#   - max_failures: 10 consecutive before alert
+#
+# Usage:
+#   from stochastic_transit_router.ingest import load_realtime_feed
+#   rt_data = load_realtime_feed(config)  # Automatically refreshes
+#
+# Provenance Tracked:
+#   - Timestamp of each poll
+#   - Entity counts (trips, alerts, vehicles)
+#   - Parse errors (for quality monitoring)
+#
+# Integration with Graph:
+#   - Trip updates: Applied to graph edge weights (delays)
+#   - Service alerts: Update disruption penalties
+#   - Vehicle positions: Optional (not used for routing)
+#
+# API Key:
+#   - Optional but recommended
+#   - Source: MTA developer registration
+#   - Environment: MTA_API_KEY
+#
+# Related Configs:
+#   - Static schedule: configs/feeds/mta_gtfs.yaml
+#   - Graph updates: configs/graph/update_policy.yaml
+#
+# Last Updated: 2026-04-05
+# Owner: Data Engineering Team
+# =============================================================================
+
+feed:
+  id: mta_gtfs_realtime
+  provider: Metropolitan Transportation Authority
+  city: nyc
+  access_method: http_polling
+  format: gtfs_realtime_protobuf
+  documentation_urls:
+    - https://api.mta.info/
+    - https://gtfs.org/documentation/realtime/reference/
+  registration_required: false
+  credentials_env_var: MTA_API_KEY
+  realtime_urls:
+    # Subway GTFS-Realtime feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si
+    # Railroad GTFS-Realtime feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr
+    # GTFS service alerts protobuf feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Flirr-alerts
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fmnr-alerts
+    # Service alerts JSON feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Flirr-alerts.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fmnr-alerts.json
+    # Elevator and escalator XML feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.xml
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_upcoming.xml
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.xml
+    # Elevator and escalator JSON feeds
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_upcoming.json
+    - https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json
+  notes:
+    - Realtime endpoint URLs are configured from official MTA developer sources.
+    - Polling uses optional x-api-key header when MTA_API_KEY is present.
+
+polling:
+  interval_seconds: 30
+  timeout_seconds: 15
+  max_consecutive_failures: 10
+
+provenance:
+  record_poll_timestamp: true
+  record_entity_counts: true
+  record_parse_errors: true

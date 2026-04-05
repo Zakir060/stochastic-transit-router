@@ -1,0 +1,42 @@
+# =============================================================================
+# Stochastic Transit Router - YAML Configuration File
+#
+# File        : tests\cases\walking\midday\query_case_003.yaml
+# Description : [Describe what this configuration file does]
+# Purpose     : [Explain the purpose and usage]
+#
+# Configuration Sections:
+#   - [Section 1]: [Description]
+#   - [Section 2]: [Description]
+#
+# Usage Examples:
+#   # [Example usage]
+#
+# Environment Variables:
+#   - [List any environment variables]
+#
+# Integration Points:
+#   - Consumed by: [What consumes this config]
+#   - Related files: [Related configuration files]
+#   - Used by: [Who uses this]
+#
+# Maintenance Notes:
+#   - [Maintenance considerations]
+#
+# Last Updated : 2026-04-05
+# Maintained by: [Team Name]
+# =============================================================================
+
+﻿# SPDX-License-Identifier: EUPL-1.2
+query_set:
+  suite: walking
+  segment: midday
+  city: nyc
+  source_stop_id: 640N
+  destination_stop_id: 129S
+  departure_time_local: "2026-04-05T12:10:00"
+  objective: walking
+  assertions:
+    - path_exists
+    - positive_cost
+    - transfer_count_nonnegative

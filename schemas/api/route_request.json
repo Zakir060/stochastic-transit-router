@@ -1,0 +1,35 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "Route Request",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "alpha":  {
+                                     "type":  "number"
+                                 },
+                       "source":  {
+                                      "type":  "string"
+                                  },
+                       "destination":  {
+                                           "type":  "string"
+                                       },
+                       "objective":  {
+                                         "type":  "string"
+                                     },
+                       "departure_time":  {
+                                              "type":  "string"
+                                          },
+                       "lambda":  {
+                                      "type":  "number"
+                                  },
+                       "tau":  {
+                                   "type":  "integer"
+                               }
+                   },
+    "required":  [
+                     "source",
+                     "destination",
+                     "departure_time",
+                     "objective"
+                 ]
+}

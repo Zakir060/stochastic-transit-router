@@ -1,0 +1,712 @@
+# =============================================================================
+# Stochastic Transit Router - Ruff Python Linter & Formatter Configuration
+# Fast, Unified Python Linting and Code Formatting in One Tool
+#
+# Ruff is a unified, ultra-fast Python linter and formatter written in Rust.
+# It replaces: black (formatter), isort (import sorting), flake8 (linter),
+# pylint, pyupgrade, and many others - all in a single tool.
+#
+# This configuration enforces:
+# - PEP 8 code style and best practices
+# - Import organization and sorting
+# - Type annotation completeness (using pyupgrade)
+# - Security best practices
+# - Common Python anti-patterns
+# - Docstring requirements
+# - Auto-formatting to consistent style
+#
+# Official Documentation: https://docs.astral.sh/ruff/
+# Rules Reference: https://docs.astral.sh/ruff/rules/
+# Configuration: https://docs.astral.sh/ruff/configuration/
+# =============================================================================
+
+# ============================================================================
+# GLOBAL CONFIGURATION
+# ============================================================================
+
+# Target Python version - must match project minimum version (3.12+)
+# Used for understanding language features and applying appropriate rules
+target-version = "py312"
+
+# Maximum line length before wrapping/flagging
+# Standard: 88 (Black style), Project standard: 100 (more readable for complex code)
+# Applied to: formatter (hard limit), linter (warning threshold)
+line-length = 100
+
+# Source code directories to analyze
+# Ruff will scan these directories for Python files and check them
+# Include: source code, tests, scripts, benchmarks
+src = ["src", "tests", "scripts", "benchmarks"]
+
+# Namespace packages (PEP 420) - no need for __init__.py in directories
+# Relevant for mono-repos where directories don't have __init__.py
+namespace-packages = true
+
+# ============================================================================
+# LINTING CONFIGURATION - Rules and Checks
+# ============================================================================
+
+[lint]
+
+# ============================================================================
+# RULE SELECTION - Which checks to enable
+# ============================================================================
+
+# Rules to enable (selected at project level)
+# Organized by category with explanations below
+select = [
+  # ======================================================================
+  # E   - pycodestyle errors (PEP 8 violations)
+  # ======================================================================
+  # Includes: indentation, whitespace, imports, line breaks
+  # Examples: E501 (line too long), E302 (blank lines), E501 (unused import)
+  "E",
+
+  # ======================================================================
+  # F   - Pyflakes errors (logical errors, undefined names)
+  # ======================================================================
+  # Includes: undefined variables, unused imports, duplicate definitions
+  # Examples: F401 (unused import), F821 (undefined name), F841 (unused var)
+  "F",
+
+  # ======================================================================
+  # I   - isort (import sorting and organization)
+  # ======================================================================
+  # Ensures: imports are sorted, organized by category, no duplicates
+  # Examples: I001 (unsorted imports), I002 (duplicate import)
+  "I",
+
+  # ======================================================================
+  # B   - flake8-bugbear (catches common bugs and anti-patterns)
+  # ======================================================================
+  # Includes: except clauses, lambda abuse, mutable defaults
+  # Examples: B006 (mutable default), B008 (function call in default)
+  "B",
+
+  # ======================================================================
+  # UP  - pyupgrade (modernizes code to newer Python syntax)
+  # ======================================================================
+  # Includes: type hints, f-strings, deprecated syntax
+  # Examples: UP009 (UTF-8 encoding), UP035 (Dict[str, int] → dict[str, int])
+  "UP",
+
+  # ======================================================================
+  # N   - pep8-naming (enforces naming conventions)
+  # ======================================================================
+  # Includes: variable, function, class naming conventions
+  # Examples: N801 (class name lowercase), N802 (function name uppercase)
+  "N",
+
+  # ======================================================================
+  # ANN - flake8-annotations (enforces type annotations)
+  # ======================================================================
+  # Includes: function arguments and return types must be annotated
+  # Examples: ANN001 (no argument annotation), ANN202 (no return type)
+  "ANN",
+
+  # ======================================================================
+  # D   - pydocstyle (docstring quality and style)
+  # ======================================================================
+  # Includes: docstring presence, format, completeness
+  # Examples: D100 (missing module docstring), D200 (one-liner format)
+  "D",
+
+  # ======================================================================
+  # S   - bandit (security checks)
+  # ======================================================================
+  # Includes: hardcoded passwords, SQL injection, insecure deserialization
+  # Examples: S101 (assert used), S104 (hardcoded bind 0.0.0.0)
+  "S",
+
+  # ======================================================================
+  # RUF - Ruff-specific rules (Ruff's own lints)
+  # ======================================================================
+  # Includes: Ruff improvements, contextual checks, refactorings
+  # Examples: RUF001 (ambiguous character), RUF013 (explicit ellipsis)
+  "RUF",
+]
+
+# ============================================================================
+# RULE IGNORING - Exceptions to rules
+# ============================================================================
+
+# Global rules to ignore (project-wide exceptions)
+# When specific rules conflict with project style or legitimate patterns
+ignore = [
+  # ====================================================================
+  # D100 - Missing module docstring
+  # ====================================================================
+  # Modules don't always need module-level docstrings if purpose is clear
+  # Only required for public APIs and complex modules
+  "D100",
+
+  # ====================================================================
+  # D104 - Missing docstring in __init__.py
+  # ====================================================================
+  # Package __init__.py files might be empty or very simple
+  # Docstring goes at module level if needed
+  "D104",
+
+  # ====================================================================
+  # D107 - Missing docstring in __init__ method
+  # ====================================================================
+  # __init__ docstrings are often redundant with class docstring
+  # Use class docstring instead for initialization details
+  "D107",
+
+  # ====================================================================
+  # S101 - Use of assert
+  # ====================================================================
+  # Assert is allowed in tests and internal assertions
+  # Disabled here because tests need asserts; re-enabled in src/
+  # Note: Removed from production code as per Python best practices
+  "S101",
+]
+
+# ============================================================================
+# PER-FILE IGNORE RULES - Different rules for different file types
+# ============================================================================
+
+[lint.per-file-ignores]
+
+# ====================================================================
+# Test files - Relaxed rules for test code
+# ====================================================================
+# Tests are not production code, different standards apply
+# Examples: test_*.py, tests/**/*.py
+"tests/**/*.py" = [
+  # ================================================================
+  # ANN - Annotations - Not required in test code
+  # ================================================================
+  # Test fixtures and helper functions don't need type hints
+  # Enables faster test development
+  "ANN",
+
+  # ================================================================
+  # D - Docstrings - Minimal docstrings in tests
+  # ================================================================
+  # Test function names should be self-documenting
+  # Long docstrings are unnecessary for tests
+  "D",
+
+  # ================================================================
+  # S101 - Allow assert in tests
+  # ================================================================
+  # Assertions are the primary test validation mechanism
+  # Without this, every assert would be flagged as error
+  "S101",
+
+  # ================================================================
+  # S102 - Exec in tests allowed
+  # ================================================================
+  # Some tests legitimately use exec for testing eval scenarios
+  "S102",
+]
+
+# ====================================================================
+# Script files - Moderate annotation requirements
+# ====================================================================
+# Scripts are utilities and automation, less formal than main code
+"scripts/**/*.py" = [
+  # ================================================================
+  # ANN - Annotations - Optional for scripts
+  # ================================================================
+  # Scripts don't need complete annotations if simple and used once
+  "ANN",
+
+  # ================================================================
+  # D - Docstrings - Relaxed for scripts
+  # ================================================================
+  # Script purpose might be obvious from filename and arguments
+  "D",
+]
+
+# ====================================================================
+# Benchmarks - Testing-like lax rules
+# ====================================================================
+"benchmarks/**/*.py" = [
+  "ANN",     # Benchmark functions don't need annotations
+  "D",       # Minimal docstrings
+  "S101",    # Allow assertions for test validation
+]
+
+# ====================================================================
+# Experiments - Relaxed rules for exploratory code
+# ====================================================================
+"experiments/**/*.py" = [
+  "ANN",     # Experimental code doesn't need full annotations
+  "D",       # Documentation lighter in experiments
+  "S",       # Security checks less critical in experiments
+]
+
+# ============================================================================
+# SPECIFIC RULE CONFIGURATION
+# ============================================================================
+
+[lint.extend-safe-fixes]
+# Fixes that Ruff should automatically apply without user intervention
+# These are safe because they don't change code semantics
+"F401" = ["remove-all-unused-imports"]  # Remove ALL unused imports (safe)
+"I" = ["sort-and-format-imports"]        # Sort imports (safe)
+"UP" = ["modernize-python-syntax"]       # Use modern syntax (safe)
+
+[lint.flake8-annotations]
+# Configuration for annotation checking (ANN rule)
+# Strictness level for type annotation requirements
+allow-star-arg-any = false         # *args: ...Any not allowed
+allow-untyped-self = true          # self parameter can be untyped (convention)
+suppress-dummy-args = false         # Don't suppress args starting with _
+suppress-none-returning = false     # Require -> None on functions
+
+[lint.isort]
+# Configuration for import sorting (I rule)
+# Follow Python import standard: stdlib, third-party, local
+force-single-line = false          # Don't force each import on own line
+force-wrap-aliases = false         # Don't force from X import (Y as Z)
+force-to-top = ["future"]          # __future__ imports always at top
+known-first-party = [              # Treat these as first-party (local)
+  "src",
+  "stochastic_transit_router",
+]
+known-third-party = [              # Explicitly mark third-party imports
+  "fastapi",
+  "pydantic",
+  "networkx",
+  "numpy",
+  "polars",
+  "shapely",
+]
+split-on-comma = false             # Don't split imports on comma
+
+[lint.pydocstyle]
+# Configuration for docstring checking (D rule)
+# Use Google-style docstrings (standard for scientific Python)
+convention = "google"              # Google style: """Summary.\n\n    Details."""
+match-dir = "(?!test_).*"           # Apply to all except test files
+
+[lint.pylint]
+# Configuration for pylint-style checks
+max-branches = 12                  # Maximum branches in function (complexity)
+max-statements = 50                # Maximum statements allowed in function
+
+[lint.flake8-bugbear]
+# Configuration for flake8-bugbear (B rule)
+extend-immutable-calls = [         # Functions guaranteed safe (no side effects)
+  "fastapi.FastAPI",
+  "pydantic.BaseModel",
+]
+
+[lint.flake8-builtins]
+# Configuration for built-in name shadowing checks
+# Names to NOT flag as shadowing built-ins (context-dependent)
+builtins-ignorelist = [
+  "id",      # Common variable name in data contexts
+  "type",    # Common variable name in type contexts
+]
+
+# ============================================================================
+# IMPORT SORTING GROUPS
+# ============================================================================
+
+[lint.isort]
+# Import organization groups (in order)
+# Group 1: __future__ (must be first)
+# Group 2: Standard library (sys, os, json, etc.)
+# Group 3: Third-party (fastapi, pydantic, numpy, etc.)
+# Group 4: Local/first-party (src, stochastic_transit_router, etc.)
+# Group 5: Local relative imports (. or ..)
+
+known-first-party = ["stochastic_transit_router", "src"]
+
+# ============================================================================
+# FORMATTING CONFIGURATION - Code Style
+# ============================================================================
+
+[format]
+
+# ============================================================================
+# QUOTE STYLE - String quotation marks
+# ============================================================================
+
+# Quote style: "double" or "single"
+# Project uses: double quotes (Python convention, Black default)
+# Exceptions: strings containing double quotes use single quotes
+quote-style = "double"
+
+# Automatically format strings that can use triple quotes
+# Formats long strings as """...""" for readability
+docstring-quotes = "double"
+
+# ============================================================================
+# INDENTATION AND SPACING
+# ============================================================================
+
+# Indent style: "space" (not tabs)
+# Spaces per indentation level: 4 (Python standard)
+indent-style = "space"
+
+# ============================================================================
+# LINE ENDINGS
+# ============================================================================
+
+# Line ending style
+# LF (Unix style, \n) - project standard
+# CRLF (Windows style, \r\n) - not used
+# Auto (detect from file)
+line-ending = "lf"
+
+# ============================================================================
+# SKIP AND EXCLUDE PATTERNS
+# ============================================================================
+
+[lint]
+
+# Patterns to ignore completely (skip linting entirely)
+# These files won't be checked at all
+exclude = [
+  # Python internals
+  "__pycache__",
+  "__pypackages__",
+  ".python-version",
+  ".pytest_cache",
+  ".venv",
+  ".env",
+  "venv",
+
+  # IDEs and editors
+  ".idea",
+  ".vscode",
+  ".mypy_cache",
+  ".ruff_cache",
+
+  # Build and distribution
+  "build",
+  "dist",
+  "*.egg-info",
+  ".eggs",
+  ".tox",
+
+  # Version control
+  ".git",
+  ".github",
+  ".gitignore",
+
+  # Generated and temporary files
+  "*.pyc",
+  "*.pyo",
+  "*.pyd",
+  "*.so",
+  "*.dylib",
+  ".coverage",
+  "htmlcov",
+  "coverage.xml",
+]
+
+# Files to format but not lint
+# These get formatted but not checked for style violations
+format_exclude = [
+  "setup.py",
+  "setup.cfg",
+  "__init__.pyi",
+]
+
+# ============================================================================
+# PERFORMANCE SETTINGS
+# ============================================================================
+
+# Number of worker threads for parallel processing
+# 0 = auto-detect (use CPU count)
+# Set to high number to use all cores (faster on multi-core systems)
+# Default: 1 (single-threaded)
+# Note: Usually auto-detected, shown for documentation
+
+# Unsafe fixes that might change code semantics
+# Only apply if user explicitly requests: ruff check --fix --unsafe
+# Examples: removing assignments, changing comparison operators
+unsafe-fixes = false
+
+# ============================================================================
+# DISPLAY AND OUTPUT SETTINGS
+# ============================================================================
+
+# Show statistics: number of errors by code
+# Useful for seeing which rules are most common
+# Enable with: ruff check --statistics
+
+# Show fixed issues
+# Useful for understanding what was auto-fixed
+# Enable with: ruff format --diff
+
+# ============================================================================
+# RUFF-SPECIFIC RULES CONFIGURATION
+# ============================================================================
+
+[lint.ruff]
+
+# Ruff's own rules (RUF prefix)
+# These are Ruff-specific improvements beyond standard linters
+
+# RUF001 - Ambiguous variable names (l, O, I)
+# Detects: single letter that looks like number (l→1, O→0, I→l)
+
+# RUF002 - Ambiguous docstring quote characters
+# Detects: quotes in docstrings that look like code
+
+# RUF003 - Ambiguous leading zero
+# Detects: octal notation that looks decimal (0100 when 0o100 intended)
+
+# RUF013 - Unnecessary ellipsis
+# Detects: ... used where not needed (stubs, abstracts)
+
+# RUF100 - Unused isort or noqa directive
+# Detects: # isort: skip or # noqa that don't suppress anything
+
+# ============================================================================
+# UNSAFE FIXES (Only applied with --unsafe flag)
+# ============================================================================
+
+# These fixes are powerful but risky - might change code semantics
+# Enable with: ruff check --fix --unsafe
+
+# DEFAULT UNSAFE FIXES ARE:
+# - Removing unused variables (might not be truly unused)
+# - Changing comparison operators (== vs is)
+# - Modifying return statements
+# - Deleting exception handling
+
+# We keep these disabled by default to be conservative
+
+# ============================================================================
+# PRACTICAL EXAMPLES AND COMMON PATTERNS
+# ============================================================================
+
+# EXAMPLE: Correctly formatted code
+# ===================================
+#
+# # Module docstring (required)
+# """Module for transit graph operations.
+#
+# This module provides functions for building and querying transit networks.
+# """
+#
+# # Imports: stdlib, third-party, local (sorted alphabetically within groups)
+# from __future__ import annotations
+#
+# import json
+# import logging
+# from pathlib import Path
+# from typing import Optional
+#
+# import networkx as nx
+# from pydantic import BaseModel
+#
+# from src.graph.core import Graph
+#
+# # Constants (CONSTANT_CASE)
+# MAX_RETRIES = 3
+# DEFAULT_TIMEOUT = 30
+#
+# # Class definition with docstring and type hints
+# class TransitNode(BaseModel):
+#     """A node in the transit network.
+#
+#     Attributes:
+#         id: Unique node identifier
+#         name: Human-readable node name
+#         lat: Latitude coordinate
+#         lon: Longitude coordinate
+#     """
+#
+#     id: int
+#     name: str
+#     lat: float
+#     lon: float
+#
+# def compute_shortest_path(
+#     graph: Graph,
+#     origin: int,
+#     destination: int,
+# ) -> Optional[list[int]]:
+#     """Compute shortest path in graph.
+#
+#     Args:
+#         graph: Transit network graph
+#         origin: Starting node ID
+#         destination: Ending node ID
+#
+#     Returns:
+#         List of node IDs from origin to destination, or None if no path
+#     """
+#     # Implementation
+#     return None
+#
+
+# ============================================================================
+# RUNNING RUFF
+# ============================================================================
+
+# Check code for violations:
+#   ruff check src/
+#
+# Fix violations automatically:
+#   ruff check --fix src/
+#
+# Apply unsafe fixes (be careful):
+#   ruff check --fix --unsafe src/
+#
+# Format code (auto-formatting):
+#   ruff format src/
+#
+# Show what would be formatted (dry-run):
+#   ruff format --diff src/
+#
+# Show statistics (which rules violated most):
+#   ruff check --statistics src/
+#
+# Check single file:
+#   ruff check src/module.py
+#
+# Show code for violation:
+#   ruff check --show-settings src/
+#
+# Update to latest rules:
+#   ruff rule E501  # Show details for rule E501
+#
+
+# ============================================================================
+# INTEGRATION WITH OTHER TOOLS
+# ============================================================================
+
+# PRE-COMMIT INTEGRATION:
+# =======================
+# Ruff runs automatically before commits via .pre-commit-config.yaml
+# Stops commit if violations found (unless --no-verify used)
+#
+# Command: pre-commit run ruff-check --all-files
+# Command: pre-commit run ruff-format --all-files
+#
+
+# VS CODE INTEGRATION:
+# ====================
+# Install: Ruff extension for VS Code
+# Settings in .vscode/settings.json:
+#
+# {
+#   "[python]": {
+#     "editor.defaultFormatter": "charliermarsh.ruff",
+#     "editor.formatOnSave": true,
+#     "editor.codeActionsOnSave": {
+#       "source.fixAll.ruff": true
+#     }
+#   },
+#   "ruff.importStrategy": "fromEnvironment",
+#   "ruff.lint.args": ["--config=.ruff.toml"]
+# }
+#
+
+# PYCHARM INTEGRATION:
+# ====================
+# Settings → Languages & Frameworks → Python → Linter
+# Select Ruff as linter
+# Point to .ruff.toml configuration file
+# PyCharm will highlight violations in editor
+#
+
+# ============================================================================
+# RULE CODE REFERENCE (QUICK LOOKUP)
+# ============================================================================
+
+# E/W - pycodestyle (PEP 8 violations)
+#   E1: Indentation
+#   E2: Whitespace
+#   E3: Blank lines
+#   E5: Line length
+#   W: Warnings
+#
+# F - Pyflakes (undefined names, unused imports)
+#   F4: Import errors
+#   F8: Name errors
+#   F8: Local variable errors
+#
+# I - isort (import sorting)
+#   I1: Unsorted imports
+#   I2: Missing imports
+#
+# B - flake8-bugbear (common bugs)
+#   B0: General categories
+#   B1: Logical errors
+#   B9: Advanced topics
+#
+# UP - pyupgrade (modernization)
+#   UP0: Syntax improvements
+#   UP1: Type hint improvements
+#   UP2: Deprecated syntax
+#
+# N - pep8-naming (naming conventions)
+#   N8: Naming convention violations
+#
+# ANN - flake8-annotations (type hints required)
+#   ANN1: Function argument annotations
+#   ANN2: Return value annotations
+#
+# D - pydocstyle (docstrings)
+#   D1: Missing docstrings
+#   D2: Docstring formatting
+#   D8: Docstring content
+#
+# S - bandit (security)
+#   S1: General security
+#   S3: SQL injection
+#   S6: Cryptography
+#   S7: Pickle security
+#
+# RUF - Ruff-specific
+#   RUF: Ruff improvements
+#
+
+# ============================================================================
+# NOTES AND BEST PRACTICES
+# ============================================================================
+
+# 1. AUTOPSY:
+#    Run regularly: ruff check --fix && ruff format
+#    Keeps code clean and consistent throughout development
+#
+# 2. PRE-COMMIT:
+#    Hooks run before every commit
+#    Prevents committing code that violates rules
+#    Ensures main branch always follows standards
+#
+# 3. OVERRIDE WHEN NECESSARY:
+#    # noqa - Suppress violations on specific line
+#    # type: ignore - Suppress type checking
+#    Use sparingly and document WHY override needed
+#
+# 4. IDE SUPPORT:
+#    Use IDE with Ruff integration for real-time feedback
+#    Errors show inline as you type
+#    Much faster feedback than running command-line tool
+#
+# 5. GRADUAL ADOPTION:
+#    If adding Ruff to existing project:
+#    - Start with format only
+#    - Gradually enable lint rules
+#    - Fix violations in phases
+#
+
+# ============================================================================
+# CONFIGURATION MAINTENANCE
+# ============================================================================
+
+# Keep up-to-date:
+#   pip install --upgrade ruff          # Latest version
+#   ruff rule                            # List all available rules
+#   ruff rule E501                       # Show details for rule
+#
+# Import rules for new dependencies:
+#   Add to [lint.isort] known-third-party when adding dependencies
+#
+
+# Last Updated: 2026-04-05
+# Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
+

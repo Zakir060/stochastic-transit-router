@@ -1,0 +1,39 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "NYC TLC Yellow Taxi",
+    "type":  "object",
+    "additionalProperties":  false,
+    "properties":  {
+                       "trip_distance":  {
+                                             "type":  "number"
+                                         },
+                       "pickup_datetime":  {
+                                               "type":  "string"
+                                           },
+                       "DOLocationID":  {
+                                            "type":  "integer"
+                                        },
+                       "PULocationID":  {
+                                            "type":  "integer"
+                                        },
+                       "congestion_surcharge":  {
+                                                    "type":  "number"
+                                                },
+                       "vendor_id":  {
+                                         "type":  "string"
+                                     },
+                       "dropoff_datetime":  {
+                                                "type":  "string"
+                                            },
+                       "total_amount":  {
+                                            "type":  "number"
+                                        }
+                   },
+    "required":  [
+                     "pickup_datetime",
+                     "dropoff_datetime",
+                     "trip_distance",
+                     "PULocationID",
+                     "DOLocationID"
+                 ]
+}
