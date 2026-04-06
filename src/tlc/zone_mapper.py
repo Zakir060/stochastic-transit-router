@@ -32,11 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module zone_mapper.
-"""Module zone_mapper.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""zone_mapper module."""
 
 from __future__ import annotations
 

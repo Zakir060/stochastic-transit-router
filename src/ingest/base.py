@@ -32,11 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module base.
-"""Module base.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""base module."""
 
 from __future__ import annotations
 

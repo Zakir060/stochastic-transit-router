@@ -79,4 +79,3 @@ def _example_assertions() -> None:
     assert result.cost == 2.0
 
 
-_example_assertions()

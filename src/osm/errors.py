@@ -32,8 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module errors.
-"""Error types for src/osm/errors.py."""
+"""errors module."""
 
 from __future__ import annotations
 

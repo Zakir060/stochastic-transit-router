@@ -15,10 +15,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module stop.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""stop module."""
 
 from __future__ import annotations
 

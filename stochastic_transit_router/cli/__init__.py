@@ -1,0 +1,1 @@
+"""CLI compatibility wrapper package."""

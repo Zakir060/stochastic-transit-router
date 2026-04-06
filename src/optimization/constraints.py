@@ -32,11 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module constraints.
-"""Module constraints.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""constraints module."""
 
 from __future__ import annotations
 

@@ -15,10 +15,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module route_topk.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""route_topk module."""
 
 from __future__ import annotations
 

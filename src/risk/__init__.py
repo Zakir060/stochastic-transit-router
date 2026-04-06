@@ -32,8 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module __init__.
-"""Package initialization for src/risk/__init__.py."""
+"""__init__ module."""
 
 from __future__ import annotations
 

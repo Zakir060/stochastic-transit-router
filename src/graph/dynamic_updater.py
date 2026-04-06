@@ -32,11 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module dynamic_updater.
-"""Module dynamic_updater.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""dynamic_updater module."""
 
 from __future__ import annotations
 

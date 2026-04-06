@@ -32,10 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module conflict_resolver.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""conflict_resolver module."""
 
 from __future__ import annotations
 

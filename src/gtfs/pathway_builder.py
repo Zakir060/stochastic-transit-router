@@ -32,10 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module pathway_builder.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""pathway_builder module."""
 
 from __future__ import annotations
 

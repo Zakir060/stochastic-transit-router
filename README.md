@@ -112,17 +112,17 @@ STR combines **deterministic routing algorithms** with **statistical inference**
 - Risk metrics (Value-at-Risk, Conditional VaR)
 - Parametric modeling of delay distributions
 
-#### ✓ Data Integration (Complete)
+#### ⚙ Data Integration (Scaffolded)
 - **GTFS Static Schedules:** MTA public transit network (500+ stations, 50k+ trips)
 - **GTFS-Realtime Updates:** Live delays, cancellations, alerts (30-60 sec updates)
 - **OpenStreetMap:** Pedestrian network for walking connections
 - **NYC TLC:** Historical taxi/FHV trip records for pattern learning
 
-#### ✓ Production Features (Complete)
+#### ✓ Developer Interfaces (MVP)
 - **REST API:** FastAPI-based with rate limiting and health checks
 - **CLI Interface:** Command-line tool for batch processing
-- **Docker Deployment:** Containerized with health probes and resource limits
-- **Graph Serialization:** Pre-computed ~500MB graph loaded in <2 seconds
+- **Docker Deployment:** Not included in this snapshot
+- **Graph Serialization:** Interface scaffold present; external graph build is not included in this snapshot
 - **Reproducibility:** Complete provenance tracking with SHA-256 verification
 
 #### ⚙ Real-time Integration (Scaffolded)
@@ -134,13 +134,13 @@ STR combines **deterministic routing algorithms** with **statistical inference**
 
 | Feature | Status | Details |
 |---------|--------|---------|
-| **Unit Tests** | ✓ Complete | 126+ tests, 80%+ coverage |
-| **Integration Tests** | ✓ Complete | E2E API/CLI testing |
-| **Type Checking** | ✓ Complete | mypy strict mode enforcement |
-| **Code Linting** | ✓ Complete | ruff with pre-commit hooks |
-| **Performance Testing** | ✓ Complete | Benchmark suite with pytest-benchmark |
-| **Security Scanning** | ✓ Complete | Pre-commit secret detection |
-| **Documentation** | ✓ Complete | 15 ADRs, API/CLI reference, math docs |
+| **Unit Tests** | ✓ Basic smoke tests | Core algorithm/API/ingest coverage for the current snapshot |
+| **Integration Tests** | ⚙ Partial | API and CLI smoke-level validation |
+| **Type Checking** | ⚙ Planned | Configuration can be added once more modules are implemented |
+| **Code Linting** | ⚙ Planned | Repository structure is ready for ruff/pre-commit integration |
+| **Performance Testing** | ⚙ Planned | Benchmark command currently acts as a placeholder |
+| **Security Scanning** | ⚙ Planned | Add scanning in CI once packaging stabilizes |
+| **Documentation** | ✓ Strong draft | Extensive docs exist, but some sections describe future scope |
 
 ---
 
@@ -174,10 +174,10 @@ python -m pip install -e ".[dev,test,benchmarks,notebooks]"
 pre-commit install
 
 # 5. Verify installation
-pytest tests/ -q --cov=src
+pytest -q
 ```
 
-**Expected output:** All tests pass, 80%+ coverage
+**Expected output:** smoke tests pass
 **Time:** ~3-5 minutes (depending on internet speed)
 
 ### First Route Query
@@ -188,16 +188,15 @@ pytest tests/ -q --cov=src
 uvicorn src.api.app:app --reload --port 8000
 
 # Terminal 2: Query routes
-curl -X GET "http://localhost:8000/api/routes?origin=123&destination=456&departure_time=1712282400"
+curl -X POST "http://localhost:8000/routes" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"A","destination":"D","departure_time":"2026-04-05T08:00:00Z","objective":"fastest"}'
 ```
 
 #### Via CLI
 ```bash
 # Direct command-line query
-python -m src.cli.main routes \
-  --origin 123 \
-  --destination 456 \
-  --time "2026-04-05T08:00:00Z"
+python -m src.cli.main route A D
 ```
 
 **Response includes:**
@@ -371,10 +370,7 @@ curl "http://localhost:8000/api/routes?origin=127&destination=456&departure_time
 python -m src.cli.main --help
 
 # Route query
-python -m src.cli.main routes \
-  --origin 123 \
-  --destination 456 \
-  --time "2026-04-05T08:00:00Z" \
+python -m src.cli.main route A D \
   --algorithm dijkstra
 
 # Batch mode (from file)

@@ -32,10 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module validator.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""validator module."""
 
 from __future__ import annotations
 

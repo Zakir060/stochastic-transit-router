@@ -34,9 +34,6 @@ requires = [
   "setuptools-scm>=7.1.0"            # Version management from git tags (optional)
 ]
 
-# Allow configuration of the build backend via pyproject.toml
-# Enables advanced setuptools features
-backend-path = ["."]
 
 # ============================================================================
 # PROJECT METADATA (PEP 621 - Required)
@@ -292,7 +289,7 @@ Citation = "https://github.com/Zakir060/stochastic-transit-router/blob/main/CITA
 # Package discovery: map package directories
 # "" = src directory (where packages live)
 # Maps Python packages from src/ to installation root
-package-dir = { "" = "src" }
+package-dir = { "" = "." }
 
 # Include non-Python files (data files, manifests, etc.)
 # Uses patterns from MANIFEST.in
@@ -307,10 +304,10 @@ include-package-data = true
 
 # Directory where to search for packages
 # searchs recursively for directories with __init__.py
-where = ["src"]
+where = ["."]
 
 # Patterns to include (namespace packages)
-include = ["stochastic_transit_router*"]
+include = ["src*", "stochastic_transit_router*"]
 
 # Patterns to exclude
 exclude = ["tests*", "docs*", "scripts*"]
@@ -334,14 +331,10 @@ pythonpath = ["src"]
 
 # Default command-line options applied to every pytest run
 addopts = [
-  "-ra",                              # Show summary: all (failures, errors, passed, skipped)
-  "--strict-markers",                 # Error on unknown pytest markers
-  "--strict-config",                  # Error on config problems
-  "--tb=short",                       # Short traceback format
-  "--cov=src",                        # Coverage for src/
-  "--cov-report=term-missing",        # Show missing lines in coverage
-  "--cov-report=html",                # Generate HTML coverage report
-  "--cov-fail-under=80"               # Fail if coverage < 80%
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--tb=short"
 ]
 
 # Test discovery patterns

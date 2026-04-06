@@ -32,11 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module goodness_of_fit.
-"""Module goodness_of_fit.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""goodness_of_fit module."""
 
 from __future__ import annotations
 

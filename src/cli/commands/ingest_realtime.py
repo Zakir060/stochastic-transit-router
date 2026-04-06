@@ -15,10 +15,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module ingest_realtime.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""ingest_realtime module."""
 
 from __future__ import annotations
 

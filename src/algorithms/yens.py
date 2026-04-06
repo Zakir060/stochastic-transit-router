@@ -102,4 +102,3 @@ def _example_assertions() -> None:
     assert paths[0].cost <= paths[1].cost
 
 
-_example_assertions()

@@ -32,10 +32,7 @@
 # Review Status   : Draft
 # Last Reviewed   : 2026-04-05
 # =============================================================================
-"""Module transfer_connector.
-
-This module is part of the stochastic-transit-router production codebase.
-"""
+"""transfer_connector module."""
 
 from __future__ import annotations
 
