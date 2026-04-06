@@ -873,3 +873,10 @@ generated_*.json
 # Last Updated: 2026-04-05
 # Maintained by: Zakir Bayramov, Gustav Olaf Yunus Laitinen-Lundström Fredriksson-Imanov
 
+
+build/
+.pytest_cache/
+.pytest.log
+*.egg-info/
+__pycache__/
+*.pyc

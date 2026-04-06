@@ -1,3 +1,0 @@
-[console_scripts]
-stochastic-transit-router = src.cli.main:app
-str = src.cli.main:app
